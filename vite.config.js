@@ -7,8 +7,6 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": "/src",
-      "pages": "/src/pages",
-      "router": "/src/router"
     }
   },
   server: {

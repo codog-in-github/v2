@@ -1,6 +1,8 @@
 import axios from 'axios';
 import {
-  checkLoginStatus,
+  checkHttpState,
+  checkJSONCode,
+  getData,
 } from './middleware';
 import { cloneDeep } from 'lodash';
 
@@ -16,7 +18,9 @@ class Request {
     this.targetUrl = url;
     this.requestMiddleware = [];
     this.responseMiddleware = [
-      checkLoginStatus,
+      checkHttpState,
+      checkJSONCode,
+      getData
     ];
   }
 
