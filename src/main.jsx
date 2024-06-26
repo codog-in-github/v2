@@ -1,10 +1,25 @@
-import ReactDOM from 'react-dom/client'
+import ReactDOM from 'react-dom/client';
+import React from 'react';
 import App from './App.jsx'
-import 'handsontable/dist/handsontable.full.min.css';
 import { registerAllModules } from 'handsontable/registry';
+import { ConfigProvider } from 'antd';
+
 import './main.css'
+import 'handsontable/dist/handsontable.full.min.css';
+
+const antdGlobalConfig = {
+  theme: {
+    token: {
+      colorPrimary: '#426CF6',
+    }
+  }
+};
 
 registerAllModules();
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <App />,
+  <React.StrictMode>
+    <ConfigProvider {...antdGlobalConfig}>
+        <App />
+      </ConfigProvider>
+  </React.StrictMode>
 )

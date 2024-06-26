@@ -5,7 +5,13 @@ export default {
     "./src/**/*.{js,jsx}"
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'login-gradient-dark': '#5169dc',
+        'login-gradient-light': '#8ac6f4',
+        'primary': '#426CF6'
+      }
+    },
   },
   plugins: [],
 }
