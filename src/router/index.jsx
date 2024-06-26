@@ -1,6 +1,8 @@
 import { createBrowserRouter } from "react-router-dom";
 import Login from "@/pages/Login.jsx";
 import Err404 from "@/pages/Err/404.jsx";
+import NavLayout from "@/components/NavLayout";
+import MainContent from "@/components/MainContent";
 
 const router = createBrowserRouter([
   {
@@ -8,11 +10,11 @@ const router = createBrowserRouter([
     element: <Login />,
   },
   {
-    element: <Login />,
+    element: <NavLayout />,
     children: [
       {
-        path: '/dashboard',
-        element: <Login />
+        path: '/top',
+        element: <MainContent />
       }
     ]
   },
