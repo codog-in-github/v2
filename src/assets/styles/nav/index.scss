@@ -1,0 +1,32 @@
+$nav-button-height: 40px;
+$nav-button-width: 120px;
+
+.nav-button-bg{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: $nav-button-height / 2;
+}
+
+.nav-button {
+  height: $nav-button-height;
+  line-height: $nav-button-height;
+  width: $nav-button-width;
+  text-align: center;
+  &.active {
+    .nav-button-text{
+      color: #fff;
+      position: relative;
+      z-index: 2;
+    }
+    .nav-button-bg{
+      background: linear-gradient(
+        to right,
+        #54AEE2,
+        #2D5EEB
+      );
+    }
+  }
+}

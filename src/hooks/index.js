@@ -32,7 +32,7 @@ export function useInput (initialValue) {
  *                             当依赖数组中的任一元素发生变化时，动画状态将会更新。
  */
 export function useAnimate(play, dependency) {
-  const [lastState, setLastState] = useState(false)
+  const [lastState, setLastState] = useState(null)
   useEffect(() => {
     setLastState(play(lastState))
   }, dependency)

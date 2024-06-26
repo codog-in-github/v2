@@ -8,7 +8,6 @@ function MainContent() {
         <Card />
         <Card />
         <Card />
-        {/* Repeat Card component as needed */}
       </div>
       <div className="mt-8">
         <h2 className="text-xl font-semibold mb-4">直近完了</h2>

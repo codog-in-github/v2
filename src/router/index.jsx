@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import Login from "@/pages/Login.jsx";
 import Err404 from "@/pages/Err/404.jsx";
 import NavLayout from "@/components/NavLayout";
-import MainContent from "@/components/MainContent";
+import Top from "@/pages/top/Index";
 
 const router = createBrowserRouter([
   {
@@ -14,7 +14,19 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/top',
-        element: <MainContent />
+        element: <Top />
+      },
+      {
+        path: '/po',
+        element: <></>
+      },
+      {
+        path: '/drive',
+        element: <></>
+      },
+      {
+        path: '/acl',
+        element: <></>
       }
     ]
   },
