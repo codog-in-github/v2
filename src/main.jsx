@@ -4,7 +4,6 @@ import App from './App.jsx'
 import { registerAllModules } from 'handsontable/registry';
 import { ConfigProvider } from 'antd';
 
-import '@/assets/styles/main.css'
 import '@/assets/styles/public.scss'
 import 'handsontable/dist/handsontable.full.min.css';
 
