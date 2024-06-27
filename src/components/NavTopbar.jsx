@@ -12,10 +12,10 @@ function Navbar() {
         <NavButton to="/top">TOP</NavButton>
         <NavButton to="/po">PO</NavButton>
         <NavButton to="/drive">DRIVE</NavButton>
-        <NavButton to="">通関資料</NavButton>
+        <NavButton to="/customs">通関資料</NavButton>
         <NavButton to="/acl">ACL</NavButton>
-        <NavButton to="">許可</NavButton>
-        <NavButton to="">請求書</NavButton>
+        <NavButton to="/permission">許可</NavButton>
+        <NavButton to="/invoice">請求書</NavButton>
       </NavButtonGroup>
       <div className="flex items-center ml-auto">
         <Avatar></Avatar>

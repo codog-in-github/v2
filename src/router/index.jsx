@@ -3,7 +3,19 @@ import Login from "@/pages/Login.jsx";
 import Err404 from "@/pages/Err/404.jsx";
 import NavLayout from "@/components/NavLayout";
 import Top from "@/pages/top/Index";
-
+// 还没写的页面 占个位先
+const placeholderUrls = [
+  '/po',
+  '/drive',
+  '/customs',
+  '/acl',
+  '/permission',
+  '/invoice',
+  '/customer',
+  '/order',
+  '/calendar',
+  '/ship',
+]
 const router = createBrowserRouter([
   {
     path: "/",
@@ -16,18 +28,10 @@ const router = createBrowserRouter([
         path: '/top',
         element: <Top />
       },
-      {
-        path: '/po',
+      ...placeholderUrls.map(url => ({
+        path: url,
         element: <></>
-      },
-      {
-        path: '/drive',
-        element: <></>
-      },
-      {
-        path: '/acl',
-        element: <></>
-      }
+      }))
     ]
   },
   {

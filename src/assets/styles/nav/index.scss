@@ -1,20 +1,26 @@
-$nav-button-height: 40px;
-$nav-button-width: 120px;
 
-.nav-button-bg{
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: $nav-button-height / 2;
+.nav-button-group{
+  --nav-button-height: 40px;
+  --nav-button-width: 120px;
+  --nav-button-bg-radius: 20px;
+  --nav-button-text-align: center;
+  --nav-button-padding-left: 0;
+  &.rect{
+    --nav-button-bg-radius: 5px;
+  }
+
+  &.align-left{
+    --nav-button-text-align: left;
+    --nav-button-padding-left: 10px;
+  }
 }
 
 .nav-button {
-  height: $nav-button-height;
-  line-height: $nav-button-height;
-  width: $nav-button-width;
-  text-align: center;
+  height: var(--nav-button-height);
+  line-height: var(--nav-button-height);
+  width: var(--nav-button-width);
+  text-align: var(--nav-button-text-align);
+  padding-left: var(--nav-button-padding-left);
   &.active {
     .nav-button-text{
       color: #fff;
@@ -29,4 +35,13 @@ $nav-button-width: 120px;
       );
     }
   }
+}
+
+.nav-button-bg{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--nav-button-bg-radius);
 }

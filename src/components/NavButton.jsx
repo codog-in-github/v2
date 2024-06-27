@@ -21,6 +21,13 @@ export function NavButton(props) {
 }
 
 export function NavButtonGroup(props) {
+  const classes = [
+    'nav-button-group flex',
+    {
+      'rect': props.rect,
+      'align-left': props.align === 'left'
+    }
+  ]
   const boxRef = useRef(null)
   useAnimate((last) => {
     const bgDom = boxRef.current.querySelector('.active .nav-button-bg')
@@ -45,7 +52,7 @@ export function NavButtonGroup(props) {
     return null
   }, [useHref()])
   const className = classnames(
-    'nav-button-group flex',
+    classes,
     props.className
   )
   return (
