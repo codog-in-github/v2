@@ -8,7 +8,7 @@ function Navbar() {
     <div className="bg-white shadow p-4 flex items-center">
       <img className='mr-2' src={logo}></img>
       <div className='font-semibold text-lg'>春海組システム</div>
-      <NavButtonGroup className="ml-4 space-x-4">
+      <NavButtonGroup className="ml-20 space-x-4">
         <NavButton to="/top">TOP</NavButton>
         <NavButton to="/po">PO</NavButton>
         <NavButton to="/drive">DRIVE</NavButton>

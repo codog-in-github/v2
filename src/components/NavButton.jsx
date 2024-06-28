@@ -1,4 +1,5 @@
 import { useAnimate } from '@/hooks';
+import anime from 'animejs';
 import classnames from 'classnames';
 import { useRef } from 'react';
 import { useHref } from 'react-router-dom';
@@ -34,14 +35,12 @@ export function NavButtonGroup(props) {
     if(bgDom) {
       const rect = bgDom.getBoundingClientRect()
       if(last) {
-        bgDom.animate([
-          {
-            transform: `translate(${last.left - rect.left}px, ${last.top - rect.top}px)`,
-          },
-          {}
-        ], {
+        anime({
+          targets: bgDom,
+          translateX: [last.left - rect.left, 0],
+          translateY: [last.top - rect.top, 0],
           duration: 200,
-          easing: 'ease-in-out'
+          easing: 'easeInOutQuad',
         })
       }
       return {
