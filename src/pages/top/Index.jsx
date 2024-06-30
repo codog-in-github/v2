@@ -6,8 +6,8 @@ import AddCard from './AddCard';
 
 function MainContent() {
   return (
-    <div className="flex-1 flex">
-      <div className='flex-1 p-4 '>
+    <div className="flex">
+      <div className='top-main flex-1'>
         <div className="flex gap-4 flex-wrap">
           <AddCard />
           <Card />

@@ -4,11 +4,13 @@ import { Outlet } from 'react-router-dom';
 
 function NavLayout() {
   return (
-    <div className="flex flex-col h-screen">
+    <div className="nav-layout flex flex-col h-screen">
       <NavTopbar />
-      <div className="flex-1 flex bg-gray-50">
+      <div className="flex-1 flex">
         <NavSidebar />
-        <Outlet />
+        <div className='nav-layout-main'>
+          <Outlet />
+        </div>
       </div>
     </div>
   );

@@ -53,7 +53,7 @@ function Timer(props) {
 function Card({ end }) {
   const cardRef = useRef(null);
   return (
-    <div ref={cardRef} className="bg-white w-64 h-36 p-4 shadow rounded flex-shrink-0 flex flex-col">
+    <div ref={cardRef} className="top-card bg-white p-4 shadow rounded flex-shrink-0 flex flex-col">
       <div className='flex flex-1'>
         <CompanyAvatar bg={end ? '#8f8f8f' : '#426cf6'}>無</CompanyAvatar>
         <div className='ml-4'>
