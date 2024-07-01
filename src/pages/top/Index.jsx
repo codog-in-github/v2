@@ -3,14 +3,17 @@ import Card from './Card';
 import Message from './Message';
 import './top.scss'
 import AddCard from './AddCard';
+import { namespaceClass } from '@/helpers/style';
+import classNames from 'classnames';
+const c = namespaceClass('page-top')
 
 function MainContent() {
   return (
     <div className="flex">
-      <div className='top-main flex-1'>
+      <div className={classNames(c('main-content'), 'flex-1')}>
         <div className="flex gap-4 flex-wrap">
           <AddCard />
-          <Card />
+          <Card active />
           <Card />
           <Card />
           <Card />
@@ -24,7 +27,7 @@ function MainContent() {
           </div>
         </div>
         </div>
-      <div className="p-2 w-64 bg-white">
+      <div className={classNames(c('message-bar'), 'p-2 bg-white')}>
         <div className="flex mb-4">
           <div className='mr-auto'>社内伝達</div>
           <div className='mr-1'>@ME</div>

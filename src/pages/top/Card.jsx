@@ -1,5 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { useState } from 'react';
+import classNames from 'classnames';
+import { namespaceClass } from '@/helpers/style';
+
+const c = namespaceClass('top-card');
 
 function CompanyAvatar (props) {
   return <div
@@ -50,10 +54,14 @@ function Timer(props) {
   )
 }
 
-function Card({ end }) {
+function Card({ end, active }) {
   const cardRef = useRef(null);
+  const boxClass = classNames(
+    c('card', { active }),
+    'bg-white p-4 shadow rounded flex-shrink-0 flex flex-col'
+  )
   return (
-    <div ref={cardRef} className="top-card bg-white p-4 shadow rounded flex-shrink-0 flex flex-col">
+    <div ref={cardRef} className={boxClass}>
       <div className='flex flex-1'>
         <CompanyAvatar bg={end ? '#8f8f8f' : '#426cf6'}>無</CompanyAvatar>
         <div className='ml-4'>

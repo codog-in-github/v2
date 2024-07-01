@@ -1,10 +1,21 @@
-.top-card{
+.top-card-add__card,
+.top-card__card{
   width: 316px;
   height: 160px;
+  border: 1px solid transparent;
+
+  &.top-card__active{
+    border: 2px solid #2F62EB;
+  }
 }
 
-.top-main{
-  padding: 20px;
+.page-top{
+  &__main-content{
+    padding: 20px;
+  }
+  &__message-bar{
+    width: 336px;
+  }
 }
 
 .message-at{

@@ -4,13 +4,14 @@ import App from './App.jsx'
 import { registerAllModules } from 'handsontable/registry';
 import { ConfigProvider } from 'antd';
 
-import '@/assets/styles/public.scss'
+import '@/assets/styles/public.scss';
 import 'handsontable/dist/handsontable.full.min.css';
+import theme from '@/../theme.yml';
 
 const antdGlobalConfig = {
   theme: {
     token: {
-      colorPrimary: '#426CF6',
+      colorPrimary: theme.colors.primary,
     }
   }
 };
