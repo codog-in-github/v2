@@ -38,7 +38,7 @@ function Card () {
 
 export default function Login() {
   return (
-    <div className='h-screen flex items-center justify-center bg-gradient-to-tr from-login-gradient-light to-login-gradient-dark'>
+    <div className='h-screen flex items-center justify-center bg-gradient-to-tr from-primary-200 to-primary-400'>
       <div>
         <img src={leftImage}></img>
       </div>

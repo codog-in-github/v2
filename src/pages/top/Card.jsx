@@ -2,17 +2,9 @@ import { useEffect, useRef } from 'react';
 import { useState } from 'react';
 import classNames from 'classnames';
 import { namespaceClass } from '@/helpers/style';
+import CompanyAvatar from '@/components/CompanyAvatar';
 
 const c = namespaceClass('top-card');
-
-function CompanyAvatar (props) {
-  return <div
-    className='flex-shrink-0 flex rounded text-white justify-center items-center w-12 h-12 text-lg'
-    style={{
-      backgroundColor: props.bg
-    }}
-  >{props.children}</div>
-}
 
 function getTimeDistant(start, end) {
   start = Math.floor(start.valueOf() / 1000)
@@ -54,19 +46,29 @@ function Timer(props) {
   )
 }
 
-function Card({ end, active }) {
+function Card({
+  end,
+  active,
+  avatarText,
+  avatarColor,
+  companyName,
+  contactPerson,
+  contactPhone,
+  warningTime,
+  onClick
+}) {
   const cardRef = useRef(null);
   const boxClass = classNames(
     c('card', { active }),
     'bg-white p-4 shadow rounded flex-shrink-0 flex flex-col'
   )
   return (
-    <div ref={cardRef} className={boxClass}>
+    <div ref={cardRef} className={boxClass} onClick={onClick}>
       <div className='flex flex-1'>
-        <CompanyAvatar bg={end ? '#8f8f8f' : '#426cf6'}>無</CompanyAvatar>
+        <CompanyAvatar bg={avatarColor} text={avatarText}></CompanyAvatar>
         <div className='ml-4'>
-          <div className="font-semibold">無錫永興貨運有限公司</div>
-          <div className="mt-2 text-sm text-gray-500">宋琴 | 86-15240056982</div>
+          <div className="font-semibold">{companyName}</div>
+          <div className="mt-2 text-sm text-gray-500">{contactPerson} | {contactPhone}</div>
         </div>
       </div>
       {
@@ -74,7 +76,7 @@ function Card({ end, active }) {
           <div className='text-gray-800'>2024年6月3日18:00:58</div>
           <div className='ml-auto p-2 bg-gray-200 rounded'>吉田</div>
         </div>
-          : <Timer end={new Date(Date.now() + 3600000)}></Timer>
+          : <Timer end={warningTime}></Timer>
       }
     </div>
   );

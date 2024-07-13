@@ -3,7 +3,18 @@
 @tailwind utilities;
 
 @import './nav/index.scss';
+@import './antd/index.scss';
 
 body{
   color: #1B1B1B;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 8px;
+  background-color: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: $color-primary;
+  border-radius: 9999px;
 }

@@ -1,7 +1,8 @@
 import { createBrowserRouter } from "react-router-dom";
 import Login from "@/pages/Login.jsx";
 import Err404 from "@/pages/Err/404.jsx";
-import NavLayout from "@/components/NavLayout";
+import { SideLayout, TopLayout } from "@/components/NavLayout";
+import OrderDetail from "@/pages/orderDetail/Index";
 import Top from "@/pages/top/Index";
 import Po from "@/pages/po/Index";
 // 还没写的页面 占个位先
@@ -22,20 +23,29 @@ const router = createBrowserRouter([
     element: <Login />,
   },
   {
-    element: <NavLayout />,
+    element: <TopLayout />,
     children: [
       {
-        path: '/top',
-        element: <Top />
+        path: '/orderDetail',
+        element: <OrderDetail />
       },
       {
-        path: '/po',
-        element: <Po />
-      },
-      ...placeholderUrls.map(url => ({
-        path: url,
-        element: <></>
-      }))
+        element: <SideLayout />,
+        children: [
+          {
+            path: '/top',
+            element: <Top />
+          },
+          {
+            path: '/po',
+            element: <Po />
+          },
+          ...placeholderUrls.map(url => ({
+            path: url,
+            element: <></>
+          }))
+        ]
+      }
     ]
   },
   {

@@ -1,5 +1,6 @@
 .nav-layout-main{
   flex: 1;
+  overflow: auto;
 }
 
 .nav-layout{
@@ -60,8 +61,11 @@
     .nav-button-bg{
       background: linear-gradient(
         to right,
-        #54AEE2,
-        #2D5EEB
+        mix(
+          $color-primary-300,
+          $color-success-300
+        ),
+        $color-primary-500,
       );
     }
   }

@@ -2,10 +2,10 @@
 .top-card__card{
   width: 316px;
   height: 160px;
-  border: 1px solid transparent;
+  @apply border-2 border-transparent cursor-pointer;
 
   &.top-card__active{
-    border: 2px solid #2F62EB;
+    @apply border-primary
   }
 }
 
@@ -23,7 +23,7 @@
   height: 1.5em;
   line-height: 1.5em;
   border-radius: 1.5em;
-  color: #2F62EB;
+  color: $color-primary;
   background-color: #dde4f4;
   padding: 0 10px;
 }

@@ -1,14 +1,42 @@
-function Card ({ end, color = 'red' }) {
-  const style = {}
+import { namespaceClass } from "@/helpers/style"
+import classNames from "classnames"
+import Color from "color"
+import './index.scss'
+import moment from 'moment'
+import { themeColor } from "@/helpers/color"
+const c = namespaceClass('op-card')
+
+function Card ({
+  end,
+  color = 'primary',
+  avatarColor = '#ddd',
+  avatorText = '',
+  address = '',
+  date
+}) {
+  const grayscale = {}
   if (end) {
-    style.filter = 'grayscale(100%)'
+    grayscale.filter = 'grayscale(100%)'
   }
+  const isDarkAvatar = Color(avatarColor).isDark()
+  const m = moment(date)
+  const md = m.format('MM-DD')
+  const hm = m.format('HH:mm')
   return (
-    <div className={`border-2 border-${color}-400 border-t-4 rounded`} style={style}>
+    <div className={classNames(c('', color))} style={{ ...grayscale }}>
       <div className="flex p-2">
-        <div className={`rounded-full w-8 h-8 bg-${color}-400`}></div>
+        <div
+          className={
+            classNames('rounded-full w-8 h-8 leading-8 text-center', {
+              'text-white': isDarkAvatar,
+              'text-black': !isDarkAvatar
+            })
+          }
+          style={{ backgroundColor: avatarColor }}>
+            {avatorText}
+        </div>
         <div className="ml-2">
-          <div>中国浙江省宁波市鄞州区中…</div> 
+          <div>{address}</div> 
           <div>KOBE-SHANGHAI</div>
         </div>
       </div>
@@ -21,9 +49,11 @@ function Card ({ end, color = 'red' }) {
           </div>
           <div className="text-sm text-gray-400 mt-2">GQF413SK202</div>
         </div>
-        <div className={`bg-${color}-100 w-16 flex items-center justify-center flex-col`}>
-          <div>06-03</div>
-          <div>15:00</div>
+        <div
+          className="flex justify-center items-center flex-col px-2"
+          style={{ backgroundColor: themeColor(color, 90) }}>
+          <div>{md}</div>
+          <div>{hm}</div>
         </div>
       </div>
     </div>
@@ -36,10 +66,10 @@ function Po () {
       <div className="bg-white  m-2 rounded-lg shadow p-4">
         <div>未完成</div>
         <div className="flex gap-8 flex-wrap mt-4">
-          <Card />
-          <Card color="amber" />
-          <Card />
-          <Card />
+          <Card avatarColor="red" avatorText="你" address="中国浙江省宁波市鄞州区中…" date={Date.now()} />
+          <Card avatarColor="gold" color="success" avatorText="好" address="中国浙江省宁波市鄞州区中…" />
+          <Card avatarColor="green" avatorText="世" />
+          <Card avatarColor="lightblue" avatorText="界" />
         </div>
       </div>
       <div className="bg-white  m-2 rounded-lg shadow p-4">

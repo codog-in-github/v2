@@ -1,0 +1,9 @@
+common:
+  systemName: 東京
+layout:
+  menu:
+    top: top
+    po: po
+    driver: driver
+    customsDocu: 通関資料
+    customerList: 顧客名簿

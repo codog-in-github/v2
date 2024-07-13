@@ -1,0 +1,10 @@
+.ant-modal-content{
+  background-image: linear-gradient(
+    to bottom,
+    $color-primary-50,
+    transparent 100px,
+  );
+}
+.ant-modal-header{
+  background-color: transparent !important;
+}

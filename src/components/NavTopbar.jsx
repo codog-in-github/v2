@@ -7,9 +7,9 @@ import { HomeFilled } from '@ant-design/icons';
 
 const c = namespaceClass('nav-top-bar')
 
-const NavTopbar = () => {
+const NavTopbar = ({ className }) => {
   return (
-    <div className={classnames(c(''), 'bg-white flex items-center')}>
+    <div className={classnames(c(''), 'bg-white flex items-center', className)}>
       <img className={classnames(c('logo'))} src={logo}></img>
       <div className={classnames(c('title'))}>春海組システム</div>
       <NavButtonGroup className="ml-20 space-x-4">

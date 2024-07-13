@@ -1,0 +1,19 @@
+.op-card{
+  @apply border-2 border-t-4 rounded;
+  &__datetime{
+    @apply w-16 flex items-center justify-center flex-col;
+  }
+  
+  &__primary{
+    @apply border-primary-500;
+  }
+  &__primary &__datetime{
+    @apply bg-primary-50;
+  }
+  &__success{
+    @apply border-success-500;
+  }
+  &__success &__datetime{
+    @apply bg-success-50;
+  }
+}

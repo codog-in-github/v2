@@ -1,21 +1,18 @@
 import { useAnimate } from '@/hooks';
 import anime from 'animejs';
-import classnames from 'classnames';
+import classNames from 'classnames';
 import { useRef } from 'react';
 import { useHref } from 'react-router-dom';
 import { NavLink } from 'react-router-dom';
 
 export function NavButton(props) {
-  const staticClass = [
-    'nav-button',
-    'relative'
-  ]
+  const staticClass = 'nav-button relative'
   return (
     <NavLink
       to={props.to}
-      className={({isActive}) => classnames(staticClass, { active: isActive })}
+      className={({isActive}) => classNames(staticClass, { active: isActive })}
     >
-      <div className={classnames('nav-button-bg', props.bgClass)}></div>
+      <div className={classNames('nav-button-bg', props.bgClass)}></div>
       <div className='nav-button-text'>{props.children}</div>
     </NavLink>
   );
@@ -50,7 +47,7 @@ export function NavButtonGroup(props) {
     }
     return null
   }, [useHref()])
-  const className = classnames(
+  const className = classNames(
     classes,
     props.className
   )
