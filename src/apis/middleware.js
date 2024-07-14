@@ -1,7 +1,6 @@
 import pubSub from "@/helpers/pubSub";
-
 export function checkHttpState(response, next) {
-  if(response.state !== 200) {
+  if(response.status !== 200) {
     pubSub.publish('Error:HTTP.State', response)
     throw Error('Error:HTTP.State');
   }
@@ -9,14 +8,21 @@ export function checkHttpState(response, next) {
 }
 
 export function checkJSONCode(response, next) {
-  if(response.data.code === 0) {
-    return next(response.data);
+  if(response.data.code !== 200) {
+    pubSub.publish('Error:API.Code', response)
+    throw Error('Error:API.Code');
   }
-  const msg = response.data.message;
-  pubSub.publish('Error:HTTP.Body.Code', response)
-  throw Error(msg);
+  return next(response);
 }
 
-export function getData(response, next) {
+export function getRequestBodyData(response, next) {
   return next(response.data.data);
+}
+
+export const addAuthorization = (config, next) => {
+  const token = localStorage.getItem('token');
+  if(token) {
+    config.headers.Authorization = `${token}`;
+  }
+  return next(config);
 }

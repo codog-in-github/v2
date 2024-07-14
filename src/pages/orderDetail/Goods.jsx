@@ -218,7 +218,7 @@ const Goods = ({
     <div className={className}>
       <Label className="flex-shrink-0">貨物情報</Label>
       <div className="mx-2 flex-1 overflow-hidden">
-        <Form.List name="container">
+        <Form.List name="containers">
           {(list) => (
             <ContainerList
               onAddContainer={onAddContainer}

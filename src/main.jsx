@@ -11,6 +11,7 @@ import 'dayjs/locale/ja';
 import '@/assets/styles/public.scss';
 import 'handsontable/dist/handsontable.full.min.css';
 
+
 const antdGlobalConfig = {
   locale: ja_JP,
   theme: {

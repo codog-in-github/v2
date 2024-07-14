@@ -55,17 +55,6 @@ export function bitHas(num, bit) {
   return (num & bit) === bit;
 }
 
-/**
- * 规格长度换算比例
- * @param {string} spec
- * @returns {number}
- */
-export function conversionSpec(spec) {
-  let [r, w] = spec.split('*');
-  r = Number(r);
-  w = Number(w);
-  return (r - w) * w * 0.02796;
-}
 
 /**
  * 加载js文件
@@ -81,4 +70,16 @@ export function loadJs(src) {
     script.onerror = reject;
     document.head.appendChild(script);
   });
+}
+/**
+ * @param {Function[]} funcs
+ */
+export const pipe = (...funcs) => {
+  return (arg) => {
+    let result = arg;
+    for(let i = 0; i < funcs.length; i++) {
+      result = funcs[i](result);
+    }
+    return result;
+  }
 }

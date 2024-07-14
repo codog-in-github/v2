@@ -9,8 +9,11 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import AddModal from './AddModal';
 import { useNavigate } from 'react-router-dom';
+import { useCallback } from 'react';
+import { request } from '@/apis/requestBuilder';
+import { useSelector } from 'react-redux';
 const c = namespaceClass('page-top')
-function getOrders() {
+const getOrders = () => {
   return new Promise(res => {
     setTimeout(res, 1000, [{
       avatarText: '無',
@@ -29,11 +32,42 @@ function getOrders() {
     }])
   })
 }
+
+const saveOrder = (data) => {
+  return request('admin/order/create').data(data).send()
+}
+
+const useSaveOrder = (next) => {
+  const orderType = useSelector(state => state.order.type)
+  const saveHandle = useCallback(async (data) => {
+    const id = await saveOrder({
+      'bkg_type': orderType,
+      'customer_id': data.customer,
+      'remark': data.remark
+    })
+    if(next) {
+      next(id)
+    }
+  }, [next, orderType])
+  return saveHandle
+}
 function MainContent() {
   const [orders, setOrders] = useState([])
   const [activeIndex, setActiveIndex] = useState(null)
   const [modalOpen, setModalOpen] = useState(false)
-  const nav = useNavigate()
+  const navigate = useNavigate()
+
+  const toDetail = useCallback(({ id }) => {
+    navigate('/orderDetail/' + id)
+  }, [navigate])
+
+  const closeAddModal = useCallback(() => {
+    setModalOpen(false)
+  }, [setModalOpen])
+
+  const onOkEditHandle = useSaveOrder(toDetail)
+  const onOkHandle = useSaveOrder(closeAddModal)
+
   useEffect(() => {
     getOrders().then(setOrders)
   }, []);
@@ -81,10 +115,8 @@ function MainContent() {
       <AddModal
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
-        onOk={() => {}}
-        onOkEdit={() => {
-          nav('/orderDetail')
-        }}
+        onOk={onOkHandle}
+        onOkEdit={onOkEditHandle}
       />
     </div>
   );

@@ -26,7 +26,7 @@ const router = createBrowserRouter([
     element: <TopLayout />,
     children: [
       {
-        path: '/orderDetail',
+        path: '/orderDetail/:id',
         element: <OrderDetail />
       },
       {

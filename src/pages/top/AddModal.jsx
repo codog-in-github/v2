@@ -1,5 +1,25 @@
+import { request } from "@/apis/requestBuilder"
+import LoadingButton from "@/components/LoadingButton"
 import { Form, Modal, Input, Select, Button } from "antd"
+import { useCallback } from "react"
+import { useState } from "react"
 import { useEffect } from "react"
+
+const getCustomers = async () => {
+  const rep = await request('admin/customer/list').get().send()
+  return rep.map(item => ({
+    value: item['id'],
+    label: item['company_name']
+  }))
+}
+
+const useCustomerSelect = () => {
+  const [customer, setCustomers] = useState()
+  useEffect(() => {
+    getCustomers().then(setCustomers)
+  }, [])
+  return customer
+}
 
 const AddModal = ({
   open = false,
@@ -8,13 +28,15 @@ const AddModal = ({
   onOkEdit = () => {}
 }) => {
   const [form] = Form.useForm()
-  const handleCancel = () => {
+  const customers = useCustomerSelect()
+
+  const cancelHandle = useCallback(() => {
     onCancel()
-  }
-  const validate = (next) => {
-    form.validateFields()
-      .then(next)
-  }
+  }, [onCancel])
+
+  const validate = useCallback((next) => {
+    return form.validateFields().then(next)
+  }, [form])
 
   useEffect(() => {
     if(open) {
@@ -28,19 +50,17 @@ const AddModal = ({
       title="新規案件"
       footer={(
         <div className="flex items-center justify-center gap-2">
-          <Button autoInsertSpace={false} type="primary" onClick={() => validate(onOk)}>保存并关闭</Button>
-          <Button autoInsertSpace={false} type="primary" onClick={() => validate(onOkEdit)}>保存并编辑</Button>
-          <Button autoInsertSpace={false} color="red" onClick={handleCancel}>取消</Button>
+          <LoadingButton type="primary" onClick={() => validate(onOk)}>保存并关闭</LoadingButton>
+          <LoadingButton type="primary" onClick={() => validate(onOkEdit)}>保存并编辑</LoadingButton>
+          <Button color="red" onClick={cancelHandle}>取消</Button>
         </div>
       )}
       onOk={() => validate(onOk)}
-      onCancel={handleCancel}>
+      onCancel={cancelHandle}>
       <div className="p-4">
         <Form form={form} layout="vertical" initialValues={{ customer: null, remark: '' }}>
           <Form.Item name="customer" label="お客様名" rules={[{ required: true, message: 'お客様名を入力してください' }]}>
-            <Select>
-              <Select.Option value="1">1</Select.Option>
-            </Select>
+            <Select options={customers} showSearch optionFilterProp="label" />
           </Form.Item>
           <Form.Item name="remark" label="REMARK" rules={[{ required: true, message: 'REMARKを入力してください' }]}>
             <Input.TextArea style={{ height: 120 }} />

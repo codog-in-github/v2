@@ -1,37 +1,69 @@
 import { Button, Input } from 'antd';
 import leftImage from '@/assets/images/login@2x.webp'
-import classnames from 'classnames';
-import { useInput } from '@/hooks';
 import GroupLabel from '@/components/GroupLabel';
 import { useNavigate } from 'react-router-dom';
+import { request } from '@/apis/requestBuilder'
+import { Form } from 'antd/lib';
+import { useState } from 'react';
+import { useRef } from 'react';
+import { addAuthorization } from '@/apis/middleware';
 
-function Label(props) {
-  const className = classnames(
-    'text-gray-500 text-sm capitalize',
-    props.className
-  )
-  return <div className={className}>{props.children}</div>
+const login = async (data) => {
+  const rep = await request('admin/login')
+    .requestWithout(addAuthorization)
+    .data(data)
+    .send()
+  localStorage.setItem('token', `${rep['token_type']} ${rep['access_token']}`)
 }
 
-function Card () {
-  const [usr, setUsr] = useInput('')
-  const [pwd, setPwd] = useInput('')
+const Card = () => {
+  const [form] = Form.useForm()
+  const usrRef = useRef(null)
+  const pwdRef = useRef(null)
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  function toPage () {
-    navigate('/top')
+  const formKeyDownHandle = (e) => {
+    if (e.key === 'Enter') {
+      if(!form.getFieldValue('username')) {
+        usrRef.current.focus()
+      } else if(!form.getFieldValue('password')) {
+        pwdRef.current.focus()
+      } else {
+        onLoginBtnClickHandle()
+      }
+    }
+  }
+  const onLoginBtnClickHandle = async () => {
+    const data = await form.validateFields()
+    setLoading(true)
+    try {
+      await login(data)
+      navigate('/top')
+    } finally {
+      setLoading(false)
+    }
   }
   return (
     <div className='w-80 flex-shrink-0 bg-white p-10 rounded-lg'>
       <GroupLabel className="tracking-widest">登录</GroupLabel>
-      <div className='mt-4'>
-        <Label>user name</Label>
-        <Input className='mt-1' value={usr} onChange={setUsr} />
-      </div>
-      <div className='mb-8 mt-2'>
-        <Label>password</Label>
-        <Input className='mt-1' type='password' value={pwd} onChange={setPwd} />
-      </div>
-      <Button block type='primary' onClick={toPage}>登录</Button>
+      <Form
+        form={form}
+        layout="vertical"
+        className='mt-4 [&_label]:before:!hidden'
+        onKeyDown={formKeyDownHandle}>
+        <Form.Item label="User Name" name="username" rules={[{ required: true }]}>
+          <Input ref={usrRef} />
+        </Form.Item>
+        <Form.Item label="Password" name="password" rules={[{ required: true }]}>
+          <Input ref={pwdRef} type='password' />
+        </Form.Item>
+        <Button
+          loading={loading}
+          block
+          type='primary'
+          onClick={onLoginBtnClickHandle}
+        >登录</Button>
+      </Form>
     </div>
   )
 }

@@ -3,11 +3,23 @@ import Avatar from './Avatar';
 import { NavButton, NavButtonGroup } from './NavButton';
 import { namespaceClass } from '@/helpers/style';
 import classnames from 'classnames';
-import { HomeFilled } from '@ant-design/icons';
+import { CaretDownOutlined, HomeFilled } from '@ant-design/icons';
+import { Dropdown } from 'antd';
+import { useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const c = namespaceClass('nav-top-bar')
 
+const useLogout = () => {
+  const navigate = useNavigate()
+  const handle = useCallback(() => {
+    localStorage.removeItem('token')
+    navigate('/')
+  }, [navigate])
+  return handle
+}
 const NavTopbar = ({ className }) => {
+  const logoutHandle = useLogout()
   return (
     <div className={classnames(c(''), 'bg-white flex items-center', className)}>
       <img className={classnames(c('logo'))} src={logo}></img>
@@ -24,9 +36,19 @@ const NavTopbar = ({ className }) => {
         <NavButton to="/permission">許可</NavButton>
         <NavButton to="/invoice">請求書</NavButton>
       </NavButtonGroup>
-      <div className="flex items-center ml-auto">
-        <Avatar></Avatar>
-        <span className='ml-2'>吉田</span>
+      <div className="flex ml-auto pr-4">
+        <Dropdown
+           menu={{ items: [
+            { key: '1', label: <div onClick={logoutHandle}>プロフィール</div> },
+           ] }}
+           
+        >
+          <div className='flex gap-2 items-center'>
+            <Avatar></Avatar>
+              <span className='mx-2'>吉田</span>
+            <CaretDownOutlined />
+          </div>
+        </Dropdown>
       </div>
     </div>
   );

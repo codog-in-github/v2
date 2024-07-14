@@ -1,10 +1,12 @@
 import axios from 'axios';
 import {
+  addAuthorization,
   checkHttpState,
   checkJSONCode,
-  getData,
+  getRequestBodyData,
 } from './middleware';
 import { cloneDeep } from 'lodash';
+import QueryString from 'qs';
 
 const baseURL = '/api';
 
@@ -15,18 +17,23 @@ class Request {
     this.method = 'post';
     this.headers = {};
     this._data = {};
+    this._query = {}
     this.targetUrl = url;
-    this.requestMiddleware = [];
+    this.requestMiddleware = [
+      addAuthorization
+    ];
     this.responseMiddleware = [
       checkHttpState,
       checkJSONCode,
-      getData
+      getRequestBodyData
     ];
   }
 
-  get(url = '') {
+  get(url) {
     this.method = 'get';
-    this.targetUrl = url;
+    if(url !== void 0) {
+      this.targetUrl = url;
+    }
     return this;
   }
 
@@ -49,6 +56,14 @@ class Request {
     this._data = Object.assign(this._data, data);
     return this;
   }
+  query(data, replace = false) {
+    if(replace) {
+      this._query = data;
+      return this;
+    }
+    this._query = Object.assign(this._query, data);
+    return this;
+  }
 
   /**
    * 克隆请求
@@ -59,6 +74,7 @@ class Request {
     request.baseURL = this.baseURL;
     request.targetUrl = this.targetUrl;
     request.method = this.method;
+    request.query = cloneDeep(this.query);
     request.headers = cloneDeep(this.headers);
     request._data = cloneDeep(this._data);
     request.requestMiddleware = [...this.requestMiddleware];
@@ -154,25 +170,18 @@ class Request {
     );
 
     instance.interceptors.response.use(
-      callMiddleware(this.responseMiddleware),
-      callMiddleware([
-        (rep, next) => {
-          return next(rep.response.data.data);
-        },
-        // decodeParams,
-        (rep) => {
-          // eslint-disable-next-line no-console
-          console.log('rep', rep);
-          throw Error('request failt');
-        }
-      ])
+      callMiddleware(this.responseMiddleware)
     );
-
+    let url = this.targetUrl;
+    if(Object.keys(this._query).length) {
+      url += '?' + QueryString.stringify(this._query);
+    }
     return instance.request({
-      url:     this.targetUrl,
+      url:     url,
       method:  this.method,
       data:    this._data,
-      headers: this.headers
+      headers: this.headers,
+      validateStatus: null
     });
   }
 }
@@ -180,3 +189,4 @@ class Request {
 export function request(url = '') {
   return new Request(url);
 }
+
