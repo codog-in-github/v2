@@ -17,9 +17,9 @@ function Message() {
           吉田：<At>施双</At> 南京立健物流有限公司需要一个新的集装箱，堆场元需跟进该公司后期文件上传的情况。
         </div>
       </div>
-      <div className="flex">
-        <button className="bg-gray-300 text-white py-2 w-1/2">既読</button>
-        <button className="bg-primary text-white py-2 w-1/2">案件処理</button>
+      <div className="flex leading-8 text-white">
+        <button className="bg-gray-300 w-1/2">既読</button>
+        <button className="bg-primary w-1/2">案件処理</button>
       </div>
     </div>
   );

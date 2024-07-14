@@ -143,6 +143,7 @@ function MainContent() {
               contactPhone='86-15240056982'
               end
             />
+            
             <Card 
               avatarText='無'
               avatarColor='#8F8F8F'
@@ -170,7 +171,7 @@ function MainContent() {
           </div>
         </div>
         </div>
-      <div className={classNames(c('message-bar'), 'p-2 bg-white h-full flex flex-col overflow-hidden border-l')}>
+      <div className={classNames(c('message-bar'), 'px-2 py-[22px] bg-white h-full flex flex-col overflow-hidden border-l')}>
         <div className="flex mb-4">
           <div className='mr-auto'>社内伝達</div>
           <div className='mr-1'>@ME</div>

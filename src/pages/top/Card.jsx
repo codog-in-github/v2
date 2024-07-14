@@ -36,7 +36,7 @@ function Timer(props) {
   }, [props.end])
   return (
     <div className='bg-[#d8eaff] h-[40px] rounded flex items-center px-4 py-1 text-primarbg-primary-500'>
-      <div className='text-sm'>残時間：</div>
+      <div className='text-sm text-[#426CF6]'>残時間：</div>
       <div className='ml-2 bg-primary-400 px-0.5 rounded text-white'>{display[0]}</div>
       <div className='mx-1'>:</div>
       <div className='bg-primary-400 px-0.5 rounded text-white'>{display[1]}</div>
