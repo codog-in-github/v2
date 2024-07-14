@@ -9,7 +9,8 @@ function CompanyAvatar ({
 }) {
   const baseClass = 'flex justify-center items-center w-12 h-12 text-lg'
   const isDeepBg = Color(bg).isDark()
-  const textColor = isDeepBg ? 'text-white' : 'text-black'
+  // const textColor = isDeepBg ? 'text-white' : 'text-black'
+  const textColor = 'text-white'
   const round = circle ? 'rounded-full' : 'rounded-md'
   return <div
     className={classNames(baseClass, textColor, round, className)}

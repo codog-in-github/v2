@@ -16,6 +16,8 @@ const placeholderUrls = [
   '/order',
   '/calendar',
   '/ship',
+  '/blCopy',
+  '/sur'
 ]
 const router = createBrowserRouter([
   {

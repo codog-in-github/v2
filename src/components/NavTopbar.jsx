@@ -34,12 +34,14 @@ const NavTopbar = ({ className }) => {
         <NavButton to="/customs">通関資料</NavButton>
         <NavButton to="/acl">ACL</NavButton>
         <NavButton to="/permission">許可</NavButton>
+        <NavButton to="/blCopy">BL COPY</NavButton>
+        <NavButton to="/sur">SUR</NavButton>
         <NavButton to="/invoice">請求書</NavButton>
       </NavButtonGroup>
       <div className="flex ml-auto pr-4">
         <Dropdown
            menu={{ items: [
-            { key: '1', label: <div onClick={logoutHandle}>プロフィール</div> },
+            { key: '1', label: <div onClick={logoutHandle}>サインアウト</div> },
            ] }}
            
         >

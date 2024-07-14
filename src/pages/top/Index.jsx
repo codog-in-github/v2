@@ -17,14 +17,42 @@ const getOrders = () => {
   return new Promise(res => {
     setTimeout(res, 1000, [{
       avatarText: '無',
-      avatarColor: '#fff00f',
+      avatarColor: '#D46DE0',
       companyName: '無錫永興貨運有限公司',
       contactPerson: '王大明',
       contactPhone: '86-15240056982',
       warningTime: new Date(Date.now() + 1000 * 60 * 60),
     },{
       avatarText: 'A',
-      avatarColor: '#fff00f',
+      avatarColor: '#FD7556',
+      companyName: '無錫永興貨運有限公司',
+      contactPerson: '王大明',
+      contactPhone: '86-15240056982',
+      warningTime: new Date(Date.now() + 1000 * 60 * 60 * 0.5),
+    },{
+      avatarText: 'A',
+      avatarColor: '#FD7556',
+      companyName: '無錫永興貨運有限公司',
+      contactPerson: '王大明',
+      contactPhone: '86-15240056982',
+      warningTime: new Date(Date.now() + 1000 * 60 * 60 * 0.5),
+    },{
+      avatarText: 'A',
+      avatarColor: '#FD7556',
+      companyName: '無錫永興貨運有限公司',
+      contactPerson: '王大明',
+      contactPhone: '86-15240056982',
+      warningTime: new Date(Date.now() + 1000 * 60 * 60 * 0.5),
+    },{
+      avatarText: 'A',
+      avatarColor: '#FD7556',
+      companyName: '無錫永興貨運有限公司',
+      contactPerson: '王大明',
+      contactPhone: '86-15240056982',
+      warningTime: new Date(Date.now() + 1000 * 60 * 60 * 0.5),
+    },{
+      avatarText: 'A',
+      avatarColor: '#FD7556',
       companyName: '無錫永興貨運有限公司',
       contactPerson: '王大明',
       contactPhone: '86-15240056982',
@@ -90,19 +118,65 @@ function MainContent() {
         </div>
         <div className="mt-8">
           <h2 className="text-xl font-semibold mb-4">直近完了</h2>
-          <div className="flex space-x-4">
-            <Card end />
-            <Card end />
+          <div className="flex gap-4 flex-wrap">
+            <Card 
+              avatarText='無'
+              avatarColor='#8F8F8F'
+              companyName='無錫永興貨運有限公司'
+              contactPerson='王大明'
+              contactPhone='86-15240056982'
+              end
+            />
+            <Card 
+              avatarText='無'
+              avatarColor='#8F8F8F'
+              companyName='無錫永興貨運有限公司'
+              contactPerson='王大明'
+              contactPhone='86-15240056982'
+              end
+            />
+            <Card 
+              avatarText='無'
+              avatarColor='#8F8F8F'
+              companyName='無錫永興貨運有限公司'
+              contactPerson='王大明'
+              contactPhone='86-15240056982'
+              end
+            />
+            <Card 
+              avatarText='無'
+              avatarColor='#8F8F8F'
+              companyName='無錫永興貨運有限公司'
+              contactPerson='王大明'
+              contactPhone='86-15240056982'
+              end
+            />
+            <Card 
+              avatarText='無'
+              avatarColor='#8F8F8F'
+              companyName='無錫永興貨運有限公司'
+              contactPerson='王大明'
+              contactPhone='86-15240056982'
+              end
+            />
+            <Card 
+              avatarText='無'
+              avatarColor='#8F8F8F'
+              companyName='無錫永興貨運有限公司'
+              contactPerson='王大明'
+              contactPhone='86-15240056982'
+              end
+            />
           </div>
         </div>
         </div>
-      <div className={classNames(c('message-bar'), 'p-2 bg-white h-full flex flex-col overflow-hidden')}>
+      <div className={classNames(c('message-bar'), 'p-2 bg-white h-full flex flex-col overflow-hidden border-l')}>
         <div className="flex mb-4">
           <div className='mr-auto'>社内伝達</div>
           <div className='mr-1'>@ME</div>
           <Switch></Switch>
         </div>
-        <div className="space-y-4 flex-1 overflow-auto  pr-2">
+        <div className="space-y-4 flex-1 overflow-auto pr-2">
           <Message />
           <Message />
           <Message />
