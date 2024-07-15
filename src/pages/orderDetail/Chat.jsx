@@ -3,10 +3,13 @@ import { Space } from "antd"
 import { Button, Input } from "antd"
 import { Select } from "antd"
 import { useState } from "react"
-import { useRef } from "react"
 
 const At = ({ children }) => {
-  return <span className="py-1 px-2 rounded-full bg-primary-100 text-primary text-xs">@{children}</span>
+  return (
+    <span
+      className="py-1 px-2 rounded-full bg-primary-100 text-primary text-nowrap text-xs"
+    >@{children}</span>
+  )
 }
 
 const Message = ({ from, at, content, time }) => {

@@ -1,3 +1,4 @@
+import { useCallback } from "react"
 import { useEffect } from "react"
 import { useState } from "react"
 
@@ -36,4 +37,37 @@ export function useAnimate(play, dependency) {
   useEffect(() => {
     setLastState(play(lastState))
   }, dependency)
+}
+
+/**
+ * 使用useAsyncCallback钩子来创建一个异步操作的回调函数，并管理其加载状态。
+ * 
+ * 此钩子接受一个函数作为参数，该函数应该是一个异步操作。它返回一个对象，其中包含
+ * 一个loading状态和一个callback函数。当调用callback函数时，它将执行传入的异步函数，
+ * 并在操作开始和结束时自动更新loading状态。
+ * 
+ * @param {Function} func - 一个异步函数，它将被封装在callback中并带有加载状态管理。
+ *                          这个函数的返回值可以是一个Promise，如果返回的是一个Promise，
+ *                          则表示操作正在进行中，否则表示操作已完成。
+ * @param {Array} dependency - 一个依赖数组，用于指定触发回调函数更新的条件。
+ * @returns {Object} 返回一个包含loading状态和callback函数的对象。
+ */
+export const useAsyncCallback = (func, dependency) => {
+  const [loading, setLoading] = useState(false)
+  const callback = useCallback((...args) => {
+    const result = func(...args)
+    if(result instanceof Promise) {
+      setLoading(true)
+      result.then(() => setLoading(false))
+        .catch((e) => {
+          setLoading(false)
+          throw e
+        })
+    }
+    return result
+  }, dependency)
+  return {
+    loading,
+    callback
+  }
 }

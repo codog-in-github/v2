@@ -12,58 +12,35 @@ import { useNavigate } from 'react-router-dom';
 import { useCallback } from 'react';
 import { request } from '@/apis/requestBuilder';
 import { useSelector } from 'react-redux';
+import { useAsyncCallback } from '@/hooks';
 const c = namespaceClass('page-top')
-const getOrders = () => {
-  return new Promise(res => {
-    setTimeout(res, 1000, [{
-      avatarText: '無',
-      avatarColor: '#D46DE0',
-      companyName: '無錫永興貨運有限公司',
-      contactPerson: '王大明',
-      contactPhone: '86-15240056982',
-      warningTime: new Date(Date.now() + 1000 * 60 * 60),
-    },{
-      avatarText: 'A',
-      avatarColor: '#FD7556',
-      companyName: '無錫永興貨運有限公司',
-      contactPerson: '王大明',
-      contactPhone: '86-15240056982',
-      warningTime: new Date(Date.now() + 1000 * 60 * 60 * 0.5),
-    },{
-      avatarText: 'A',
-      avatarColor: '#FD7556',
-      companyName: '無錫永興貨運有限公司',
-      contactPerson: '王大明',
-      contactPhone: '86-15240056982',
-      warningTime: new Date(Date.now() + 1000 * 60 * 60 * 0.5),
-    },{
-      avatarText: 'A',
-      avatarColor: '#FD7556',
-      companyName: '無錫永興貨運有限公司',
-      contactPerson: '王大明',
-      contactPhone: '86-15240056982',
-      warningTime: new Date(Date.now() + 1000 * 60 * 60 * 0.5),
-    },{
-      avatarText: 'A',
-      avatarColor: '#FD7556',
-      companyName: '無錫永興貨運有限公司',
-      contactPerson: '王大明',
-      contactPhone: '86-15240056982',
-      warningTime: new Date(Date.now() + 1000 * 60 * 60 * 0.5),
-    },{
-      avatarText: 'A',
-      avatarColor: '#FD7556',
-      companyName: '無錫永興貨運有限公司',
-      contactPerson: '王大明',
-      contactPhone: '86-15240056982',
-      warningTime: new Date(Date.now() + 1000 * 60 * 60 * 0.5),
-    }])
-  })
-}
 
 const saveOrder = (data) => {
   return request('admin/order/create').data(data).send()
 }
+const getOrders = () => {
+  return request('admin/order/list')
+    .get().query({ 'is_top': 1 }).send()
+}
+const useTopOrderList = () => {
+  const [orders, setOrders] = useState([])
+
+  const { loading, callback: refresh } = useAsyncCallback(async () => {
+    const rep = await getOrders()
+    console.log(rep);
+  }, [])
+
+  useEffect(() => {
+    refresh()
+  }, [])
+
+  return {
+    orders,
+    loading,
+    refresh
+  }
+}
+
 
 const useSaveOrder = (next) => {
   const orderType = useSelector(state => state.order.type)
@@ -80,7 +57,7 @@ const useSaveOrder = (next) => {
   return saveHandle
 }
 function MainContent() {
-  const [orders, setOrders] = useState([])
+  const { orders } = useTopOrderList()
   const [activeIndex, setActiveIndex] = useState(null)
   const [modalOpen, setModalOpen] = useState(false)
   const navigate = useNavigate()
@@ -96,9 +73,6 @@ function MainContent() {
   const onOkEditHandle = useSaveOrder(toDetail)
   const onOkHandle = useSaveOrder(closeAddModal)
 
-  useEffect(() => {
-    getOrders().then(setOrders)
-  }, []);
   return (
     <div className="flex h-full overflow-auto" onClick={() => setActiveIndex(null)}>
       <div className={classNames(c('main-content'), 'flex-1', 'overflow-auto')}>

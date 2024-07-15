@@ -1,18 +1,12 @@
 import { Button } from "antd"
-import { useState, useCallback } from "react"
 import PropTypes from "prop-types"
+import { useAsyncCallback } from "@/hooks"
 
 const LoadingButton = ({ children, onClick, ...props }) => {
-  const [loading, setLoading] = useState(false)
-
-  const handleClick = useCallback((e) => {
-    const result = onClick(e)
-    if (result instanceof Promise) {
-      setLoading(true)
-      result.finally(() => setLoading(false))
-    }
-  }, [onClick])
-
+  const {
+    loading,
+    callback: handleClick
+  } = useAsyncCallback(onClick)
   return (
     <Button {...props} loading={loading} onClick={handleClick}>
       {children}

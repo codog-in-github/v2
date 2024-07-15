@@ -1,10 +1,26 @@
+import { request } from "@/apis/requestBuilder"
 import Label from "@/components/Label"
-import { Select } from "antd"
-import { DatePicker } from "antd"
-import { Input } from "antd"
-import { Form } from "antd"
+import { useAsyncCallback } from "@/hooks"
+import { Form, Input, Select, DatePicker } from "antd"
+import { useState, useEffect } from "react"
 
+const getPorts = () => {
+  return request('admin/country/tree').get().send()
+}
+const usePorts = () => {
+  const [form] = Form.useForm()
+  console.log(form.getFieldValue())
+  const [portTrees, setPortTrees] = useState([])
+  const { callback, loading } = useAsyncCallback(() => {
+    return getPorts()
+  }, [])
+  useEffect(() => {
+    callback()
+  }, [])
+  return {}
+}
 const Ship = ({className }) => {
+  usePorts()
   return (
     <div className={className}>
       <Label>船社情報</Label>
