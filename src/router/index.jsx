@@ -5,7 +5,13 @@ import { SideLayout, TopLayout } from "@/components/NavLayout";
 import OrderDetail from "@/pages/orderDetail/Index";
 import Top from "@/pages/top/Index";
 import Po from "@/pages/po/Index";
-import CustomerList from "@/pages/customer/list";
+import {
+  OrderList,
+  CustomerList,
+  OrderCalendar,
+  ShipList,
+  PetitionList,
+} from "@/pages/index";
 // 还没写的页面 占个位先
 const placeholderUrls = [
   "/drive",
@@ -13,9 +19,6 @@ const placeholderUrls = [
   "/acl",
   "/permission",
   "/invoice",
-  "/order",
-  "/calendar",
-  "/ship",
   "/blCopy",
   "/sur",
 ];
@@ -46,7 +49,22 @@ const router = createBrowserRouter([
             path: "/customer",
             element: <CustomerList />,
           },
-
+          {
+            path: "/order",
+            element: <OrderList />,
+          },
+          {
+            path: "/calendar",
+            element: <OrderCalendar />,
+          },
+          {
+            path: "/ship",
+            element: <ShipList />,
+          },
+          {
+            path: "/petition",
+            element: <PetitionList />,
+          },
           ...placeholderUrls.map((url) => ({
             path: url,
             element: <></>,
