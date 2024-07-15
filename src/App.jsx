@@ -10,27 +10,29 @@ const useGlobalMessage = () => {
   const [messageApi, contextHolder] = message.useMessage();
   useEffect(() => {
     const showError = (err) => {
-      messageApi.error(err.data.message)
-    }
+      messageApi.error(err.data.message);
+    };
     const showText = (text) => {
-      messageApi.info(text)
-    }
-    pubSub.subscribe('Error:HTTP.State', showError)
-    pubSub.subscribe('Error:API.Code', showError)
-    pubSub.subscribe('Info:Message.*', showText) // TODO 还没实现通配符 预留
+      messageApi.info(text);
+    };
+    pubSub.subscribe("Error:HTTP.State", showError);
+    pubSub.subscribe("Error:API.Code", showError);
+    pubSub.subscribe("Info:Message.*", showText); // TODO 还没实现通配符 预留
     return () => {
-      pubSub.unsubscribe('Error:HTTP.State', showError)
-      pubSub.unsubscribe('Error:API.Code', showError)
-      pubSub.unsubscribe('Info:Message.*', showText)
-    }
-  }, [messageApi])
-  return contextHolder
-}
+      pubSub.unsubscribe("Error:HTTP.State", showError);
+      pubSub.unsubscribe("Error:API.Code", showError);
+      pubSub.unsubscribe("Info:Message.*", showText);
+    };
+  }, [messageApi]);
+  return contextHolder;
+};
 
-export default function App () {
-  const msgElement = useGlobalMessage()
-  return <Provider store={store}>
-    {msgElement}
-    <RouterProvider router={router}></RouterProvider>
-  </Provider>
+export default function App() {
+  const msgElement = useGlobalMessage();
+  return (
+    <Provider store={store}>
+      {msgElement}
+      <RouterProvider router={router}></RouterProvider>
+    </Provider>
+  );
 }
