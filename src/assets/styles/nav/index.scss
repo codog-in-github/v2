@@ -1,9 +1,9 @@
-.nav-layout-main{
+.nav-layout-main {
   flex: 1;
   overflow: auto;
 }
 
-.nav-layout{
+.nav-layout {
   background-color: #f2f4f8;
 }
 
@@ -20,21 +20,21 @@
   &__title {
     font-family: Kozuka Gothic Pr6N;
     font-size: 20px;
+    min-width: 130px;
   }
 }
 
-
-.nav-button-group{
+.nav-button-group {
   --nav-button-height: 48px;
   --nav-button-width: 114px;
   --nav-button-bg-radius: 24px;
   --nav-button-text-align: center;
   --nav-button-padding-left: 0;
-  &.rect{
+  &.rect {
     --nav-button-bg-radius: 5px;
   }
 
-  &.align-left{
+  &.align-left {
     --nav-button-text-align: left;
     --nav-button-width: 180px;
     --nav-button-padding-left: 20px;
@@ -48,25 +48,22 @@
   text-align: var(--nav-button-text-align);
   padding-left: var(--nav-button-padding-left);
   &.active {
-    .nav-button-text{
+    .nav-button-text {
       color: #fff;
       position: relative;
       z-index: 2;
     }
-    .nav-button-bg{
+    .nav-button-bg {
       background: linear-gradient(
         to right,
-        mix(
-          $color-primary-300,
-          $color-success-300
-        ),
-        $color-primary-500,
+        mix($color-primary-300, $color-success-300),
+        $color-primary-500
       );
     }
   }
 }
 
-.nav-button-bg{
+.nav-button-bg {
   position: absolute;
   top: 0;
   left: 0;

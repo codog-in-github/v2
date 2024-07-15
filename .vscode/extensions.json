@@ -1,0 +1,19 @@
+{
+	"recommendations": [
+		"kisstkondoros.vscode-gutter-preview",
+		"vscode-icons-team.vscode-icons",
+		"formulahendry.auto-rename-tag",
+		"VOFI.arco-design-vue-snippets",
+		"ms-azuretools.vscode-docker",
+		"stylelint.vscode-stylelint",
+		"editorconfig.editorconfig",
+		"hollowtree.vue-snippets",
+		"naumovs.color-highlight",
+		"dbaeumer.vscode-eslint",
+		"esbenp.prettier-vscode",
+		"mikestead.dotenv",
+		"pmneo.tsimporter",
+		"antfu.unocss",
+		"Vue.volar"
+	]
+}
