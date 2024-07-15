@@ -36,7 +36,7 @@ const MessageBoard = ({ messages = [] }) => {
       )
     }
     msgEle.push(
-      <Message key={messages.id} {...messages[i]}></Message>
+      <Message key={messages[i].id} {...messages[i]}></Message>
     )
   }
   return <div className="bg-gray-200 p-2 flex-1">{msgEle}</div>

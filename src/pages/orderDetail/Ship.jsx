@@ -8,19 +8,68 @@ const getPorts = () => {
   return request('admin/country/tree').get().send()
 }
 const usePorts = () => {
-  const [form] = Form.useForm()
-  console.log(form.getFieldValue())
-  const [portTrees, setPortTrees] = useState([])
-  const { callback, loading } = useAsyncCallback(() => {
-    return getPorts()
+  const [portTree, setPortTree] = useState([])
+  const { callback, loading } = useAsyncCallback(async () => {
+    const rep = await getPorts()
+    setPortTree(rep)
   }, [])
   useEffect(() => {
     callback()
   }, [])
-  return {}
+  return {
+    portTree,
+    loading
+  }
 }
-const Ship = ({className }) => {
-  usePorts()
+
+const CountrySelect = ({ tree, bind, onChange, ...props }) => {
+  const form = Form.useFormInstance()
+  return (
+    <Select
+      {...props}
+      showSearch
+      options={tree}
+      optionFilterProp="code"
+      onChange={(...args) => {
+        form.setFieldValue(bind, void 0)
+        onChange(...args)
+      }}
+      fieldNames={{
+        value: 'id',
+        label: 'code',
+      }}
+      optionRender={({ data }) => <div>{data['label']}<span className="float-right">({data['code']})</span></div>}
+    />
+  )
+}
+
+const PortSelect = ({ tree, bind, ...props }) => {
+  let options = []
+  const form = Form.useFormInstance()
+  const parentValue = Form.useWatch(bind, form)
+  if(parentValue) {
+    options = tree.find(item => item.id === parentValue)?.children ?? []
+  }
+  return (
+    <Select
+      {...props}
+      options={options}
+      fieldNames={{
+        value: 'id',
+        label: 'code',
+      }}
+      labelRender={({ value }) => {
+        const item = options.find(item => item.id === value)
+        if(!item)
+            return ''
+        return `${item['label']}(${item['code']})`
+      }}
+      optionRender={({ data }) => <div>{data['label']}<span className="float-right">({data['code']})</span></div>}
+    />
+  )
+}
+const Ship = ({ className }) => {
+  const { portTree, loading: portLoading } = usePorts()
   return (
     <div className={className}>
       <Label>船社情報</Label>
@@ -42,10 +91,18 @@ const Ship = ({className }) => {
           <div className="grid grid-cols-2 gap-x-2 flex-1 bg-[#37832e] p-2 text-white [&_label]:!text-white">
             <div className="col-span-2">PORT OF LOADING</div>
             <Form.Item label="Country/Region" name="loadingCountry">
-              <Select />
+              <CountrySelect
+                loading={portLoading}
+                tree={portTree}
+                bind="loadingPort"
+              />
             </Form.Item>
             <Form.Item label="Port" name="loadingPort">
-              <Select />
+              <PortSelect
+                loading={portLoading}
+                tree={portTree}
+                bind="loadingCountry"
+              />
             </Form.Item>
             <Form.Item className="col-span-2" label="ETD" name="etd">
               <DatePicker className="w-full" />
@@ -63,10 +120,18 @@ const Ship = ({className }) => {
           <div className="grid grid-cols-2 flex-1 bg-[#abdae0] p-2 gap-x-2">
             <div className="col-span-2">PORT OF DELIVERY</div>
             <Form.Item label="Country/Region" name="deliveryCountry">
-              <Select />
+              <CountrySelect
+                loading={portLoading}
+                tree={portTree}
+                bind="deliveryPort"
+              />
             </Form.Item>
-            <Form.Item label="Port" name="deliveryCountry">
-              <Select />
+            <Form.Item label="Port" name="deliveryPort">
+              <PortSelect
+                loading={portLoading}
+                tree={portTree}
+                bind="deliveryCountry"
+              />
             </Form.Item>
             <Form.Item className="col-span-2" label="ETA" name="eta">
               <DatePicker />
@@ -79,10 +144,18 @@ const Ship = ({className }) => {
             </Form.Item>
             <div className="col-span-2">PORT OF DISCHARGE</div>
             <Form.Item label="Country/Region" name="dischargeCountry">
-              <Select></Select>
+              <CountrySelect
+                loading={portLoading}
+                tree={portTree}
+                bind="dischargePort"
+              />
             </Form.Item>
             <Form.Item label="Port" name="dischargePort">
-              <Select></Select>
+              <PortSelect
+                loading={portLoading}
+                tree={portTree}
+                bind="dischargeCountry"
+              />
             </Form.Item>
           </div>
         </div>
