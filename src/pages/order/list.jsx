@@ -244,6 +244,7 @@ const OrderList = () => {
         <Button onClick={reset}>重置</Button>
       </Space>
       <Table
+        rowKey="id"
         className="mt-5"
         dataSource={dataSource}
         columns={columns}
