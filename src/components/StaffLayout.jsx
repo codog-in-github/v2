@@ -10,7 +10,7 @@ import { DownOutlined } from "@ant-design/icons";
 import { NavButton, NavButtonGroup } from "./NavButton";
 export const TopStaffLayout = () => {
   return (
-    <div className="nav-layout flex flex-col h-screen staff-bg">
+    <div className="nav-layout flex flex-col h-screen staff">
       <div className="staff-head">
         <div className="head-left">
           <img className="mr-3" src={logo}></img>
@@ -69,7 +69,7 @@ export const SideStaffLayout = () => {
   }, []);
   return (
     <>
-      <div className="flex flex-col h-full w-[220px]">
+      <div className="flex flex-col h-full w-[240px] items-center">
         <StaffSidebar />
       </div>
       <div className="nav-layout-main">
