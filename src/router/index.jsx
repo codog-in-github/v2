@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import Login from "@/pages/Login.jsx";
 import Err404 from "@/pages/Err/404.jsx";
 import { SideLayout, TopLayout } from "@/components/NavLayout";
+import { SideStaffLayout, TopStaffLayout } from "@/components/StaffLayout";
 import OrderDetail from "@/pages/orderDetail/Index";
 import Top from "@/pages/top/Index";
 import Po from "@/pages/po/Index";
@@ -11,6 +12,10 @@ import {
   OrderCalendar,
   ShipList,
   PetitionList,
+  StaffTop,
+  StaffRules,
+  StaffShip,
+  StaffPet,
 } from "@/pages/index";
 // 还没写的页面 占个位先
 const placeholderUrls = [
@@ -69,6 +74,32 @@ const router = createBrowserRouter([
             path: url,
             element: <></>,
           })),
+        ],
+      },
+    ],
+  },
+  {
+    element: <TopStaffLayout />,
+    children: [
+      {
+        element: <SideStaffLayout />,
+        children: [
+          {
+            path: "/staff-top",
+            element: <StaffTop />,
+          },
+          {
+            path: "/staff-rules",
+            element: <StaffRules />,
+          },
+          {
+            path: "/staff-ship",
+            element: <StaffShip />,
+          },
+          {
+            path: "/staff-pet",
+            element: <StaffPet />,
+          },
         ],
       },
     ],

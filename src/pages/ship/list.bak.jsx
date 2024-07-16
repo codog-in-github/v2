@@ -1,23 +1,118 @@
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
-  Space,
-  Input,
-  Select,
   Button,
-  Table,
+  Form,
+  Input,
   Avatar,
   Tag,
+  Table,
+  Space,
+  Select,
   DatePicker,
 } from "antd";
 import { DashOutlined } from "@ant-design/icons";
-import { useState } from "react";
-import dayjs from "dayjs";
-import { cloneDeep } from "lodash";
-
+const EditableContext = React.createContext(null);
+const EditableRow = ({ index, ...props }) => {
+  const [form] = Form.useForm();
+  return (
+    <Form form={form} component={false}>
+      <EditableContext.Provider value={form}>
+        <tr {...props} />
+      </EditableContext.Provider>
+    </Form>
+  );
+};
+const EditableCell = ({
+  title,
+  editable,
+  children,
+  dataIndex,
+  record,
+  handleSave,
+  ...restProps
+}) => {
+  const [editing, setEditing] = useState(false);
+  const inputRef = useRef(null);
+  const form = useContext(EditableContext);
+  useEffect(() => {
+    if (editing) {
+      inputRef.current?.focus();
+    }
+  }, [editing]);
+  const toggleEdit = () => {
+    setEditing(!editing);
+    form.setFieldsValue({
+      [dataIndex]: record[dataIndex],
+    });
+  };
+  const save = async () => {
+    try {
+      const values = await form.validateFields();
+      toggleEdit();
+      handleSave({
+        ...record,
+        ...values,
+      });
+      debugger;
+    } catch (errInfo) {
+      console.log("Save failed:", errInfo);
+    }
+  };
+  let childNode = children;
+  if (editable) {
+    childNode = editing ? (
+      <Form.Item
+        style={{
+          margin: 0,
+        }}
+        name={dataIndex}
+        rules={[
+          {
+            required: true,
+            message: `${title} is required.`,
+          },
+        ]}
+      >
+        <DatePicker
+          ref={inputRef}
+          format="YYYY/MM/DD"
+          onChange={() => save()}
+        />
+        <Input ref={inputRef} onPressEnter={save} onBlur={save} />
+      </Form.Item>
+    ) : (
+      <div
+        className="editable-cell-value-wrap"
+        style={{
+          paddingRight: 24,
+        }}
+        onClick={toggleEdit}
+      >
+        {children}
+      </div>
+    );
+  }
+  return <td {...restProps}>{childNode}</td>;
+};
 const ShipList = () => {
   const selectArr = [
     { value: "test1", label: "测试1" },
     { value: "test2", label: "测试2" },
   ];
+  const [form, setForm] = useState({
+    orgin: "",
+    name: "",
+    code: "",
+    bkg: "",
+    bl: "",
+    pol: null,
+    pod: null,
+  });
+  const [page, setPage] = useState({
+    current: 1,
+    pageSize: 20,
+    total: 50,
+  });
   const [dataSource, setDataSource] = useState([
     {
       id: 1,
@@ -63,7 +158,7 @@ const ShipList = () => {
     },
   ]);
 
-  const columns = [
+  const defaultColumns = [
     {
       title: "船社",
       dataIndex: "orgin",
@@ -104,14 +199,7 @@ const ShipList = () => {
       title: "ETD(新)",
       dataIndex: "etd",
       key: "etd",
-      render: (val, row) => (
-        <DatePicker
-          format="MM/DD"
-          value={dayjs(val, "MM/DD", true)}
-          suffixIcon=""
-          onChange={(_, value) => dateChange(value, "etd", row)}
-        />
-      ),
+      editable: true,
     },
     {
       title: "POD , ETA",
@@ -122,14 +210,7 @@ const ShipList = () => {
       title: "ETA(新)",
       dataIndex: "eta",
       key: "eta",
-      render: (val, row) => (
-        <DatePicker
-          format="MM/DD"
-          value={dayjs(val, "MM/DD", true)}
-          suffixIcon=""
-          onChange={(_, value) => dateChange(value, "eta", row)}
-        />
-      ),
+      editable: true,
     },
     {
       title: "操作",
@@ -180,19 +261,37 @@ const ShipList = () => {
       ),
     },
   ];
-  const [form, setForm] = useState({
-    orgin: "",
-    name: "",
-    code: "",
-    bkg: "",
-    bl: "",
-    pol: null,
-    pod: null,
-  });
-  const [page, setPage] = useState({
-    current: 1,
-    pageSize: 20,
-    total: 50,
+
+  const handleSave = (row) => {
+    const newData = [...dataSource];
+    const index = newData.findIndex((item) => row.key === item.key);
+    const item = newData[index];
+    newData.splice(index, 1, {
+      ...item,
+      ...row,
+    });
+    setDataSource(newData);
+  };
+  const components = {
+    body: {
+      row: EditableRow,
+      cell: EditableCell,
+    },
+  };
+  const columns = defaultColumns.map((col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        handleSave,
+      }),
+    };
   });
 
   const updateForm = (newData) => {
@@ -225,13 +324,6 @@ const ShipList = () => {
   const saveRow = (row) => {
     console.log(row);
   };
-
-  const dateChange = (val, field, row) => {
-    row[field] = val;
-    const data = cloneDeep(dataSource);
-    setDataSource(data);
-  };
-
   return (
     <div className="main-content">
       <Space size={[10, 16]} wrap>
@@ -289,6 +381,8 @@ const ShipList = () => {
       <Table
         rowKey="id"
         className="mt-5"
+        components={components}
+        rowClassName={() => "editable-row"}
         dataSource={dataSource}
         columns={columns}
         pagination={{
