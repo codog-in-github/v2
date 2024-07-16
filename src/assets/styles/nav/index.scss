@@ -71,3 +71,61 @@
   height: 100%;
   border-radius: var(--nav-button-bg-radius);
 }
+
+.staff-bg {
+  background-image: url("@/assets/images/staffbg.jpg");
+  background-size: cover;
+
+  .staff-head {
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .head-left {
+      width: 220px;
+      height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .head-right {
+      flex: 1;
+      display: flex;
+      justify-content: flex-end;
+      padding-right: 30px;
+
+      .drop {
+        background: linear-gradient(to right, #82b1c4, #0c42f3);
+        color: #fff;
+        padding: 5px 15px;
+        border-radius: 10px;
+      }
+
+      .info {
+        display: flex;
+        align-items: center;
+        color: #24445b;
+        font-size: 17px;
+
+        li {
+          margin-right: 15px;
+          padding-left: 15px;
+          position: relative;
+        }
+
+        li + li {
+          &::after {
+            content: "";
+            position: absolute;
+            display: block;
+            top: 0;
+            left: 0;
+            background-color: #a9c7e1;
+            width: 2px;
+            height: 100%;
+          }
+        }
+      }
+    }
+  }
+}
