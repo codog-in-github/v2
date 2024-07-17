@@ -142,8 +142,30 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100px;
+      height: 140px;
       font-size: 20px;
     }
+  }
+}
+
+.nav-layout-main {
+  padding: 0 15px;
+}
+
+.staff-content {
+  height: 560px;
+  overflow-y: auto;
+  background-color: rgba($color: #fff, $alpha: 0.7);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  padding: 15px 30px;
+}
+.staff-radio .ant-radio-wrapper {
+  background-color: #f1f2f4;
+  padding: 2px 5px;
+  border-radius: 10px;
+
+  &.ant-radio-wrapper-checked {
+    border: 1px solid $color-primary-500;
   }
 }

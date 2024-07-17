@@ -1,7 +1,4 @@
-import NavSidebar from "./NavSidebar";
 import { Outlet } from "react-router-dom";
-import { Radio } from "antd";
-import { ORDER_TYPE_EXPORT, ORDER_TYPE_IMPORT } from "@/costant";
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setOrderType } from "@/store/slices/order";
@@ -30,7 +27,7 @@ export const TopStaffLayout = () => {
           </div>
         </div>
       </div>
-      <div className="flex-1 flex overflow-hidden pt-[30px]">
+      <div className="flex-1 flex overflow-hidden pt-[50px]">
         <Outlet />
       </div>
     </div>
