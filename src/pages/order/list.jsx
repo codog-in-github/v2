@@ -1,4 +1,4 @@
-import { Space, Input, Select, Button, Table, Tag } from "antd";
+import { Space, Input, Select, Button, Table, Tag, Dropdown } from "antd";
 import { DashOutlined } from "@ant-design/icons";
 import { useState } from "react";
 const ColorTag = ({ color }) => {
@@ -72,6 +72,17 @@ const OrderList = () => {
     },
   ];
 
+  const items = [
+    {
+      label: <span>上传资料</span>,
+      key: "upload",
+    },
+    {
+      label: <span>下载资料</span>,
+      key: "download",
+    },
+  ];
+
   const columns = [
     {
       title: "お客様",
@@ -139,7 +150,15 @@ const OrderList = () => {
           <span className="text-blue-500 border-r border-gray-400 mr-3 pr-3">
             <a>复制</a>
           </span>
-          <DashOutlined className="text-blue-500 cursor-pointer" />
+
+          <Dropdown
+            menu={{
+              items,
+            }}
+            trigger={["click"]}
+          >
+            <DashOutlined className="text-blue-500 cursor-pointer" />
+          </Dropdown>
         </div>
       ),
     },
@@ -225,6 +244,7 @@ const OrderList = () => {
         <Button onClick={reset}>重置</Button>
       </Space>
       <Table
+        rowKey="id"
         className="mt-5"
         dataSource={dataSource}
         columns={columns}

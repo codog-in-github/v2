@@ -19,7 +19,7 @@ const CustomerCard = ({ item }) => {
       </div>
       <div className="font-bold">{item.title}</div>
       <div className="flex items-center justify-between">
-        <div className="flex-1 flex items-center justify-center border-r border-dashed border-gray-400 ">
+        <div className="flex-1 flex items-center  border-r border-dashed border-gray-400 ">
           <Avatar
             shape="square"
             size={50}

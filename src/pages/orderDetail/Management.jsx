@@ -1,5 +1,25 @@
+import { request } from "@/apis/requestBuilder"
 import Label from "@/components/Label"
 import { Form, Button, Input, DatePicker, Select } from "antd"
+import { useEffect, useState } from "react"
+
+const useGateCompanyOptions = () => {
+  const [options, setOptions] = useState([])
+  const [loading, setLoading] = useState(false)
+  useEffect(() => {
+    setLoading(true)
+    request('/admin/order/get_custom_com')
+      .get()
+      .send()
+      .then((data) => {
+        setOptions(data.map(item => ({
+          label: item.com_name,
+          value: item.id
+        })))
+      })
+  }, [])
+  return { options, loading }
+}
 
 const Management = ({
   className,
@@ -10,6 +30,7 @@ const Management = ({
   onShowMakeDocu = () => {},
   onShowInvoiceList = () => {}
 }) => {
+  const { options, loading } = useGateCompanyOptions()
   return (
     <div className={className}>
       <div className="mr-auto">
@@ -30,8 +51,13 @@ const Management = ({
           <Form.Item label="社内管理番号" name="companyNo">
             <Input readOnly />
           </Form.Item>
-          <Form.Item label="通関" name="gateCompany" rules={[{ required: true, message: '通関を入力してください' }]}>
-            <Input />
+          <Form.Item
+            label="通関"
+            name="gateCompany"
+            className="w-52"
+            rules={[{ required: true, message: '通関を入力してください' }]}
+          >
+            <Select options={options} loading={loading} />
           </Form.Item>
         </div>
       </div>
