@@ -1,7 +1,5 @@
 import Label from "@/components/Label"
-import { Space } from "antd"
-import { Button, Input } from "antd"
-import { Select } from "antd"
+import { Button, Input, Select, Space } from "antd"
 import { useState } from "react"
 
 const At = ({ children }) => {
@@ -32,7 +30,10 @@ const MessageBoard = ({ messages = [] }) => {
   for(let i = 0; i < messages.length; i++){
     if(i > 0) {
       msgEle.push(
-        <div key={`${messages[i].id}-dash`} className="h-4 border-gray-400 border-l border-dashed ml-[57px]" />
+        <div
+          key={`${messages[i].id}-dash`}
+          className="h-4 border-gray-400 border-l border-dashed ml-[57px]"
+        />
       )
     }
     msgEle.push(

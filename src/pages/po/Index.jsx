@@ -1,8 +1,6 @@
 import classNames from "classnames";
-import Color from "color";
 import "./index.scss";
 import moment from "moment";
-import { themeColor } from "@/helpers/color";
 
 const typeColors = {
   danger: {
