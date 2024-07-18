@@ -12,6 +12,7 @@ const useGateCompanyOptions = () => {
       .get()
       .send()
       .then((data) => {
+        setLoading(false)
         setOptions(data.map(item => ({
           label: item.com_name,
           value: item.id

@@ -204,7 +204,7 @@ const useDetailData = (id) => {
     setLoading(true)
     request('/admin/order/detail')
       .get()
-      .query({ id })
+      .query({ keyword: id })
       .send()
       .then((rep) => {
         pipe(
