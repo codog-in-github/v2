@@ -51,7 +51,7 @@ const useFillFormData = (form, id) => {
     setLoading(true)
     request('/admin/order/detail')
       .get()
-      .query({ id })
+      .query({ keyword: id })
       .send()
       .then(formDataTransfer)
       .then((data) => form.setFieldsValue(data))
