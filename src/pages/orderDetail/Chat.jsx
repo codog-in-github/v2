@@ -1,75 +1,9 @@
-import { request } from "@/apis/requestBuilder"
 import Label from "@/components/Label"
-import { useAsyncCallback } from "@/hooks"
 import { Button, Input, Select, Space } from "antd"
-import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useState } from "react"
+import { useAtUserOptions } from "./dataHooks"
+import classNames from "classnames"
 
-const useAtUserOptions = () => {
-  const [options, setOptions] = useState([])
-  const [loading, setLoading] = useState(false)
-  useEffect(() => {
-    setLoading(true)
-    request('/admin/user/user_list').get().send()
-      .then(data => {
-        setOptions(data.map(item => ({
-          value: item.id,
-          label: item.name
-        })))
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }, [])
-  return {
-    options,
-    loading
-  }
-}
-
-const useMessages = () => {
-  const [messages, setMessages] = useState([])
-  const orderId = useParams().id
-  const {
-    callback: reload,
-    loading
-  } = useAsyncCallback(async () => {
-    /**
-     *  {
-            id: 1,
-            from: '吉田',
-            at: '范扬',
-            content: '今天内完成报关资料。',
-            time: '2024-06-02  10:21:14'
-          }
-     */
-    const rep = await request('/admin/order/message_list')
-      .get({ 'order_id': orderId  }).send()
-    console.log(rep)
-  }, [setMessages, orderId])
-
-  const {
-    callback: sendMessage,
-    loading: sending
-  } = useAsyncCallback(async (msg, at) => {
-    const data = { 'order_id': orderId, 'content': msg }
-    if(at) {
-      data['receive_id'] = at
-    }
-    await request('/admin/order/send_message').data(data).send() 
-  }, [setMessages])
-
-  useEffect(() => {
-    reload()
-  }, [reload])
-  return {
-    messages,
-    reload,
-    sendMessage,
-    loading,
-    sending
-  }
-}
 const At = ({ children }) => {
   return (
     <span
@@ -93,7 +27,7 @@ const Message = ({ from, at, content, time }) => {
     </div>
   )
 }
-const MessageBoard = ({ messages, loading }) => {
+const MessageBoard = ({ messages }) => {
   const msgEle = []
   for(let i = 0; i < messages.length; i++){
     if(i > 0) {
@@ -109,8 +43,7 @@ const MessageBoard = ({ messages, loading }) => {
     )
   }
   return (
-    <div className="bg-gray-200 p-2 flex-1">
-      {loading ? 'loading...' : null}
+    <div id="message-board" className="bg-gray-200 p-2 flex-1 overflow-auto">
       {msgEle}
     </div>
   )
@@ -118,7 +51,6 @@ const MessageBoard = ({ messages, loading }) => {
 const MessageInput = ({ onSend, inSending = false }) => {
   const [at, setAt] = useState('')
   const [msg, setMsg] = useState('')
-  const { id: orderId } = useParams()
   const {
     options: users,
     loading
@@ -132,7 +64,7 @@ const MessageInput = ({ onSend, inSending = false }) => {
     setMsg('')
   }
   return (
-    <Space.Compact className="flex h-16 mt-2">
+    <Space.Compact className="flex h-16 my-4 mt-2">
       <Select
         className="h-full w-32"
         value={at}
@@ -145,14 +77,15 @@ const MessageInput = ({ onSend, inSending = false }) => {
     </Space.Compact>
   )
 }
-const Chat = ({ className }) => {
-  const { messages, loading, sending, sendMessage } = useMessages()
+const Chat = ({ className, messages, sending, onSend }) => {
   return (
-    <div className={className}>
-      <Label>社内伝達</Label>
-      <div className="p-2 flex-1 flex flex-col">
-        <MessageBoard loading={loading} messages={messages} />
-        <MessageInput onSend={() => {}}  inSending={sending} />
+    <div className={classNames(
+      className, 'h-full overflow-hidden'
+    )}>
+      <Label className="flex-shrink-0">社内伝達</Label>
+      <div className="p-2 flex-1 flex flex-col h-full">
+        <MessageBoard messages={messages} />
+        <MessageInput onSend={onSend}  inSending={sending} />
       </div>
     </div>
   )
