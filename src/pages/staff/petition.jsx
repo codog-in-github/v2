@@ -1,5 +1,125 @@
-import { Button, Table, Tag } from "antd";
+import { Button, Table, Tag, Modal, Tabs } from "antd";
 import { useState } from "react";
+import pqs from "@/assets/images/pqs.png";
+import pdf from "@/assets/images/pdf.png";
+
+const PdfContent = ({ type }) => {
+  const arr = [
+    { pdfId: 1, name: "test1" },
+    { pdfId: 2, name: "test2" },
+    { pdfId: 3, name: "test3" },
+  ];
+  return (
+    <div className="pdf-content clear">
+      {arr.map((item) => (
+        <div className="item" key={item.pdfId}>
+          <img src={pdf} />
+          <p className="line-clamp-2 overflow-hidden">{item.name}</p>
+        </div>
+      ))}
+    </div>
+  );
+};
+const StaffPetModal = ({ modalCancel }) => {
+  const pageNum = 3;
+  const [curNum, setCurNum] = useState(1);
+  const items = [
+    {
+      key: "1",
+      label: "通関",
+      children: <PdfContent type="1" />,
+    },
+    {
+      key: "2",
+      label: "業務",
+      children: <PdfContent type="2" />,
+    },
+    {
+      key: "3",
+      label: "請求",
+      children: <PdfContent type="3" />,
+    },
+    {
+      key: "4",
+      label: "仕れ",
+      children: <PdfContent type="4" />,
+    },
+  ];
+  const items2 = [
+    {
+      key: "5",
+      label: "請求書1",
+      children: <PdfContent type="5" />,
+    },
+    {
+      key: "6",
+      label: "請求書2",
+      children: <PdfContent type="6" />,
+    },
+    {
+      key: "7",
+      label: "合計請求書",
+      children: <PdfContent type="7" />,
+    },
+  ];
+  const prev = () => {
+    setCurNum((prev) => prev - 1);
+  };
+  const next = () => {
+    setCurNum((prev) => prev + 1);
+  };
+  const save = () => {};
+  const send = () => {
+    modalCancel();
+  };
+  return (
+    <div className="modal-content">
+      <div className="btn">
+        {curNum < pageNum && curNum !== 1 && (
+          <Button size="small" onClick={prev}>
+            上一页
+          </Button>
+        )}
+        {curNum < pageNum && (
+          <Button size="small" onClick={next}>
+            下一页
+          </Button>
+        )}
+        {curNum === pageNum && (
+          <Button size="small" onClick={save}>
+            另存已选
+          </Button>
+        )}
+
+        {curNum === pageNum && (
+          <Button size="small" type="primary" onClick={send}>
+            选择并发送
+          </Button>
+        )}
+      </div>
+      <div className="left">
+        <div className="staff-title">社内管理番号：</div>
+        <img src={pqs} />
+      </div>
+      <div className="right">
+        {curNum !== pageNum ? (
+          <>
+            <div className="staff-title">資料状況</div>
+            <Tabs defaultActiveKey="1" items={items} />
+
+            <div className="staff-title mt-7 mb-3" type="2">
+              添付ファイル
+            </div>
+
+            <PdfContent type="1" />
+          </>
+        ) : (
+          <Tabs defaultActiveKey="1" items={items2} />
+        )}
+      </div>
+    </div>
+  );
+};
 
 const StaffPet = () => {
   const dataSource = [
@@ -26,7 +146,7 @@ const StaffPet = () => {
       status: 2,
     },
     {
-      id: 3,
+      id: 4,
       name: "鹤丸海运株式会社",
       desi: "2024041081K",
       bk: "GQF413SK202",
@@ -97,8 +217,13 @@ const StaffPet = () => {
     total: 50,
   });
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
   const onSelectChange = (newSelectedRowKeys) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
 
@@ -107,7 +232,10 @@ const StaffPet = () => {
     onChange: onSelectChange,
   };
 
-  const total = () => {};
+  const total = () => {
+    console.log(selectedRowKeys);
+    setIsModalOpen(true);
+  };
 
   const pageChange = ({ current, pageSize, total }) => {
     setPage({ ...page, current, pageSize, total });
@@ -141,6 +269,17 @@ const StaffPet = () => {
           pageChange(page);
         }}
       />
+
+      <Modal
+        title="合計請求書プレビュー"
+        open={isModalOpen}
+        onCancel={handleCancel}
+        className="staff-modal"
+        footer={null}
+        width="80%"
+      >
+        <StaffPetModal modalCancel={handleCancel} />
+      </Modal>
     </div>
   );
 };

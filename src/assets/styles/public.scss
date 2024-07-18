@@ -19,9 +19,35 @@ body {
   border-radius: 9999px;
 }
 
+.clear::after,
+.clear::before {
+  content: " ";
+  display: table;
+}
+
+.clear::after {
+  clear: both;
+}
+
 .main-content {
   margin: 15px;
   padding: 15px;
   height: calc(100% - 30px);
   background-color: #fff;
+}
+
+.staff-title {
+  position: relative;
+  padding-left: 12px;
+
+  &::after {
+    content: "";
+    display: block;
+    width: 5px;
+    height: 80%;
+    background-color: #2f62eb;
+    position: absolute;
+    top: 10%;
+    left: 0;
+  }
 }
