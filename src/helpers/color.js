@@ -14,10 +14,18 @@ export const light = (color, l) => {
   return Color.hsl(hsl).hex().toString()
 }
 
-export const themeColor = (type, l = null) => {
-  const color = theme.colors[type] ?? 'transparent'
-  if(l !== null) {
-    return light(color, l)
+export const themeColor = (() => {
+  const cache = {}
+  return (type, l = null) => {
+    const cacheKey = `${type}_${l}`
+    if(cache[cacheKey])
+      return cache[cacheKey]
+    const color = theme.colors[type] ?? 'transparent'
+    if(l !== null) {
+      return light(color, l)
+    }
+    const result = hex(color)
+    cache[cacheKey] = result
+    return result
   }
-  return hex(color)
-}
+})()

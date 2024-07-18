@@ -13,8 +13,8 @@ import { useCallback } from 'react';
 import { request } from '@/apis/requestBuilder';
 import { useSelector } from 'react-redux';
 import { useAsyncCallback } from '@/hooks';
-const c = namespaceClass('page-top')
 
+const c = namespaceClass('page-top')
 const saveOrder = (data) => {
   return request('admin/order/create').data(data).send()
 }
@@ -143,6 +143,7 @@ function MainContent() {
               end
             />
           </div>
+          
         </div>
         </div>
       <div className={classNames(c('message-bar'), 'px-2 py-[22px] bg-white h-full flex flex-col overflow-hidden border-l')}>

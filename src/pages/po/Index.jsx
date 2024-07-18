@@ -1,24 +1,8 @@
 import classNames from "classnames";
 import "./index.scss";
 import moment from "moment";
+import { themeColor } from "@/helpers/color";
 
-const typeColors = {
-  danger: {
-    border: "border-[#fd7556]",
-    bg: "bg-[#fd7556]",
-    bgLight: "bg-[#FD7556]",
-  },
-  warning: {
-    border: "border-[#FBBB21]",
-    bg: "bg-[#FBBB21]",
-    bgLight: "bg-[#fff8e8]",
-  },
-  success: {
-    border: "border-[#429638]",
-    bg: "bg-[#429638]",
-    bgLight: "bg-[#ecf4eb]",
-  },
-};
 function Card({ end, type = "success", address = "", date }) {
   const grayscale = {};
   if (end) {
@@ -29,18 +13,17 @@ function Card({ end, type = "success", address = "", date }) {
   const hm = m.format("HH:mm");
   return (
     <div
-      className={classNames(
-        "border-2 border-t-[6px] rounded",
-        typeColors[type].border
-      )}
-      style={{ ...grayscale }}
+      className="border-2 border-t-[6px] rounded"
+      style={{
+        borderColor: themeColor(type, 60),
+        ...grayscale
+      }}
     >
+      
       <div className="flex p-2">
         <div
-          className={classNames(
-            "rounded-full w-8 h-8 leading-8 text-center text-white",
-            typeColors[type].bg
-          )}
+          className="rounded-full w-8 h-8 leading-8 text-center text-white"
+          style={{ backgroundColor: themeColor(type, 60) }}
         ></div>
         <div className="ml-2">
           <div>{address}</div>
@@ -57,10 +40,8 @@ function Card({ end, type = "success", address = "", date }) {
           <div className="text-sm text-gray-400 mt-2">GQF413SK202</div>
         </div>
         <div
-          className={classNames(
-            "flex justify-center items-center flex-col px-2",
-            typeColors[type].bgLight
-          )}
+          className="flex justify-center items-center flex-col px-2"
+          style={{ background: themeColor(type, 90) }}
         >
           <div>{md}</div>
           <div>{hm}</div>

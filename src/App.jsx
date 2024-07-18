@@ -27,8 +27,23 @@ const useGlobalMessage = () => {
   return contextHolder;
 };
 
+const useAuthorizedCheck = () => {
+  useEffect(() => {
+    const logout = () => {
+      localStorage.removeItem('token')
+      router.navigate('/')
+    }
+    pubSub.subscribe('Error:HTTP.Unauthorized', logout)
+    return () => {
+      pubSub.unsubscribe('Error:HTTP.Unauthorized', logout)
+    }
+  }, [])
+}
+
+
 export default function App() {
   const msgElement = useGlobalMessage();
+  useAuthorizedCheck()
   return (
     <Provider store={store}>
       {msgElement}

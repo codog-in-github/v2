@@ -1,5 +1,9 @@
 import pubSub from "@/helpers/pubSub";
 export function checkHttpState(response, next) {
+  if(response.status === 401) {
+    pubSub.publish('Error:HTTP.Unauthorized', response)
+    throw Error('Error:HTTP.Unauthorized');
+  }
   if(response.status !== 200) {
     pubSub.publish('Error:HTTP.State', response)
     throw Error('Error:HTTP.State');
