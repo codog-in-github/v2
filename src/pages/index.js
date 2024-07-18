@@ -7,6 +7,9 @@ import StaffTop from "@/pages/staff/top";
 import StaffRules from "@/pages/staff/rules";
 import StaffShip from "@/pages/staff/ship";
 import StaffPet from "@/pages/staff/petition";
+import ClientTop from "@/pages/client/top";
+import ClientRules from "@/pages/client/rules";
+import ClientOffer from "@/pages/client/offer.jsx";
 
 export {
   CustomerList,
@@ -18,4 +21,7 @@ export {
   StaffRules,
   StaffShip,
   StaffPet,
+  ClientTop,
+  ClientRules,
+  ClientOffer,
 };

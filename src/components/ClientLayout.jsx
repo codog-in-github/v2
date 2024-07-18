@@ -3,27 +3,30 @@ import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setOrderType } from "@/store/slices/order";
 import logo from "@/assets/images/icons/chz_logo.webp";
-import { DownOutlined } from "@ant-design/icons";
+import { Tag } from "antd";
 import { NavButton, NavButtonGroup } from "./NavButton";
-export const TopStaffLayout = () => {
+export const TopClientLayout = () => {
   return (
-    <div className="nav-layout flex flex-col h-screen staff">
+    <div className="nav-layout flex flex-col h-screen staff client">
       <div className="staff-head">
         <div className="head-left">
-          <img className="mr-3" src={logo}></img>
-          <div>春海組システム</div>
+          <div>南京方業物流有限公司</div>
         </div>
 
         <div className="head-right">
-          <ul className="info">
-            <li>住所：大阪市住吉区 杉本6-1-1</li>
-            <li>〒：547-0014</li>
-            <li>TEL：090-12345678</li>
-            <li>EMAIL：123456789@XX.com</li>
-            <li>FAX：12345678</li>
-          </ul>
-          <div className="drop">
-            南京方業物流有限公司 <DownOutlined className="ml-2" />
+          <div className="flex items-center text-[14px]">
+            <div className="flex items-center">
+              <img className="mr-3 w-[30px]" src={logo}></img>
+              <div>春海組システム</div>
+            </div>
+
+            <div className="ml-[30px]">
+              <Tag color="#4471EF">负责人员</Tag>吉田部长丨090-12345678
+            </div>
+            <div className="ml-[30px]">
+              {" "}
+              <Tag color="#F85935">紧急联络</Tag>范扬社长丨090-12345678
+            </div>
           </div>
         </div>
       </div>
@@ -34,30 +37,27 @@ export const TopStaffLayout = () => {
   );
 };
 
-const StaffSidebar = () => {
+const ClientSidebar = () => {
   return (
     <NavButtonGroup
       align="left"
       rect
       className="nav-side-bar bg-white p-4 flex-col"
     >
-      <NavButton to="/staff-top" className="mb-2">
+      <NavButton to="/client-top" className="mb-2">
         TOP
       </NavButton>
-      <NavButton to="/staff-rules" className="mb-2">
+      <NavButton to="/client-rules" className="mb-2">
         新規依頼
       </NavButton>
-      <NavButton to="/staff-ship" className="mb-2">
+      <NavButton to="/client-offer" className="mb-2">
         船期
-      </NavButton>
-      <NavButton to="/staff-pet" className="mb-2">
-        合計請求書
       </NavButton>
     </NavButtonGroup>
   );
 };
 
-export const SideStaffLayout = () => {
+export const SideClientLayout = () => {
   const orderType = useSelector((state) => state.order.type);
   const dispatch = useDispatch();
   const orderTypeChangeHandle = useCallback((e) => {
@@ -67,7 +67,7 @@ export const SideStaffLayout = () => {
   return (
     <>
       <div className="flex flex-col h-full w-[240px] items-center">
-        <StaffSidebar />
+        <ClientSidebar />
       </div>
       <div className="nav-layout-main">
         <Outlet />

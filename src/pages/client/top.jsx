@@ -1,97 +1,49 @@
-import { Space, Input, Select, Button, Table } from "antd";
+import { Space, Input, Select, Button, Table, Tag } from "antd";
 import { DashOutlined } from "@ant-design/icons";
 import { useState } from "react";
 
-const ColorTag = ({ color }) => {
-  const colorObj = {
-    red: "#FD7556",
-    yellow: "#FBBB21",
-    gray: "#D3D6DD",
-    green: "#429638",
-  };
-  return color.map((item, index) => (
-    <div
-      className="w-[8px] h-[18px] inline-block rounded mr-[3px]"
-      style={{ backgroundColor: colorObj[item] }}
-      key={index}
-    ></div>
-  ));
-};
-
-const StaffTop = () => {
+const ClientTop = () => {
   const selectArr = [
     { value: "test1", label: "测试1" },
     { value: "test2", label: "测试2" },
+  ];
+
+  const statusArr = [
+    { value: 0, label: "全部状态" },
+    { value: 1, label: "待报关" },
+    { value: 2, label: "运输中" },
+    { value: 3, label: "已完成" },
   ];
   const dataSource = [
     {
       id: 1,
       name: "三祥贸易株式会社",
       desi: "2024041081K",
-      bk: "GQF413SK202",
+      status: 1,
       cut: "2024-06-06",
       pol: "KOBE , 06/03",
       pod: "BANGKOK , 07/09",
       quantity: "40HQ , 6 ; 20HQ , 6",
-      color: [
-        "red",
-        "red",
-        "red",
-        "yellow",
-        "yellow",
-        "gray",
-        "gray",
-        "gray",
-        "green",
-        "green",
-        "green",
-      ],
     },
     {
       id: 2,
       name: "鹤丸海运株式会社",
       desi: "2024041081K",
-      bk: "GQF413SK202",
+      status: 2,
       cut: "2024-06-06",
       pol: "KOBE , 06/03",
       pod: "BANGKOK , 07/09",
       quantity: "20HQ , 2",
-      color: [
-        "gray",
-        "gray",
-        "gray",
-        "gray",
-        "gray",
-        "gray",
-        "gray",
-        "gray",
-        "gray",
-        "gray",
-        "gray",
-      ],
     },
     {
       id: 3,
       name: "鹤丸海运株式会社",
       desi: "2024041081K",
-      bk: "GQF413SK202",
+      status: 3,
       cut: "2024-06-06",
       pol: "KOBE , 06/03",
       pod: "BANGKOK , 07/09",
       quantity: "20HQ , 2",
-      color: [
-        "gray",
-        "gray",
-        "gray",
-        "gray",
-        "gray",
-        "gray",
-        "gray",
-        "gray",
-        "gray",
-        "gray",
-        "gray",
-      ],
     },
   ];
 
@@ -100,48 +52,35 @@ const StaffTop = () => {
       title: "番号",
       dataIndex: "desi",
       key: "desi",
-      sorter: (a, b) => a.age - b.age,
-    },
-    {
-      title: "BKG NO.",
-      dataIndex: "bk",
-      key: "bk",
-      sorter: (a, b) => a.age - b.age,
-    },
-    {
-      title: "CUT",
-      dataIndex: "cut",
-      key: "cut",
-      sorter: (a, b) => a.age - b.age,
-    },
-    {
-      title: "POL,ETD,ETD(新）",
-      dataIndex: "pol",
-      key: "pol",
-      sorter: (a, b) => a.age - b.age,
-    },
-    {
-      title: "POD,ETA,ETA(新）",
-      dataIndex: "pod",
-      key: "pod",
-      sorter: (a, b) => a.age - b.age,
-    },
-    {
-      title: "数量",
-      dataIndex: "quantity",
-      key: "quantity",
-      sorter: (a, b) => a.age - b.age,
     },
     {
       title: "状態",
       dataIndex: "status",
       key: "status",
-      render: (status, row) => (
+      render: (status) => (
         <div>
-          <ColorTag color={row.color} />
+          {status === 1 && <Tag color="red">待报关</Tag>}
+          {status === 2 && <Tag color="blue">运输中</Tag>}
+          {status === 3 && <Tag color="green">已完成</Tag>}
         </div>
       ),
     },
+    {
+      title: "POL",
+      dataIndex: "pol",
+      key: "pol",
+    },
+    {
+      title: "POD",
+      dataIndex: "pod",
+      key: "pod",
+    },
+    {
+      title: "数量",
+      dataIndex: "quantity",
+      key: "quantity",
+    },
+
     {
       title: "操作",
       key: "option",
@@ -150,7 +89,7 @@ const StaffTop = () => {
       render: () => (
         <div>
           <span className="text-blue-500 ">
-            <a>新規</a>
+            <a>类似新案件</a>
           </span>
         </div>
       ),
@@ -159,7 +98,7 @@ const StaffTop = () => {
   const [form, setForm] = useState({
     name: "",
     desi: "",
-    bk: "",
+    status: 0,
     pol: null,
     pod: null,
   });
@@ -196,7 +135,7 @@ const StaffTop = () => {
   return (
     <div className="staff-content">
       <div className="flex justify-between items-center">
-        <div className="text-[24px] text-gray-700">ORDER</div>
+        <div className="text-[24px] text-gray-700">全部订单</div>
         <Space size={[10, 16]} wrap>
           <Input
             placeholder="番号"
@@ -204,11 +143,12 @@ const StaffTop = () => {
             value={form.desi}
             onChange={(e) => updateForm({ desi: e.target.value })}
           />
-          <Input
-            placeholder="BK号"
+          <Select
+            options={statusArr}
+            placeholder="全部状态"
             style={{ width: 160 }}
-            value={form.bk}
-            onChange={(e) => updateForm({ bk: e.target.value })}
+            value={form.status}
+            onChange={(val) => updateForm({ status: val })}
           />
 
           <Select
@@ -252,4 +192,4 @@ const StaffTop = () => {
   );
 };
 
-export default StaffTop;
+export default ClientTop;
