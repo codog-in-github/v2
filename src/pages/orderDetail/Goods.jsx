@@ -88,7 +88,7 @@ const ContainerList = ({ list, onAddCar, onAddContainer }) => {
                   transform: `translateX(${-page * 100}%)`
                 }}>
                   <div className="flex gap-1 items-end mb-2">
-                      <Form.Item className="flex-1" name={[props.name, 'com']}>
+                      <Form.Item className="flex-1" name={[props.name, 'commodity']}>
                           <Input addonBefore="COM" />
                       </Form.Item>
                       <Form.Item className="flex-1" label="Container type" name={[props.name, 'containerType']}>
@@ -139,10 +139,10 @@ const CarList = ({list, onAddCar, containerFieldName}) => {
             className="bg-[#d9e4ef] p-2 h-full transition-transform overflow-hidden"
             style={{ transform: `translateY(${-page * 100}%)` }}>
             <div className="flex gap-2">
-              <Form.Item className="flex-1" label="VAN場所" name={[props.name, 'van']}>
+              <Form.Item className="flex-1" label="VAN場所" name={[props.name, 'vanPlace']}>
                 <Input />
               </Form.Item>
-              <Form.Item className="w-32" label="TYPE" name={[props.name, 'type']}>
+              <Form.Item className="w-32" label="TYPE" name={[props.name, 'vanType']}>
                 <Input />
               </Form.Item>
             </div>
@@ -166,7 +166,7 @@ const CarList = ({list, onAddCar, containerFieldName}) => {
             </div>
             <div className="border-t border-gray-400 border-dashed my-2" />
             <div className="flex gap-2">
-              <Form.Item className="flex-1" label="運送会社" name={[props.name, 'comp']}>
+              <Form.Item className="flex-1" label="運送会社" name={[props.name, 'transCom']}>
                 <Input />
               </Form.Item>
               <Form.Item className="flex-1" label="ドライバー" name={[props.name, 'driver']}>
@@ -188,9 +188,9 @@ const CarList = ({list, onAddCar, containerFieldName}) => {
               </Form.Item>
               <Form.Item className="flex-1" label="TARE" name={[props.name, 'tare']}>
                 <Input addonAfter={(
-                  <Select defaultValue="T">
-                    <Select.Option value="T">T</Select.Option>
-                    <Select.Option value="kg">KG</Select.Option>
+                  <Select defaultValue="T" value={1} >
+                    <Select.Option value={1}>T</Select.Option>
+                    <Select.Option value={2}>KG</Select.Option>
                   </Select>
                 )} />
               </Form.Item>

@@ -49,9 +49,16 @@ const MessageInput = ({ onSend }) => {
     if(!msg) {
       return
     }
+    let isPreventDefault = false
     onSend({
-      msg, at
+      payload: { msg, at, },
+      preventDefault () {
+        isPreventDefault = true
+      }
     })
+    if(isPreventDefault) {
+      return
+    }
     setAt('')
     setMsg('')
   }

@@ -1,7 +1,7 @@
 import Label from "@/components/Label"
 import { Input, Form } from "antd"
 
-const Customer = ({className}) => {
+const Customer = ({ className }) => {
   return (
     <div className={className}>
       <Label>お客様情報</Label>

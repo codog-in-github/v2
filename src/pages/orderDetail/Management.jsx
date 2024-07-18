@@ -31,6 +31,13 @@ const Management = ({
   onShowInvoiceList = () => {}
 }) => {
   const { options, loading } = useGateCompanyOptions()
+  const form = Form.useFormInstance()
+  const setDefaultNumber = () => {
+    const bkgNo = form.getFieldValue('bkgNo')
+    if(bkgNo) {
+      form.setFieldValue('blNo', bkgNo)
+    }
+  }
   return (
     <div className={className}>
       <div className="mr-auto">
@@ -40,7 +47,7 @@ const Management = ({
             <DatePicker />
           </Form.Item>
           <Form.Item label="BKG NO." name="bkgNo" rules={[{ required: true, message: 'BKG NO.を入力してください' }]}>
-            <Input />
+            <Input onBlur={setDefaultNumber} />
           </Form.Item>
           <Form.Item label="B/L NO." name="blNo">
             <Input />
@@ -48,7 +55,7 @@ const Management = ({
           <Form.Item label="TYPE" name="type"  className="w-48" rules={[{ required: true, message: 'TYPEを入力してください' }]}>
             <Select />
           </Form.Item>
-          <Form.Item label="社内管理番号" name="companyNo">
+          <Form.Item label="社内管理番号" name="orderNo">
             <Input readOnly />
           </Form.Item>
           <Form.Item

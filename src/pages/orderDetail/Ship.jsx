@@ -75,6 +75,7 @@ const Ship = ({ className }) => {
       <Label>船社情報</Label>
       <div className="px-2">
       <div className="flex items-end gap-1">
+          <Input name="id" hidden />
           <Form.Item className="flex-1" label="CARRIER" name="carrier">
             <Input />
           </Form.Item>
