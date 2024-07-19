@@ -9,7 +9,8 @@ import StaffShip from "@/pages/staff/ship";
 import StaffPet from "@/pages/staff/petition";
 import ClientTop from "@/pages/client/top";
 import ClientRules from "@/pages/client/rules";
-import ClientOffer from "@/pages/client/offer.jsx";
+import ClientOffer from "@/pages/client/offer";
+import DeclarantList from "@/pages/declarant/list";
 
 export {
   CustomerList,
@@ -17,11 +18,18 @@ export {
   OrderCalendar,
   ShipList,
   PetitionList,
+
+  //员工端
   StaffTop,
   StaffRules,
   StaffShip,
   StaffPet,
+
+  //客户端
   ClientTop,
   ClientRules,
   ClientOffer,
+
+  //报关员端
+  DeclarantList,
 };
