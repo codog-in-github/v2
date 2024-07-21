@@ -15,7 +15,8 @@ class Request {
     this.baseURL = baseURL;
     this.targetUrl = url;
     this.method = 'post';
-    this.headers = {};
+    this._headers = {};
+    this._config = {};
     this._data = {};
     this._query = {};
     this.requestMiddleware = [addAuthorization];
@@ -41,6 +42,21 @@ class Request {
     return this;
   }
 
+  headers (headerObj) {
+    this._headers = Object.assign(this._headers, headerObj);
+    return this
+  }
+
+  /**
+   * 
+   * @param {import('axios').AxiosRequestConfig} configObj 
+   * @returns 
+   */
+  config (configObj) {
+    this._config = Object.assign(this._config, configObj);
+    return this
+  }
+
   post(url, bodyData) {
     this.method = 'post';
     if (url !== void 0) {
@@ -54,6 +70,26 @@ class Request {
       this.data(bodyData);
     }
     return this;
+  }
+
+  /**
+   * @param {FormData|Record<string, any>} formData 
+   * @returns 
+   */
+  form(formData) {
+    if (formData) {
+      if(!(formData instanceof FormData)) {
+        const _formData = new FormData()
+        for(const key in formData) {
+          _formData.append(key, formData[key])
+        }
+        formData = _formData
+      }
+      this.data(formData, true)
+    }
+    return this.headers({
+      'Content-Type': 'multipart/form-data',
+    });
   }
 
   data(data, replace = false) {
@@ -84,7 +120,8 @@ class Request {
     request.targetUrl = this.targetUrl;
     request.method = this.method;
     request._query = cloneDeep(this._query);
-    request.headers = cloneDeep(this.headers);
+    request._headers = cloneDeep(this._headers);
+    request._config = cloneDeep(this._config);
     request._data = cloneDeep(this._data);
     request.requestMiddleware = [...this.requestMiddleware];
     request.responseMiddleware = [...this.responseMiddleware];
@@ -164,8 +201,9 @@ class Request {
       url,
       method: this.method,
       data: this._data,
-      headers: this.headers,
+      headers: this._headers,
       validateStatus: null,
+      ...this._config
     });
   }
 }

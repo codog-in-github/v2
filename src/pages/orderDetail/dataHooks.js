@@ -201,12 +201,50 @@ const messagesGenerator = (rep) => {
   }
   return []
 }
+
+const toFileProps = (item) => {
+  return {
+    id: item['id'],
+    fileUrl: item['file_path'],
+  }
+}
+const filesGenerator = (rep) => {
+  const files = {}
+  if(rep['files'] && rep['files'].length) {
+    rep['files'].forEach(item => {
+      if(!files[item['type']]) {
+        files[item['type']] = []
+      }
+      files[item['type']].push(toFileProps(item))
+    })
+  }
+  return files
+}
 export const useDetailData = () => {
   const { id } = useParams()
   const [form] = Form.useForm()
   const [lights, setLights] = useState([])
   const [loading, setLoading] = useState(false)
   const [messages, setMessages] = useState([])
+  
+  const [files, setFiles] = useState({})
+
+  const { callback: saveOrderFile, loading: savingOrderFile } = useAsyncCallback(async ({ fileUrl, type }) => {
+    const rep = await request('/admin/order/save_file')
+      .data({
+        'file_path': fileUrl,
+        'order_id': id,
+        type,
+      }).send()
+    const _files = {
+      ...files
+    }
+    if(!_files[type]) {
+      _files[type] = []
+    }
+    _files[type].push(toFileProps(rep))
+    setFiles(_files)
+  }, [id, files, setFiles])
   const scrollBottom = () => {
     const messageBoardDOM = document.getElementById('message-board')
     console.log('messageBoardDOM', messageBoardDOM);
@@ -234,6 +272,10 @@ export const useDetailData = () => {
           messagesGenerator,
           setMessages,
           () => setTimeout(scrollBottom, 20)
+        )(rep)
+        pipe(
+          filesGenerator,
+          setFiles,
         )(rep)
       })
       .finally(() => {
@@ -264,6 +306,9 @@ export const useDetailData = () => {
     messages,
     sendMessage,
     sending,
+    files,
+    savingOrderFile,
+    saveOrderFile,
   }
 }
 

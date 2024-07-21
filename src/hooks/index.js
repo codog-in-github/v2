@@ -1,3 +1,4 @@
+import { request } from "@/apis/requestBuilder"
 import {
   useCallback,
   useEffect,
@@ -71,5 +72,39 @@ export const useAsyncCallback = (func, dependency) => {
   return {
     loading,
     callback
+  }
+}
+
+export const useFileUpload = () => {
+  const [uploading, setUploading] = useState(false)
+  const [total, setTotal] = useState(0)
+  const [loaded, setLoaded] = useState(0)
+  
+  /**
+   * @param {File} file 
+   */
+  const upload = async (file) => {
+    try {
+      setUploading(true)
+      const rep = await request('/admin/upload_file').form({ file })
+        .config({
+          onUploadProgress: (e) => {
+            setTotal(e.total)
+            setLoaded(e.loaded)
+          }
+        })
+        .send()
+      setUploading(false)
+      return rep['url']
+    } catch (error) {
+      setUploading(false)
+      throw error
+    }
+  }
+  return {
+    uploading,
+    total,
+    loaded,
+    upload
   }
 }

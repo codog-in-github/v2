@@ -9,7 +9,7 @@ import Files from "./Files"
 import { newConatainer, useDetailData } from "./dataHooks"
 
 const OrderDetail = () => {
-  const { loading, form, messages, sendMessage } = useDetailData()
+  const { loading, form, messages, sendMessage, saveOrderFile, files } = useDetailData()
   const onAddContainerHandle = () => {
     const oldValue = form.getFieldValue('containers')
     form.setFieldsValue({
@@ -59,7 +59,11 @@ const OrderDetail = () => {
         messages={messages}
         onSend={sendMessage}
       />
-      <Files className="bg-white"></Files>
+      <Files
+        files={files}
+        className="bg-white"
+        onUpload={saveOrderFile}
+      />
     </Form>
   )
 }
