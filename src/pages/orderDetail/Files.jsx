@@ -1,3 +1,4 @@
+import File from "@/components/File";
 import Label from "@/components/Label";
 import { chooseFile } from "@/helpers/file";
 import { useFileUpload } from "@/hooks";
@@ -45,7 +46,13 @@ export const Files = ({ files, className, onUpload = () => {} }) => {
       const _files = files[key] ?? []
       tabItems.push({
         ...tabItem,
-        children: _files.map(file => JSON.stringify(file))
+        children: (
+          <div className="grid grid-cols-6">{
+            _files.map(file => (
+              <File key={file.id} filePath={file.fileUrl}></File>
+            ))
+          }</div>
+        )
       }) 
       
     }

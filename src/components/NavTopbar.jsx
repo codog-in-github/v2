@@ -6,7 +6,7 @@ import classnames from 'classnames';
 import { CaretDownOutlined, HomeFilled } from '@ant-design/icons';
 import { Dropdown } from 'antd';
 import { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const c = namespaceClass('nav-top-bar')
 
@@ -22,8 +22,10 @@ const NavTopbar = ({ className }) => {
   const logoutHandle = useLogout()
   return (
     <div className={classnames(c(''), 'bg-white flex items-center', className)}>
-      <img className={classnames(c('logo'))} src={logo}></img>
-      <div className={classnames(c('title'))}>春海組システム</div>
+      <Link to="/top" className='flex gap-1 items-center'>
+        <img className={classnames(c('logo'))} src={logo}></img>
+        <div className={classnames(c('title'))}>春海組システム</div>
+      </Link>
       <NavButtonGroup className="ml-20 space-x-4">
         <NavButton to="/top">
           <HomeFilled />

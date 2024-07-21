@@ -1,7 +1,7 @@
 import NavSidebar from "./NavSidebar";
 import NavTopbar from "./NavTopbar";
 import { Outlet } from "react-router-dom";
-import { ORDER_TYPE_EXPORT, ORDER_TYPE_IMPORT } from "@/costant";
+import { ORDER_TYPE_EXPORT, ORDER_TYPE_IMPORT } from "@/constant";
 import { useDispatch, useSelector } from "react-redux";
 import { setOrderType } from "@/store/slices/order";
 import classNames from "classnames";

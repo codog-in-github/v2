@@ -7,7 +7,7 @@ const { Search } = Input;
 const CustomerCard = ({ item }) => {
   const navigate = useNavigate()
   const handleClick = (id) => {
-    navigate(`/staff-top`)
+    navigate(`/customer-top`)
   };
 
   return (

@@ -1,6 +1,6 @@
 import { Form } from "antd"
 import dayjs from "dayjs"
-import { pipe } from "@/helpers/utils"
+import { pipe, touch } from "@/helpers/utils"
 import { request } from "@/apis/requestBuilder"
 import { useAsyncCallback } from "@/hooks"
 import { useState, useEffect } from "react"
@@ -256,31 +256,26 @@ export const useDetailData = () => {
   useEffect(() => {
     setLoading(true)
     request('/admin/order/detail')
-      .get()
-      .query({ keyword: id })
+      .get({ id })
       .send()
-      .then((rep) => {
-        pipe(
-          formDataGenerator,
-          form.setFieldsValue.bind(form)
-        )(rep)
-        pipe(
-          orderLightsGenerator,
-          setLights
-        )(rep)
-        pipe(
-          messagesGenerator,
-          setMessages,
-          () => setTimeout(scrollBottom, 20)
-        )(rep)
-        pipe(
-          filesGenerator,
-          setFiles,
-        )(rep)
-      })
-      .finally(() => {
-        setLoading(false)
-      })
+      .then(touch(pipe(
+        formDataGenerator,
+        form.setFieldsValue.bind(form)
+      )))
+      .then(touch(pipe(
+        orderLightsGenerator,
+        setLights
+      )))
+      .then(touch(pipe(
+        messagesGenerator,
+        setMessages,
+        () => setTimeout(scrollBottom, 20)
+      )))
+      .then(touch(pipe(
+        filesGenerator,
+        setFiles,
+      )))
+      .finally(() => setLoading(false))
   }, [id, form])
 
   const {

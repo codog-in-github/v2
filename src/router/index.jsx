@@ -5,7 +5,7 @@ import { SideLayout, TopLayout } from "@/components/NavLayout";
 import { SideStaffLayout, TopStaffLayout } from "@/components/StaffLayout";
 import { SideClientLayout, TopClientLayout } from "@/components/ClientLayout";
 import { DeclarantLayout } from "@/components/DeclarantLayout";
-import RouterPage from "./RouterPage";
+import LazyPage from "../components/LazyPage";
 // 还没写的页面 占个位先
 const placeholderUrls = [
   "/drive",
@@ -31,42 +31,42 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/orderDetail/:id",
-        element: <RouterPage load={() => import('@/pages/orderDetail/Index.jsx')} />,
+        element: <LazyPage load={() => import('@/pages/orderDetail/Index.jsx')} />,
       },
       {
         element: <SideLayout />,
         children: [
           {
             path: "/top",
-            element: <RouterPage load={() => import('@/pages/top/Index')} />,
+            element: <LazyPage load={() => import('@/pages/top/Index')} />,
           },
           {
             path: "/po",
-            element: <RouterPage load={() => import('@/pages/po/Index')} />,
+            element: <LazyPage load={() => import('@/pages/po/Index')} />,
           },
           {
-            path: "/customer",
-            element: <RouterPage load={() => import('@/pages/customer/list')} />,
+            path: "/customer-list",
+            element: <LazyPage load={() => import('@/pages/customer/list')} />,
           },
           {
             path: "/order",
-            element: <RouterPage load={() => import('@/pages/order/list')} />,
+            element: <LazyPage load={() => import('@/pages/order/list')} />,
           },
           {
             path: "/calendar",
-            element: <RouterPage load={() => import('@/pages/order/calendar')} />,
+            element: <LazyPage load={() => import('@/pages/order/calendar')} />,
           },
           {
             path: "/ship",
-            element: <RouterPage load={() => import('@/pages/ship/list')} />,
+            element: <LazyPage load={() => import('@/pages/ship/list')} />,
           },
           {
             path: "/petition",
-            element: <RouterPage load={() => import('@/pages/petition/list')} />,
+            element: <LazyPage load={() => import('@/pages/petition/list')} />,
           },
           {
             path: '/acl',
-            element: <RouterPage load={() => import('@/pages/acl/index.jsx')} beforeLoad={routeGuarder} />,
+            element: <LazyPage load={() => import('@/pages/acl/index.jsx')} beforeLoad={routeGuarder} />,
           },
           ...placeholderUrls.map((url) => ({
             path: url,
@@ -84,20 +84,20 @@ const router = createBrowserRouter([
          element: <SideStaffLayout />,
         children: [
           {
-            path: "/staff-top",
-            element: <RouterPage load={() => import('@/pages/staff/top')} />,
+            path: "/customer-top",
+            element: <LazyPage load={() => import('@/pages/customer/top')} />,
           },
           {
-            path: "/staff-rules",
-            element: <RouterPage load={() => import('@/pages/staff/rules')} />,
+            path: "/customer-rules",
+            element: <LazyPage load={() => import('@/pages/customer/rules')} />,
           },
           {
-            path: "/staff-ship",
-            element: <RouterPage load={() => import('@/pages/staff/ship')} />,
+            path: "/customer-ship",
+            element: <LazyPage load={() => import('@/pages/customer/ship')} />,
           },
           {
-            path: "/staff-pet",
-            element: <RouterPage load={() => import('@/pages/staff/petition')} />,
+            path: "/customer-pet",
+            element: <LazyPage load={() => import('@/pages/customer/petition')} />,
           },
         ],
       },
@@ -112,15 +112,15 @@ const router = createBrowserRouter([
         children: [
           {
             path: "/client-top",
-            element: <RouterPage load={() => import('@/pages/client/top')} />,
+            element: <LazyPage load={() => import('@/pages/client/top')} />,
           },
           {
             path: "/client-rules",
-            element: <RouterPage load={() => import('@/pages/client/rules')} />,
+            element: <LazyPage load={() => import('@/pages/client/rules')} />,
           },
           {
             path: "/client-offer",
-            element: <RouterPage load={() => import('@/pages/client/offer')} />,
+            element: <LazyPage load={() => import('@/pages/client/offer')} />,
           },
         ],
       },
@@ -132,7 +132,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/declarant",
-        element: <RouterPage load={() => import('@/pages/declarant/list')} />,
+        element: <LazyPage load={() => import('@/pages/declarant/list')} />,
       },
     ],
   },

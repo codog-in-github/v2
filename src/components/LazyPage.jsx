@@ -1,10 +1,8 @@
 import { isString } from "lodash";
-import { useMemo } from "react";
-import { lazy } from "react";
-import { Suspense } from "react";
-import router from ".";
+import { useMemo, lazy, Suspense } from "react";
+import router from "@/router";
 
-const RouterPage = ({ load, beforeLoad }) => {
+const LazyPage = ({ load, beforeLoad }) => {
   const Page = useMemo(() => {
     return lazy(() => new Promise((resolve, reject) => {
       if(!beforeLoad)
@@ -30,4 +28,4 @@ const RouterPage = ({ load, beforeLoad }) => {
   )
 }
 
-export default RouterPage;
+export default LazyPage;

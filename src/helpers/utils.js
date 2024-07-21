@@ -83,3 +83,17 @@ export const pipe = (...funcs) => {
     return result;
   }
 }
+
+/**
+ * 创建一个包装函数，用于调用另一个函数后返回相同的参数。
+ * 这个包装函数的主要作用是让被包装的函数能够先处理参数，然后允许调用者继续使用未经修改的参数。
+ * 
+ * @param {Function} func - 被包装的函数，它将接收一个参数并对其进行处理。
+ * @returns {Function} 返回一个新的函数，这个函数接收一个参数，调用被包装的函数处理该参数后，再返回该参数。
+ */
+export const touch = (func) => {
+  return (arg) => {
+    func(arg)
+    return arg
+  }
+}

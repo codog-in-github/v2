@@ -1,4 +1,4 @@
-import { ORDER_TYPE_EXPORT } from "@/costant"
+import { ORDER_TYPE_EXPORT } from "@/constant"
 import { createSlice } from "@reduxjs/toolkit"
 
 

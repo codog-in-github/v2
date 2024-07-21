@@ -1,3 +1,6 @@
+export const ORDER_TYPE_IMPORT = 0;
+export const ORDER_TYPE_EXPORT = 1;
+
 /**
  * BK：订舱，填写船的相关信息以及客
  * 户提供的 booking 信息
