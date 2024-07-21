@@ -41,16 +41,16 @@ const StaffSidebar = () => {
       rect
       className="nav-side-bar bg-white p-4 flex-col"
     >
-      <NavButton to="/staff-top" className="mb-2">
+      <NavButton to="/customer-top" className="mb-2">
         TOP
       </NavButton>
-      <NavButton to="/staff-rules" className="mb-2">
+      <NavButton to="/customer-rules" className="mb-2">
         新規依頼
       </NavButton>
-      <NavButton to="/staff-ship" className="mb-2">
+      <NavButton to="/customer-ship" className="mb-2">
         船期
       </NavButton>
-      <NavButton to="/staff-pet" className="mb-2">
+      <NavButton to="/customer-pet" className="mb-2">
         合計請求書
       </NavButton>
     </NavButtonGroup>
