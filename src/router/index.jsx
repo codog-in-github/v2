@@ -4,33 +4,23 @@ import Err404 from "@/pages/Err/404.jsx";
 import { SideLayout, TopLayout } from "@/components/NavLayout";
 import { SideStaffLayout, TopStaffLayout } from "@/components/StaffLayout";
 import { SideClientLayout, TopClientLayout } from "@/components/ClientLayout";
-import OrderDetail from "@/pages/orderDetail/Index";
-import Top from "@/pages/top/Index";
-import Po from "@/pages/po/Index";
-import {
-  OrderList,
-  CustomerList,
-  OrderCalendar,
-  ShipList,
-  PetitionList,
-  StaffTop,
-  StaffRules,
-  StaffShip,
-  StaffPet,
-  ClientTop,
-  ClientRules,
-  ClientOffer,
-} from "@/pages/index";
+import { DeclarantLayout } from "@/components/DeclarantLayout";
+import RouterPage from "./RouterPage";
 // 还没写的页面 占个位先
 const placeholderUrls = [
   "/drive",
   "/customs",
-  "/acl",
   "/permission",
   "/invoice",
   "/blCopy",
   "/sur",
 ];
+
+const routeGuarder = (routeState, next) => {
+  console.log(routeState);
+  return next();
+};
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -41,38 +31,42 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/orderDetail/:id",
-        element: <OrderDetail />,
+        element: <RouterPage load={() => import('@/pages/orderDetail/Index.jsx')} />,
       },
       {
         element: <SideLayout />,
         children: [
           {
             path: "/top",
-            element: <Top />,
+            element: <RouterPage load={() => import('@/pages/top/Index')} />,
           },
           {
             path: "/po",
-            element: <Po />,
+            element: <RouterPage load={() => import('@/pages/po/Index')} />,
           },
           {
             path: "/customer",
-            element: <CustomerList />,
+            element: <RouterPage load={() => import('@/pages/customer/list')} />,
           },
           {
             path: "/order",
-            element: <OrderList />,
+            element: <RouterPage load={() => import('@/pages/order/list')} />,
           },
           {
             path: "/calendar",
-            element: <OrderCalendar />,
+            element: <RouterPage load={() => import('@/pages/order/calendar')} />,
           },
           {
             path: "/ship",
-            element: <ShipList />,
+            element: <RouterPage load={() => import('@/pages/ship/list')} />,
           },
           {
             path: "/petition",
-            element: <PetitionList />,
+            element: <RouterPage load={() => import('@/pages/petition/list')} />,
+          },
+          {
+            path: '/acl',
+            element: <RouterPage load={() => import('@/pages/acl/index.jsx')} beforeLoad={routeGuarder} />,
           },
           ...placeholderUrls.map((url) => ({
             path: url,
@@ -82,32 +76,34 @@ const router = createBrowserRouter([
       },
     ],
   },
+  //员工端
   {
     element: <TopStaffLayout />,
     children: [
       {
-        element: <SideStaffLayout />,
+         element: <SideStaffLayout />,
         children: [
           {
             path: "/staff-top",
-            element: <StaffTop />,
+            element: <RouterPage load={() => import('@/pages/staff/top')} />,
           },
           {
             path: "/staff-rules",
-            element: <StaffRules />,
+            element: <RouterPage load={() => import('@/pages/staff/rules')} />,
           },
           {
             path: "/staff-ship",
-            element: <StaffShip />,
+            element: <RouterPage load={() => import('@/pages/staff/ship')} />,
           },
           {
             path: "/staff-pet",
-            element: <StaffPet />,
+            element: <RouterPage load={() => import('@/pages/staff/petition')} />,
           },
         ],
       },
     ],
   },
+  //客户端
   {
     element: <TopClientLayout />,
     children: [
@@ -116,17 +112,27 @@ const router = createBrowserRouter([
         children: [
           {
             path: "/client-top",
-            element: <ClientTop />,
+            element: <RouterPage load={() => import('@/pages/client/top')} />,
           },
           {
             path: "/client-rules",
-            element: <ClientRules />,
+            element: <RouterPage load={() => import('@/pages/client/rules')} />,
           },
           {
             path: "/client-offer",
-            element: <ClientOffer />,
+            element: <RouterPage load={() => import('@/pages/client/offer')} />,
           },
         ],
+      },
+    ],
+  },
+  //报关员端
+  {
+    element: <DeclarantLayout />,
+    children: [
+      {
+        path: "/declarant",
+        element: <RouterPage load={() => import('@/pages/declarant/list')} />,
       },
     ],
   },

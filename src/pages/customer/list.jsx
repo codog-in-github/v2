@@ -1,11 +1,13 @@
 import { Button, Input, Row, Col, Avatar, Progress } from "antd";
 import { PlusOutlined, RightOutlined } from "@ant-design/icons";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 const { Search } = Input;
 
 const CustomerCard = ({ item }) => {
+  const navigate = useNavigate()
   const handleClick = (id) => {
-    console.log(id);
+    navigate(`/staff-top`)
   };
 
   return (

@@ -24,7 +24,6 @@ export const TopClientLayout = () => {
               <Tag color="#4471EF">负责人员</Tag>吉田部长丨090-12345678
             </div>
             <div className="ml-[30px]">
-              {" "}
               <Tag color="#F85935">紧急联络</Tag>范扬社长丨090-12345678
             </div>
           </div>

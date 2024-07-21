@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, Link } from "react-router-dom";
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setOrderType } from "@/store/slices/order";
@@ -9,10 +9,10 @@ export const TopStaffLayout = () => {
   return (
     <div className="nav-layout flex flex-col h-screen staff">
       <div className="staff-head">
-        <div className="head-left">
+        <Link className="head-left" to="./top">
           <img className="mr-3" src={logo}></img>
           <div>春海組システム</div>
-        </div>
+        </Link>
 
         <div className="head-right">
           <ul className="info">
