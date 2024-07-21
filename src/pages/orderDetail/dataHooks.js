@@ -7,6 +7,7 @@ import { useState, useEffect } from "react"
 import { useParams } from "react-router-dom"
 import { isFunction } from "lodash"
 import { useRef } from "react"
+import { useCallback } from "react"
 
 export const newConatainer = () => {
   return {
@@ -202,21 +203,11 @@ const messagesGenerator = (rep) => {
   return []
 }
 
-const toFileProps = (item) => {
-  return {
-    id: item['id'],
-    fileUrl: item['file_path'],
-  }
-}
 const filesGenerator = (rep) => {
+  const keys = [0, 1, 2, 3]
   const files = {}
-  if(rep['files'] && rep['files'].length) {
-    rep['files'].forEach(item => {
-      if(!files[item['type']]) {
-        files[item['type']] = []
-      }
-      files[item['type']].push(toFileProps(item))
-    })
+  for(const key of keys) {
+    files[key] = rep['files'][key] ?? []
   }
   return files
 }
@@ -229,25 +220,18 @@ export const useDetailData = () => {
   
   const [files, setFiles] = useState({})
 
-  const { callback: saveOrderFile, loading: savingOrderFile } = useAsyncCallback(async ({ fileUrl, type }) => {
-    const rep = await request('/admin/order/save_file')
-      .data({
-        'file_path': fileUrl,
-        'order_id': id,
-        type,
-      }).send()
+  const saveOrderFile = ({ fileUrl, type }) => {
     const _files = {
       ...files
     }
     if(!_files[type]) {
       _files[type] = []
     }
-    _files[type].push(toFileProps(rep))
+    _files[type].push(fileUrl)
     setFiles(_files)
-  }, [id, files, setFiles])
+  }
   const scrollBottom = () => {
     const messageBoardDOM = document.getElementById('message-board')
-    console.log('messageBoardDOM', messageBoardDOM);
     messageBoardDOM.scrollTo({
       top: messageBoardDOM.scrollHeight,
       behavior: 'smooth'
@@ -302,7 +286,6 @@ export const useDetailData = () => {
     sendMessage,
     sending,
     files,
-    savingOrderFile,
     saveOrderFile,
   }
 }

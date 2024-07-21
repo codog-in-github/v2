@@ -75,32 +75,26 @@ export const useAsyncCallback = (func, dependency) => {
   }
 }
 
-export const useFileUpload = () => {
-  const [uploading, setUploading] = useState(false)
+export const useFileUpload = (orderId) => {
   const [total, setTotal] = useState(0)
   const [loaded, setLoaded] = useState(0)
-  
-  /**
-   * @param {File} file 
-   */
-  const upload = async (file) => {
-    try {
-      setUploading(true)
-      const rep = await request('/admin/upload_file').form({ file })
-        .config({
-          onUploadProgress: (e) => {
-            setTotal(e.total)
-            setLoaded(e.loaded)
-          }
-        })
-        .send()
-      setUploading(false)
-      return rep['url']
-    } catch (error) {
-      setUploading(false)
-      throw error
-    }
-  }
+
+  const {
+    callback: upload,
+    loading: uploading
+  } = useAsyncCallback(async ({ file, fileType }) => {
+    const rep = await request('/admin/upload_file').form({
+      file, 'order_id': orderId, 'type': fileType
+    })
+      .config({
+        onUploadProgress: (e) => {
+          setTotal(e.total)
+          setLoaded(e.loaded)
+        }
+      })
+      .send()
+    return rep
+  }, [orderId])
   return {
     uploading,
     total,

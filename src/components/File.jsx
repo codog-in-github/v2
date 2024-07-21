@@ -1,11 +1,14 @@
-import { FileFilled } from "@ant-design/icons";
+import { FileExcelFilled, FileFilled, FileImageFilled, FilePdfFilled, FileTextFilled, FileWordFilled } from "@ant-design/icons";
 import { useMemo } from "react";
 
-const ext = (filePath) => {
-  return filePath.split('.').pop()
+const ext = (filename = '') => {
+  if(filename.includes('.')) {
+    return filename.split('.').pop()
+  }
+  return ext
 }
 
-const filename = (filePath) => {
+const filename = (filePath = '') => {
   if(filePath.includes('/'))
     return filePath.split('/').pop()
   return filePath
@@ -13,19 +16,33 @@ const filename = (filePath) => {
 
 
 const File = ({ filePath, selectable, selected, onSelect }) => {
-  const fileIco = useMemo(() => {
-    switch (ext(filePath)) {
-      default:
-        return <FileFilled className="text-gray-500" />;
-    }
-  }, [filePath])
   const fileName = useMemo(() => {
     return filename(filePath)
   }, [filePath])
+  const fileIco = useMemo(() => {
+    switch (ext(fileName)) {
+      case 'xls':
+      case 'xlsx':
+        return <FileExcelFilled className="text-[#107c41]" />;
+      case 'doc':
+      case 'docx':
+        return <FileWordFilled className="text-[#185abd]" />;
+      case 'jpg':
+      case 'png':
+      case 'jpeg':
+        return <FileImageFilled />;
+      case 'pdf':
+        return <FilePdfFilled className="text-[#ff5555]" />;
+      case 'txt':
+        return <FileTextFilled className="text-gray-500" />;
+      default:
+        return <FileFilled className="text-gray-400" />;
+    }
+  }, [fileName])
   return(
     <div className="flex flex-col items-center">
-      <span className="text-2xl">{fileIco}</span>
-      <span>{fileName}</span>
+      <div className="text-2xl">{fileIco}</div>
+      <div className="w-16 line-clamp-3 text-center">{fileName}</div>
     </div>
   )
 }

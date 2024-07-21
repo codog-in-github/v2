@@ -6,6 +6,7 @@ import { Button, Tabs } from "antd"
 import { useMemo } from "react";
 import { useState } from "react";
 import { useCallback } from "react";
+import { useParams } from "react-router-dom";
 const tabs = [
   {
     key: '1',
@@ -25,20 +26,24 @@ const tabs = [
   },
 ];
 export const Files = ({ files, className, onUpload = () => {} }) => {
-  const { upload, uploading } = useFileUpload()
   const [activeTabKey, setActiveTabKey] = useState('1')
-  const upClickHandle = useCallback(() => {
+  const orderId = useParams().id
+  const { upload, uploading } = useFileUpload(orderId)
+
+  const upClickHandle = () => {
     chooseFile({
       onChoose: async (file) => {
-        const fileUrl = await upload(file);
+        const fileUrl = await upload({
+          file,
+          fileType: ~~activeTabKey
+        })
         onUpload({
-          type: ~~activeTabKey,
-          fileUrl
+          fileUrl, type: activeTabKey
         })
       },
     })
-  }, [upload, onUpload, activeTabKey])
-
+  }
+  
   const tabItems = useMemo(() => {
     const tabItems = []
     for(const tabItem of tabs) {
@@ -49,7 +54,7 @@ export const Files = ({ files, className, onUpload = () => {} }) => {
         children: (
           <div className="grid grid-cols-6">{
             _files.map(file => (
-              <File key={file.id} filePath={file.fileUrl}></File>
+              <File key={file} filePath={file}></File>
             ))
           }</div>
         )
