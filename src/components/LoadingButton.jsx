@@ -6,7 +6,7 @@ const LoadingButton = ({ children, onClick, ...props }) => {
   const {
     loading,
     callback: handleClick
-  } = useAsyncCallback(onClick)
+  } = useAsyncCallback(onClick, [onClick])
   return (
     <Button {...props} loading={loading} onClick={handleClick}>
       {children}
