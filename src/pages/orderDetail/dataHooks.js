@@ -1,6 +1,6 @@
 import { Form } from "antd"
 import dayjs from "dayjs"
-import { pipe, touch } from "@/helpers/utils"
+import { downloadBlob, pipe, touch } from "@/helpers/utils"
 import { request } from "@/apis/requestBuilder"
 import { useAsyncCallback } from "@/hooks"
 import { useState, useEffect } from "react"
@@ -217,9 +217,38 @@ export const useDetailData = () => {
   const [lights, setLights] = useState([])
   const [loading, setLoading] = useState(false)
   const [messages, setMessages] = useState([])
-  
   const [files, setFiles] = useState({})
 
+  const onDeleteFiles = useCallback((deleteFiles, success, fail) => {
+    request('/admin/delete_files')
+      .data({ 'files': Object.values(deleteFiles).flat() })
+      .send()
+      .then(() => {
+        setFiles(prev => {
+          const _files = {
+            ...prev
+          }
+          for(const key in deleteFiles) {
+            _files[key] = prev[key].filter(file => !deleteFiles[key].includes(file))
+          }
+          return _files
+        })
+        success()
+      })
+      .catch(fail)
+  }, [])
+  
+  const onDownloadFiles = useCallback((downloadFiles, success, fail) => {
+    Object.values(downloadFiles).flat().map(file => {
+      request(file).get().download().send()
+        .then((blob) => {
+          const fileName = file.split('/').pop()
+          downloadBlob(blob, fileName)
+          success()
+        })
+        .catch(fail)
+    })
+  }, [])
   const saveOrderFile = ({ fileUrl, type }) => {
     const _files = {
       ...files
@@ -287,6 +316,8 @@ export const useDetailData = () => {
     sending,
     files,
     saveOrderFile,
+    onDeleteFiles,
+    onDownloadFiles
   }
 }
 

@@ -23,6 +23,25 @@ export function getRequestBodyData(response, next) {
   return next(response.data.data);
 }
 
+/**
+ * 
+ * @param {import('axios').AxiosResponse} response 
+ * @param {* => *} next 
+ * @returns 
+ */
+export function toBlob(response, next) {
+  const blob = new Blob([response.data], {
+    type: response.headers["Content-Type"]
+  })
+  return next(blob);
+}
+
+/**
+ * 
+ * @param {import('axios').AxiosRequestConfig} config 
+ * @param {*} next 
+ * @returns 
+ */
 export const addAuthorization = (config, next) => {
   const token = localStorage.getItem('token');
   if(token) {

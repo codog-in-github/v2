@@ -9,7 +9,7 @@ import Files from "./Files"
 import { newConatainer, useDetailData } from "./dataHooks"
 
 const OrderDetail = () => {
-  const { loading, form, messages, sendMessage, saveOrderFile, files } = useDetailData()
+  const { loading, form, messages, sendMessage, saveOrderFile, files, onDeleteFiles, onDownloadFiles } = useDetailData()
   const onAddContainerHandle = () => {
     const oldValue = form.getFieldValue('containers')
     form.setFieldsValue({
@@ -61,6 +61,8 @@ const OrderDetail = () => {
       />
       <Files
         files={files}
+        onDelete={onDeleteFiles}
+        onDownload={onDownloadFiles}
         className="bg-white"
         onUpload={saveOrderFile}
       />

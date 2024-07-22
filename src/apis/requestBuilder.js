@@ -4,6 +4,7 @@ import {
   checkHttpState,
   checkJSONCode,
   getRequestBodyData,
+  toBlob,
 } from './middleware';
 import { cloneDeep, isObject } from 'lodash';
 import QueryString from 'qs';
@@ -168,6 +169,12 @@ class Request {
     return this;
   }
 
+  download() {
+    this.responseWithout(getRequestBodyData, checkJSONCode)
+    this.addResponseMiddleware(toBlob)
+    return this
+  }
+
   /**
    * 发送请求
    * @returns {Promise<any>}
@@ -206,8 +213,17 @@ class Request {
       ...this._config
     });
   }
-}
 
-export function request(url = '') {
-  return new Request(url);
+
 }
+export const request = import.meta.env.DEV
+  ? (
+    (url = '') => {
+      if(url.startsWith('http://10.0.2.2/api')) {
+        url = url.substring('http://10.0.2.2/api'.length)
+      }
+      return new Request(url);
+    }
+  )
+  : (url = '') => new Request(url)
+

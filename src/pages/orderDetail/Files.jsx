@@ -1,9 +1,10 @@
 import File from "@/components/File";
 import Label from "@/components/Label";
 import { chooseFile } from "@/helpers/file";
-import { useFileUpload } from "@/hooks";
+import { useAsyncCallback, useFileUpload } from "@/hooks";
 import { Button, Tabs } from "antd"
 import { useMemo } from "react";
+import { useEffect } from "react";
 import { useState } from "react";
 import { useCallback } from "react";
 import { useParams } from "react-router-dom";
@@ -25,11 +26,43 @@ const tabs = [
     label: '仕れ',
   },
 ];
-export const Files = ({ files, className, onUpload = () => {} }) => {
+
+const useSelectedFiles = (allFiles) => {
+  const [files, setFiles] = useState({})
+  const {id} = useParams()
+  const clear = () => {
+    setFiles({})
+  }
+  useEffect(() => {
+    clear()
+  }, [id])
+  const isSelected = (type, filePath) => {
+    return files[type]?.includes(filePath)
+  }
+  const inSelected = useMemo(() => {
+    return Object.keys(files).some(key => files[key]?.length > 0)
+  }, [files])
+
+  const select = (type, filePath) => {
+    if(!files[type]) {
+      setFiles(prev => {
+        return ({ ...prev, [type]: [filePath] })
+      })
+    } else if(files[type].includes(filePath)) {
+      setFiles(prev => ({ ...prev, [type]: prev[type].filter(file => file !== filePath) }))
+    } else {
+      setFiles(prev => ({ ...prev, [type]: [...prev[type], filePath] }))
+    }
+  }
+  return { files, isSelected, clear, select, inSelected }
+}
+export const Files = ({ files, className, onUpload = () => {}, onDelete = () => {}, onDownload = () => {} }) => {
   const [activeTabKey, setActiveTabKey] = useState('1')
   const orderId = useParams().id
   const { upload, uploading } = useFileUpload(orderId)
-
+  const {
+    files: selectedFiles, isSelected, clear, select, inSelected
+  } = useSelectedFiles(files)
   const upClickHandle = () => {
     chooseFile({
       onChoose: async (file) => {
@@ -43,6 +76,19 @@ export const Files = ({ files, className, onUpload = () => {} }) => {
       },
     })
   }
+  const createEventHandle = (eventHandle) => useAsyncCallback(() => new Promise((resolve, reject) => {
+    if(!inSelected) {
+      return reject()
+    }
+    const next  = () => {
+      clear()
+      resolve()
+    }
+    eventHandle(selectedFiles, next, reject)
+  }), [clear, eventHandle, selectedFiles, inSelected])
+
+  const { callback: deleteHandler, loading: deleteding} = createEventHandle(onDelete)
+  const { callback: downloadHandler } = createEventHandle(onDownload)
   
   const tabItems = useMemo(() => {
     const tabItems = []
@@ -54,7 +100,14 @@ export const Files = ({ files, className, onUpload = () => {} }) => {
         children: (
           <div className="grid grid-cols-6">{
             _files.map(file => (
-              <File key={file} filePath={file}></File>
+              <File
+                key={file}
+                selectable
+                inSelected={inSelected}
+                selected={isSelected(key, file)}
+                filePath={file} 
+                onSelect={() => select(key, file)}
+              />
             ))
           }</div>
         )
@@ -62,14 +115,14 @@ export const Files = ({ files, className, onUpload = () => {} }) => {
       
     }
     return tabItems
-  }, [files])
+  }, [files, inSelected, isSelected, select])
   return (
     <div className={className}>
       <div className="flex">
         <Label className="mr-auto">資料状況</Label>
         <div className="flex gap-2 pt-1 pr-2">
-          <Button>削除</Button>
-          <Button>DOW</Button>
+          <Button onClick={deleteHandler} loading={deleteding}>削除</Button>
+          <Button onClick={downloadHandler}>DOW</Button>
           <Button type="primary" onClick={upClickHandle} loading={uploading}>UP</Button>
         </div>
       </div>
