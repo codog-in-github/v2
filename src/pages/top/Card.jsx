@@ -61,6 +61,7 @@ function Timer({ expiredAt }) {
 }
 
 function Card({
+  id,
   className,
   isTempOrder,
   remark,
@@ -72,71 +73,69 @@ function Card({
   contactPerson,
   contactPhone,
   expiredAt,
-  onClick
+  onClick,
+  onToDetail,
+  onEnd,
+  onAppoint,
 }) {
   const [optionsButtonPosition, setOptionsButtonPosition] = useState({ x: 0, y: 0 })
   const rootRef = useRef()
-  let content;
-  if(isTempOrder) {
-    content = (
-      <div className='flex flex-1'>
-        <CompanyAvatar className="!text-[10px]" bg="#D46DE0" text="REMARK"></CompanyAvatar>
-        <div className='ml-4'>
-          <div className="font-semibold">{remark}</div>
-        </div>
-      </div>
-    )
-  } else {
-    content = (
-      <div className='flex flex-1'>
-        <CompanyAvatar bg={avatarColor} text={avatarText}></CompanyAvatar>
-        <div className='ml-4'>
-          <div className="font-semibold">{companyName}</div>
-          <div className="mt-2 text-sm text-gray-500">{contactPerson} | {contactPhone}</div>
-        </div>
-      </div>
-    )
-  }
   return (
     <div
       ref={rootRef}
       className={classNames(
-        'bg-white p-4 shadow rounded flex-shrink-0 flex flex-col relative',
-        active && 'border-2 border-primary',
+        'bg-white p-4 shadow rounded border-2 flex-shrink-0 flex flex-col relative',
+        active ? 'border-primary' : 'border-transparent',
+        { 'cursor-pointer': isTempOrder },
         className,
       )}
-      onClick={isTempOrder && !active && (
+      onClick={!active && (
         e => {
           const box = rootRef.current.getBoundingClientRect()
           setOptionsButtonPosition({
-            x: box.x + box.width,
+            x: box.x + box.width + 4,
             y: box.y
           })
           onClick && onClick(e)
         }
       )}
     >
-      {content}
-      {
-        end ? <div className='flex items-center text-sm'>
+
+      { isTempOrder ? (
+        <div className='flex flex-1'>
+          <CompanyAvatar className="!text-[10px]" bg="#D46DE0" text="REMARK"></CompanyAvatar>
+          <div className='ml-4'>
+            <div className="font-semibold">{remark}</div>
+          </div>
+        </div>
+      ) : (
+        <div className='flex flex-1'>
+          <CompanyAvatar bg={avatarColor} text={avatarText}></CompanyAvatar>
+          <div className='ml-4'>
+            <div className="font-semibold">{companyName}</div>
+            <div className="mt-2 text-sm text-gray-500">{contactPerson} | {contactPhone}</div>
+          </div>
+        </div>
+      )}
+
+      { end ? (
+        <div className='flex items-center text-sm'>
           <div className='text-gray-800'>2024年6月3日18:00:58</div>
           <div className='ml-auto p-2 bg-gray-200 rounded'>吉田</div>
         </div>
-          : <Timer expiredAt={expiredAt}></Timer>
-      }
+      ) : (
+        <Timer expiredAt={expiredAt}></Timer>
+      )}
+
       {active && (
         <div
           onClick={e => e.stopPropagation()}
           className='fixed top-0 -right-24 w-24 z-50'
           style={{ left: optionsButtonPosition.x, top: optionsButtonPosition.y }}
         >
-          <Button
-            className='w-full'
-          >结束任务</Button>
-          <Button
-            type='primary'
-            className='w-full mt-1'
-          >指派任务</Button>
+          {isTempOrder && <Button className='w-full mb-1' onClick={() => onEnd(id)}>终止任务</Button>}
+          {isTempOrder && <Button type='primary' className='w-full mb-1' onClick={() => onAppoint(id)}>指派任务</Button>}
+          <Button className='w-full' onClick={() => onToDetail(id)}>查看订单</Button>
         </div>
       )}
     </div>

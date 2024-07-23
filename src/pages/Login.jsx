@@ -55,7 +55,7 @@ const Card = () => {
           <Input ref={usrRef} />
         </Form.Item>
         <Form.Item label="Password" name="password" rules={[{ required: true }]}>
-          <Input ref={pwdRef} type='password' />
+          <Input.Password ref={pwdRef} />
         </Form.Item>
         <Button
           loading={loading}

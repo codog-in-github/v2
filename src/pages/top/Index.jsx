@@ -65,8 +65,8 @@ function MainContent() {
             <Card
               key={i}
               {...order}
-              className="border-2 border-transparent cursor-pointer"
               active={i === activeIndex}
+              onToDetail={id => navigate(`/orderDetail/${id}`)}
               onClick={(e) => {
                 e.stopPropagation()
                 setActiveIndex(i)

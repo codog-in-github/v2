@@ -1,7 +1,9 @@
 import { request } from "@/apis/requestBuilder"
 import Label from "@/components/Label"
-import { Form, Button, Input, DatePicker, Select } from "antd"
-import { useEffect, useState } from "react"
+import { BKG_TYPE_CUSTOM, BKG_TYPES } from "@/constant"
+import { Form, Button, Input, DatePicker, Select, AutoComplete } from "antd"
+import { useMemo } from "react"
+import { useCallback, useRef, useEffect, useState } from "react"
 
 const useGateCompanyOptions = () => {
   const [options, setOptions] = useState([])
@@ -20,6 +22,53 @@ const useGateCompanyOptions = () => {
       })
   }, [])
   return { options, loading }
+}
+
+const BkgTypeSelect = ({ value, onChange, ...props }) => {
+  const [inputValue, setInputValue] = useState('');
+  
+  const options = useMemo(() => {
+    return Object.entries(BKG_TYPES)
+      .map(([key, text]) => ({ label: (
+        <div onClick={() => onChange({ key, text })}>{text}</div>
+      ) }))
+  }, [onChange])
+
+  const textToKeyMap = useMemo(() => {
+    const map = {}
+    for(const key in BKG_TYPES) {
+      map[BKG_TYPES[key]] = ~~key
+    }
+    return map
+  }, [])
+
+  const onBlur = () => {
+    if(textToKeyMap[inputValue]) {
+      onChange({ key: textToKeyMap[inputValue], text: inputValue })
+    } else {
+      onChange({ key: BKG_TYPE_CUSTOM, text: inputValue })
+    }
+  }
+
+  useEffect(() => {
+    if(!value) {
+      setInputValue('')
+    } else if(value.key === BKG_TYPE_CUSTOM) {
+      setInputValue(value.text)
+    } else {
+      setInputValue(BKG_TYPES[value.key])
+    }
+  }, [value])
+
+  return (
+    <AutoComplete
+      {...props}
+      value={inputValue}
+      onChange={e => setInputValue(e)}
+      onBlur={onBlur}
+      options={options}
+    />
+  )
 }
 
 const Management = ({
@@ -46,7 +95,7 @@ const Management = ({
         <Label>管理情報</Label>
         <div className="flex gap-2">
           <Form.Item label="DATE" name="orderDate">
-            <DatePicker />
+            <DatePicker allowClear={false} />
           </Form.Item>
           <Form.Item label="BKG NO." name="bkgNo" rules={[{ required: true, message: 'BKG NO.を入力してください' }]}>
             <Input onBlur={setDefaultNumber} />
@@ -55,7 +104,7 @@ const Management = ({
             <Input />
           </Form.Item>
           <Form.Item label="TYPE" name="type"  className="w-48" rules={[{ required: true, message: 'TYPEを入力してください' }]}>
-            <Select />
+            <BkgTypeSelect />
           </Form.Item>
           <Form.Item label="社内管理番号" name="orderNo">
             <Input readOnly />

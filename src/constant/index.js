@@ -59,3 +59,15 @@ export const ORDER_NODE_TYPE_FM = 10;
  * 請：填写请求书→发送给客户
  */
 export const ORDER_NODE_TYPE_REQUEST = 11;
+
+export const BKG_TYPES = {
+  1: '通',
+  2: '通+BK+運',
+  3: 'BK',
+  4: '通+BK',
+  5: '通+運',
+  6: 'BK+運',
+  7: '運',
+}
+
+export const BKG_TYPE_CUSTOM = 8

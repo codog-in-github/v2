@@ -47,12 +47,12 @@ function Message({ id, from, at, datetime, content, isReaded, orderId, isAtMe })
 }
 
 const MessageList = ({ className }) => {
-  const { filteredMessages: messages, setIsAtMe, isAtMe,load } = useMessages();
-  const onScrollBottomHandler = useCallback(debounce((e) => {
+  const { filteredMessages: messages, setIsAtMe, isAtMe, load, loading} = useMessages();
+  const onScrollBottomHandler = (e) => {
     if(e.target.scrollTop + e.target.clientHeight >= e.target.scrollHeight) {
       load()
     }
-  }), [load])
+  }
   return (
     <>
       <div className="flex mb-4">
@@ -64,6 +64,11 @@ const MessageList = ({ className }) => {
         "gap-4 flex flex-col flex-1 overflow-auto pr-2",
         className
       )} onScroll={onScrollBottomHandler}>
+        {loading && (
+          <div className="text-center">
+            <LoadingOutlined className="text-4xl text-gray-400" />
+          </div>
+        )}
         {messages.map(item => (
           <Message key={item.id} {...item} />
         ))}

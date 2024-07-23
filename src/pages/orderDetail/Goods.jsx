@@ -191,7 +191,7 @@ const CarList = ({list, onAddCar, containerFieldName}) => {
               </Form.Item>
               <Form.Item className="flex-1" label="TARE" name={[props.name, 'tare']}>
                 <Input addonAfter={(
-                  <Select defaultValue="T" value={1} >
+                  <Select  defaultValue="T" value={1} >
                     <Select.Option value={1}>T</Select.Option>
                     <Select.Option value={2}>KG</Select.Option>
                   </Select>
