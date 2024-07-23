@@ -34,7 +34,6 @@ const useSaveOrder = (next) => {
 }
 function MainContent() {
   const { orders, loading } = useTopOrderList()
-  const [activeIndex, setActiveIndex] = useState(null)
   const [modalOpen, setModalOpen] = useState(false)
   const navigate = useNavigate()
 
@@ -50,9 +49,11 @@ function MainContent() {
   const onOkHandle = useSaveOrder(closeAddModal)
 
   return (
-    <div className="flex h-full overflow-auto" onClick={() => setActiveIndex(null)}>
+    <div className="flex h-full overflow-auto">
       <div className={classNames(c('main-content'), 'flex-1', 'overflow-auto')}>
-        <div className="grid grid-cols-4 [&>*]:!h-[160px] gap-4 flex-wrap">
+        <div
+          className="grid min-[1800px]:grid-cols-4 grid-cols-3 [&>*]:!h-[160px] gap-4 flex-wrap"
+        >
           <AddCard onClick={() => setModalOpen(true)} />
           {loading && Array(7).fill(0).map((_, k) => {
             return (
@@ -65,18 +66,15 @@ function MainContent() {
             <Card
               key={i}
               {...order}
-              active={i === activeIndex}
               onToDetail={id => navigate(`/orderDetail/${id}`)}
-              onClick={(e) => {
-                e.stopPropagation()
-                setActiveIndex(i)
-              }}
             />
           ))}
         </div>
         <div className="mt-8">
           <h2 className="text-xl font-semibold mb-4">直近完了</h2>
-          <div className="grid grid-cols-4 [&>*]:!h-[160px] gap-4 flex-wrap">
+          <div 
+            className="grid min-[1800px]:grid-cols-4 grid-cols-3 [&>*]:!h-[160px] gap-4 flex-wrap"
+          >
             {loading && Array(7).fill(0).map((_, k) => {
             return (
               <Skeleton.Node className='!w-full !h-full' key={k} active >

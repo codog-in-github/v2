@@ -66,20 +66,30 @@ function Card({
   isTempOrder,
   remark,
   end,
-  active,
   avatarText,
   avatarColor,
   companyName,
   contactPerson,
   contactPhone,
   expiredAt,
-  onClick,
   onToDetail,
   onEnd,
   onAppoint,
 }) {
   const [optionsButtonPosition, setOptionsButtonPosition] = useState({ x: 0, y: 0 })
   const rootRef = useRef()
+  const [active, setActive] = useState(false)
+  useEffect(() => {
+    const setInactive = () => {
+      setActive(false)
+    }
+    document.addEventListener('contextmenu', setInactive)
+    document.addEventListener('click', setInactive)
+    return () => {
+      document.removeEventListener('contextmenu', setInactive)
+      document.removeEventListener('click', setInactive)
+    }
+  })
   return (
     <div
       ref={rootRef}
@@ -89,16 +99,19 @@ function Card({
         { 'cursor-pointer': isTempOrder },
         className,
       )}
-      onClick={!active && (
-        e => {
-          const box = rootRef.current.getBoundingClientRect()
-          setOptionsButtonPosition({
-            x: box.x + box.width + 4,
-            y: box.y
-          })
-          onClick && onClick(e)
+      onClick={() => onToDetail(id)}
+      onContextMenu={e => {
+        e.preventDefault()
+        if(active) {
+          e.stopPropagation()
+        } else {
+          setTimeout(setActive, 0, true)
         }
-      )}
+        setOptionsButtonPosition({
+          x: e.clientX,
+          y: e.clientY
+        })
+      }}
     >
 
       { isTempOrder ? (
@@ -126,16 +139,28 @@ function Card({
       ) : (
         <Timer expiredAt={expiredAt}></Timer>
       )}
-
+ 
       {active && (
         <div
           onClick={e => e.stopPropagation()}
-          className='fixed top-0 -right-24 w-24 z-50'
+          className="
+            fixed top-0 -right-24 w-24 z-50
+            text-center bg-white shadow-md
+            leading-8 rounded-md overflow-hidden
+            border
+          "
           style={{ left: optionsButtonPosition.x, top: optionsButtonPosition.y }}
         >
-          {isTempOrder && <Button className='w-full mb-1' onClick={() => onEnd(id)}>终止任务</Button>}
-          {isTempOrder && <Button type='primary' className='w-full mb-1' onClick={() => onAppoint(id)}>指派任务</Button>}
-          <Button className='w-full' onClick={() => onToDetail(id)}>查看订单</Button>
+          <div
+            type='primary'
+            className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
+            onClick={() => onAppoint(id)}
+          >指派任务</div>
+          <div
+            type='primary'
+            className='text-danger hover:text-white hover:bg-danger border-t active:bg-danger-600'
+            onClick={() => onEnd(id)}
+          >终止任务</div>
         </div>
       )}
     </div>

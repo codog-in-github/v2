@@ -22,8 +22,10 @@ const antdGlobalConfig = {
     },
   }
 };
+
 dayjs.locale('ja')
 registerAllModules();
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ConfigProvider {...antdGlobalConfig}>
