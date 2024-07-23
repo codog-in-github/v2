@@ -2,10 +2,16 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import ViteYaml from '@modyfi/vite-plugin-yaml';
 import { globalVariablesText } from './theme/scss.js';
+import { env } from 'process';
+import fs from 'fs'
 
-// https://vitejs.dev/config/
+
+
 export default defineConfig({
-  plugins: [react(), ViteYaml()],
+  plugins: [
+    react(),
+    ViteYaml(),
+  ],
   resolve: {
     alias: {
       "@": "/src",
@@ -20,11 +26,16 @@ export default defineConfig({
     },
   },
   server: {
+    port: 443,
     proxy: {
       '/api': {
         target: 'http://10.0.2.2',
         changeOrigin: true,
       }
+    },
+    https: {
+      key:  fs.readFileSync('certs/cert.key'),
+      cert:  fs.readFileSync('certs/cert.crt'),
     }
   }
 })
