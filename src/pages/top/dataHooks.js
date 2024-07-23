@@ -42,7 +42,6 @@ export const useTopOrderList = () => {
 
   const { loading, callback: refresh } = useAsyncCallback(async () => {
     const rep = await getOrders()
-    console.log(rep);
     setOrders(ordersSort(rep))
   }, [])
 

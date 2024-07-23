@@ -4,8 +4,6 @@ import ViteYaml from '@modyfi/vite-plugin-yaml';
 import { globalVariablesText } from './theme/scss.js';
 import fs from 'fs'
 
-
-
 export default defineConfig({
   plugins: [
     react(),

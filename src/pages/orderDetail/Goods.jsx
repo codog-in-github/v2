@@ -24,8 +24,11 @@ const usePage = (list) => {
     }
   }, 100)
   const onWheelHandle = (e) => {
-    e.stopPropagation()
-    debounceOnWheelHandle(e)
+    const nextIndex = currentIndex + (e.deltaY < 0 ? -1 : 1)
+    if(nextIndex >= 0 && nextIndex < list.length) {
+      e.stopPropagation()
+      debounceOnWheelHandle(e)
+    }
   }
   return {
     page: currentIndex,

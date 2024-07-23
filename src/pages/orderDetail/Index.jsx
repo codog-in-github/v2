@@ -6,10 +6,23 @@ import ProcessStatus from "./ProcessStatus"
 import Ship from "./Ship"
 import Chat from "./Chat"
 import Files from "./Files"
-import { newConatainer, useDetailData } from "./dataHooks"
+import { apiSaveDataGenerator, newCar, newConatainer, useDetailData } from "./dataHooks"
+import { useParams } from "react-router-dom"
 
 const OrderDetail = () => {
-  const { loading, form, messages, sendMessage, saveOrderFile, files, onDeleteFiles, onDownloadFiles } = useDetailData()
+  const orderId = useParams().id
+  const {
+    loading,
+    form,
+    messages,
+    sendMessage,
+    saveOrderFile,
+    files,
+    onDeleteFiles,
+    onDownloadFiles,
+    saveOrder,
+    savingOrder
+  } = useDetailData()
   const onAddContainerHandle = () => {
     const oldValue = form.getFieldValue('containers')
     form.setFieldsValue({
@@ -43,10 +56,9 @@ const OrderDetail = () => {
       }}>
       <Management
         className="col-span-3 bg-white flex items-center"
-        onSave={() => {
-          const data = form.getFieldsValue()
-          console.log(data);
-        }} />
+        onSave={saveOrder}
+        saving={savingOrder}
+      />
       <Customer className="bg-white py-2" />
       <Goods
         className="row-span-2 bg-white flex flex-col overflow-hidden"

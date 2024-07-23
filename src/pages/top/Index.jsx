@@ -1,4 +1,4 @@
-import { Switch } from 'antd';
+import { Skeleton } from 'antd';
 import Card from './Card';
 import './top.scss'
 import AddCard from './AddCard';
@@ -33,7 +33,7 @@ const useSaveOrder = (next) => {
   return saveHandle
 }
 function MainContent() {
-  const { orders } = useTopOrderList()
+  const { orders, loading } = useTopOrderList()
   const [activeIndex, setActiveIndex] = useState(null)
   const [modalOpen, setModalOpen] = useState(false)
   const navigate = useNavigate()
@@ -52,12 +52,20 @@ function MainContent() {
   return (
     <div className="flex h-full overflow-auto" onClick={() => setActiveIndex(null)}>
       <div className={classNames(c('main-content'), 'flex-1', 'overflow-auto')}>
-        <div className="flex gap-4 flex-wrap">
+        <div className="grid grid-cols-4 [&>*]:!h-[160px] gap-4 flex-wrap">
           <AddCard onClick={() => setModalOpen(true)} />
+          {loading && Array(7).fill(0).map((_, k) => {
+            return (
+              <Skeleton.Node className='!w-full !h-full' key={k} active>
+                <></>
+              </Skeleton.Node>
+            )
+          })}
           {orders.map((order, i) => (
             <Card
               key={i}
               {...order}
+              className="border-2 border-transparent cursor-pointer"
               active={i === activeIndex}
               onClick={(e) => {
                 e.stopPropagation()
@@ -68,48 +76,14 @@ function MainContent() {
         </div>
         <div className="mt-8">
           <h2 className="text-xl font-semibold mb-4">直近完了</h2>
-          <div className="flex gap-4 flex-wrap">
-            <Card 
-              avatarText='無'
-              avatarColor='#8F8F8F'
-              companyName='無錫永興貨運有限公司'
-              contactPerson='王大明'
-              contactPhone='86-15240056982'
-              end
-            />
-            <Card 
-              avatarText='無'
-              avatarColor='#8F8F8F'
-              companyName='無錫永興貨運有限公司'
-              contactPerson='王大明'
-              contactPhone='86-15240056982'
-              end
-            />
-            <Card 
-              avatarText='無'
-              avatarColor='#8F8F8F'
-              companyName='無錫永興貨運有限公司'
-              contactPerson='王大明'
-              contactPhone='86-15240056982'
-              end
-            />
-            
-            <Card 
-              avatarText='無'
-              avatarColor='#8F8F8F'
-              companyName='無錫永興貨運有限公司'
-              contactPerson='王大明'
-              contactPhone='86-15240056982'
-              end
-            />
-            <Card 
-              avatarText='無'
-              avatarColor='#8F8F8F'
-              companyName='無錫永興貨運有限公司'
-              contactPerson='王大明'
-              contactPhone='86-15240056982'
-              end
-            />
+          <div className="grid grid-cols-4 [&>*]:!h-[160px] gap-4 flex-wrap">
+            {loading && Array(7).fill(0).map((_, k) => {
+            return (
+              <Skeleton.Node className='!w-full !h-full' key={k} active >
+                <></>
+              </Skeleton.Node>
+            )
+          })}
             <Card 
               avatarText='無'
               avatarColor='#8F8F8F'
@@ -119,9 +93,8 @@ function MainContent() {
               end
             />
           </div>
-          
         </div>
-        </div>
+      </div>
       <div className={classNames(c('message-bar'), 'px-2 py-[22px] bg-white h-full flex flex-col overflow-hidden border-l')}>
         <MessageList />
       </div>

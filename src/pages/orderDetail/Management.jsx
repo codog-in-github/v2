@@ -24,6 +24,7 @@ const useGateCompanyOptions = () => {
 
 const Management = ({
   className,
+  saving = false,
   onSave = () => {},
   onCancel = () => {},
   onDelete = () => {},
@@ -70,7 +71,12 @@ const Management = ({
         </div>
       </div>
       <div className="grid grid-cols-3 gap-1 mt-2">
-        <Button type="primary" className="bg-success hover:!bg-success-400" onClick={onSave}>新規登録</Button>
+        <Button
+          loading={saving}
+          type="primary"
+          className="bg-success hover:!bg-success-400"
+          onClick={onSave}
+        >新規登録</Button>
         <Button type="primary" danger onClick={onDelete}>削除</Button>
         <Button type="primary" className="!bg-gray-400 hover:!bg-gray-300" onClick={onCancel}>戻る</Button>
         <Button type="primary" onClick={onShowCopy}>類似事件</Button>

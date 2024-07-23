@@ -3,11 +3,8 @@ import dayjs from "dayjs"
 import { downloadBlob, pipe, touch } from "@/helpers/utils"
 import { request } from "@/apis/requestBuilder"
 import { useAsyncCallback } from "@/hooks"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useParams } from "react-router-dom"
-import { isFunction } from "lodash"
-import { useRef } from "react"
-import { useCallback } from "react"
 
 export const newConatainer = () => {
   return {
@@ -15,7 +12,7 @@ export const newConatainer = () => {
     car: [newCar()]
   }
 }
-const newCar = () => {
+export const newCar = () => {
   return {}
 }
 
@@ -186,6 +183,101 @@ const formDataGenerator = (rep) => {
   return result
 }
 
+export const apiSaveDataGenerator = (id, formData) => {
+  const result = { id }
+  const setValue = (localKey, remoteKey, transform = (v) => v) => {
+    result[remoteKey] = transform(formData[localKey])
+  }
+  /**
+   * * Management 管理情報
+   */
+  setValue('orderDate', 'bkg_date', (dayjs) => dayjs.format('YYYY-MM-DD'))
+  setValue('bkgNo', 'bkg_no')
+  setValue('blNo', 'bl_no')
+  setValue('type', 'bkg_type')
+  setValue('orderNo', 'order_no')
+
+  /**
+   * * customer お客様情報
+   */
+  setValue('customerName', 'company_name')
+  setValue('customerAbbr', 'short_name')
+  setValue('customerPostalCode', 'zip_code')
+  setValue('customerAddr', 'address')
+  setValue('customerResponsiblePersion', 'header')
+  setValue('customerContact', 'mobile')
+  setValue('companyCode', 'legal_number')
+
+  /**
+   * * ship 船社信息
+   */
+  setValue('carrier', 'carrier')
+  setValue('vesselName', 'vessel_name')
+  setValue('voyage', 'voyage')
+   /**
+   * * loading 装船信息
+   */
+  setValue('loadingCountry', 'loading_country_id')
+  setValue('loadingPort', 'loading_port_id')
+  setValue('etd', 'etd', (dayjs) => dayjs?.format('YYYY-MM-DD HH:ii:ss'))
+  setValue('cyOpen', 'cy_open', (dayjs) => dayjs?.format('YYYY-MM-DD HH:ii:ss'))
+  setValue('cyCut', 'cy_cut', (dayjs) => dayjs?.format('YYYY-MM-DD HH:ii:ss'))
+  setValue('docCut', 'doc_cut', (dayjs) => dayjs?.format('YYYY-MM-DD HH:ii:ss'))
+
+  /** 
+   * * delivery
+   */
+  setValue('deliveryCountry', 'delivery_country_id')
+  setValue('deliveryPort', 'delivery_port_id')
+  setValue('eta', 'eta', (dayjs) => dayjs?.format('YYYY-MM-DD HH:ii:ss'))
+  setValue('freeTimeDem', 'free_time_dem')
+  setValue('freeTimeDet', 'free_time_det')
+  setValue('dischargeCountry', 'discharge_country_id')
+  setValue('dischargePort', 'discharge_port_id')
+
+  /**
+   * * containers 集装箱信息
+  */
+ result['containers'] = []
+ if(formData.containers && formData.containers.length) {
+   for(const item in formData.containers) {
+    const container = {
+      'common' : item.commodity,
+      'container_type' : item.containerType,
+      'quantity' : item.quantity,
+      'detail': []
+    }
+    result['containers'].push(container)
+    /**
+      * * car
+      */
+    if(item.cars && item.cars.length) {
+      for(const jtem in item.cars) {
+        const date =  jtem.date?.formate('YYYY-MM-DD') ?? ''
+        const time = jtem.time?.formate(' HH:mm:ss') ?? ''
+        const detail = {
+          'van_place': jtem.vanPlace,
+          'van_type': jtem.vanType,
+          'bearing_type': jtem.carType,
+          'deliver_time': date + time,
+          'trans_com': jtem.transCom,
+          'driver': jtem.driver,
+          'tel': jtem.tel,
+          'car': jtem.carCode,
+          'container': jtem.container,
+          'seal': jtem.seal,
+          'tare': jtem.tare,
+          'tare_type': jtem.tareType,
+        }
+        container['detail'].push(detail)
+      }
+    }
+   }
+  }
+
+  return result
+}
+
 const toMessageProps = (item) => {
   return {
     id: item['id'],
@@ -249,6 +341,16 @@ export const useDetailData = () => {
         .catch(fail)
     })
   }, [])
+
+  const {
+    callback: saveOrder,
+    loading: savingOrder
+  } = useAsyncCallback(async () => {
+    const formData = await form.validateFields()
+    await request('/admin/order/edit_order')
+      .data(apiSaveDataGenerator(id, formData))
+      .send()
+  }, [form, id])
   const saveOrderFile = ({ fileUrl, type }) => {
     const _files = {
       ...files
@@ -317,7 +419,9 @@ export const useDetailData = () => {
     files,
     saveOrderFile,
     onDeleteFiles,
-    onDownloadFiles
+    onDownloadFiles,
+    saveOrder,
+    savingOrder,
   }
 }
 

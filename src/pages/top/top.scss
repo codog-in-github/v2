@@ -1,8 +1,5 @@
 .top-card-add__card,
 .top-card__card{
-  width: 316px;
-  height: 160px;
-  @apply border-2 border-transparent cursor-pointer;
 
   &.top-card__active{
     @apply border-primary

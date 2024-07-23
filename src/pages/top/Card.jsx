@@ -3,6 +3,7 @@ import { useState } from 'react';
 import classNames from 'classnames';
 import { namespaceClass } from '@/helpers/style';
 import CompanyAvatar from '@/components/CompanyAvatar';
+import { Button } from 'antd';
 
 const c = namespaceClass('top-card');
 
@@ -60,6 +61,7 @@ function Timer({ expiredAt }) {
 }
 
 function Card({
+  className,
   isTempOrder,
   remark,
   end,
@@ -72,6 +74,8 @@ function Card({
   expiredAt,
   onClick
 }) {
+  const [optionsButtonPosition, setOptionsButtonPosition] = useState({ x: 0, y: 0 })
+  const rootRef = useRef()
   let content;
   if(isTempOrder) {
     content = (
@@ -93,13 +97,25 @@ function Card({
       </div>
     )
   }
-  const cardRef = useRef(null);
-  const boxClass = classNames(
-    c('card', { active }),
-    'bg-white p-4 shadow rounded flex-shrink-0 flex flex-col'
-  )
   return (
-    <div ref={cardRef} className={boxClass} onClick={onClick}>
+    <div
+      ref={rootRef}
+      className={classNames(
+        'bg-white p-4 shadow rounded flex-shrink-0 flex flex-col relative',
+        active && 'border-2 border-primary',
+        className,
+      )}
+      onClick={isTempOrder && !active && (
+        e => {
+          const box = rootRef.current.getBoundingClientRect()
+          setOptionsButtonPosition({
+            x: box.x + box.width,
+            y: box.y
+          })
+          onClick && onClick(e)
+        }
+      )}
+    >
       {content}
       {
         end ? <div className='flex items-center text-sm'>
@@ -108,6 +124,21 @@ function Card({
         </div>
           : <Timer expiredAt={expiredAt}></Timer>
       }
+      {active && (
+        <div
+          onClick={e => e.stopPropagation()}
+          className='fixed top-0 -right-24 w-24 z-50'
+          style={{ left: optionsButtonPosition.x, top: optionsButtonPosition.y }}
+        >
+          <Button
+            className='w-full'
+          >结束任务</Button>
+          <Button
+            type='primary'
+            className='w-full mt-1'
+          >指派任务</Button>
+        </div>
+      )}
     </div>
   );
 }
