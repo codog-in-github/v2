@@ -5,11 +5,14 @@ import { request } from "@/apis/requestBuilder"
 import { useAsyncCallback } from "@/hooks"
 import { useState, useEffect, useCallback } from "react"
 import { useParams } from "react-router-dom"
+import pubSub from "@/helpers/pubSub"
 
 export const newConatainer = () => {
   return {
-    com: '',
-    car: [newCar()]
+    commodity: '',
+    containerType: '',
+    quantity: '',
+    cars: [newCar()]
   }
 }
 export const newCar = () => {
@@ -17,7 +20,9 @@ export const newCar = () => {
 }
 
 const orderLightsGenerator = (rep) => {
-  return []
+  const data = rep['nodes']
+  console.log('orderLightsGenerator', data)
+  return data
 }
 
 const formDataGenerator = (rep) => {
@@ -201,7 +206,6 @@ export const apiSaveDataGenerator = (id, formData) => {
   setValue('blNo', 'bl_no')
   result['bkg_type'] = formData.type.key
   result['bkg_type_text'] = formData.type.text
-  setValue('type', 'bkg_type')
   setValue('orderNo', 'order_no')
 
   /**
@@ -226,17 +230,17 @@ export const apiSaveDataGenerator = (id, formData) => {
    */
   setValue('loadingCountry', 'loading_country_id')
   setValue('loadingPort', 'loading_port_id')
-  setValue('etd', 'etd', (dayjs) => dayjs?.format('YYYY-MM-DD HH:ii:ss'))
-  setValue('cyOpen', 'cy_open', (dayjs) => dayjs?.format('YYYY-MM-DD HH:ii:ss'))
-  setValue('cyCut', 'cy_cut', (dayjs) => dayjs?.format('YYYY-MM-DD HH:ii:ss'))
-  setValue('docCut', 'doc_cut', (dayjs) => dayjs?.format('YYYY-MM-DD HH:ii:ss'))
+  setValue('etd', 'etd', (dayjs) => dayjs?.format('YYYY-MM-DD HH:mm:ss'))
+  setValue('cyOpen', 'cy_open', (dayjs) => dayjs?.format('YYYY-MM-DD HH:mm:ss'))
+  setValue('cyCut', 'cy_cut', (dayjs) => dayjs?.format('YYYY-MM-DD HH:mm:ss'))
+  setValue('docCut', 'doc_cut', (dayjs) => dayjs?.format('YYYY-MM-DD HH:mm:ss'))
 
   /** 
    * * delivery
    */
   setValue('deliveryCountry', 'delivery_country_id')
   setValue('deliveryPort', 'delivery_port_id')
-  setValue('eta', 'eta', (dayjs) => dayjs?.format('YYYY-MM-DD HH:ii:ss'))
+  setValue('eta', 'eta', (dayjs) => dayjs?.format('YYYY-MM-DD HH:mm:ss'))
   setValue('freeTimeDem', 'free_time_dem')
   setValue('freeTimeDet', 'free_time_det')
   setValue('dischargeCountry', 'discharge_country_id')
@@ -245,41 +249,39 @@ export const apiSaveDataGenerator = (id, formData) => {
   /**
    * * containers 集装箱信息
   */
- result['containers'] = []
- if(formData.containers && formData.containers.length) {
-   for(const item in formData.containers) {
+  result['containers'] = []
+  for(const item of formData.containers) {
     const container = {
       'common' : item.commodity,
       'container_type' : item.containerType,
       'quantity' : item.quantity,
-      'detail': []
+      'details': []
     }
-    result['containers'].push(container)
     /**
-      * * car
-      */
-    if(item.cars && item.cars.length) {
-      for(const jtem in item.cars) {
-        const date =  jtem.date?.formate('YYYY-MM-DD') ?? ''
-        const time = jtem.time?.formate(' HH:mm:ss') ?? ''
-        const detail = {
-          'van_place': jtem.vanPlace,
-          'van_type': jtem.vanType,
-          'bearing_type': jtem.carType,
-          'deliver_time': date + time,
-          'trans_com': jtem.transCom,
-          'driver': jtem.driver,
-          'tel': jtem.tel,
-          'car': jtem.carCode,
-          'container': jtem.container,
-          'seal': jtem.seal,
-          'tare': jtem.tare,
-          'tare_type': jtem.tareType,
-        }
-        container['detail'].push(detail)
+    * * car
+    */
+    const details = []
+    for(const jtem of item.cars) {
+      const date =  jtem.date?.formate('YYYY-MM-DD') ?? ''
+      const time = jtem.time?.formate(' HH:mm:ss') ?? ''
+      const detail = {
+        'van_place': jtem.vanPlace,
+        'van_type': jtem.vanType,
+        'bearing_type': jtem.carType,
+        'deliver_time': date + time,
+        'trans_com': jtem.transCom,
+        'driver': jtem.driver,
+        'tel': jtem.tel,
+        'car': jtem.carCode,
+        'container': jtem.container,
+        'seal': jtem.seal,
+        'tare': jtem.tare,
+        'tare_type': jtem.tareType,
       }
+      details.push(detail)
     }
-   }
+    container['details'] = details
+    result['containers'].push(container)
   }
 
   return result
@@ -295,7 +297,6 @@ const toMessageProps = (item) => {
   }
 }
 const messagesGenerator = (rep) => {
-  console.log('messagesGenerator', rep);
   if(rep['messages'] && rep['messages'].length) {
     return rep['messages'].map(toMessageProps)
   }
@@ -353,7 +354,18 @@ export const useDetailData = () => {
     callback: saveOrder,
     loading: savingOrder
   } = useAsyncCallback(async () => {
-    const formData = await form.validateFields()
+    let formData
+    try {
+      formData = await form.validateFields()
+    } catch ({ errorFields }) {
+      console.log('saveOrder', errorFields);
+      for(const field of errorFields) {
+        for(const error of field.errors) {
+          pubSub.publish('Info.Toast.Error', new Error(error))
+        }
+      }
+      return
+    }
     await request('/admin/order/edit_order')
       .data(apiSaveDataGenerator(id, formData))
       .send()
@@ -414,7 +426,7 @@ export const useDetailData = () => {
       toMessageProps(res)
     ])
     setTimeout(scrollBottom, 20)
-  }, [messages, setMessages])
+  })
 
   return {
     loading,

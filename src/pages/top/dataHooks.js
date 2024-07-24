@@ -115,7 +115,7 @@ export const useReadMessage =  (id) => {
   const { callback: read, loading } = useAsyncCallback(async () => {
     await request('/admin/order/read_message').post({ id }).send()
     setIsReaded(true)
-  }, [id])
+  })
   return {
     read, loading, isReaded
   }

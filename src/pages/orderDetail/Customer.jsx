@@ -8,7 +8,7 @@ const Customer = ({ className }) => {
       <div className="px-2">
         <div className="flex items-end gap-1">
           <Form.Item className="flex-1" label="お客様名" name="customerName">
-            <Input />
+            <Input readOnly />
           </Form.Item>
           <span className="relative bottom-1">/</span>
           <Form.Item className="flex-1" label="略称" name="customerAbbr">

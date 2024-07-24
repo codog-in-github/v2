@@ -31,12 +31,12 @@ function Message({ id, from, at, datetime, content, isReaded, orderId, isAtMe })
           <button
             className={classNames(
               "bg-primary flex-1",
-              {'!bg-gray-400': isReaded || localIsReaded}
+              {'!bg-gray-400 pointer-events-none': isReaded || localIsReaded}
             )}
             onClick={read}
           >{loading && <LoadingOutlined className="mr-2" />}既読</button>
           <button
-            className="bg-primary flex-1"
+            className='bg-primary flex-1 border-l'
             onClick={() => navigate(`/orderDetail/${orderId}`)}
           >案件処理</button>
         </div>

@@ -6,8 +6,9 @@ import ProcessStatus from "./ProcessStatus"
 import Ship from "./Ship"
 import Chat from "./Chat"
 import Files from "./Files"
-import { apiSaveDataGenerator, newCar, newConatainer, useDetailData } from "./dataHooks"
+import { newCar, newConatainer, useDetailData } from "./dataHooks"
 import { useParams } from "react-router-dom"
+import { Provider } from "react-redux"
 
 const OrderDetail = () => {
   const orderId = useParams().id

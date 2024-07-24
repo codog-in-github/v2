@@ -108,7 +108,7 @@ const ContainerList = ({ list, onAddCar, onAddContainer }) => {
                           setTimeout(movePageForce, 0, list.length)
                         }}>ADD</Button>
                   </div>
-                  <Form.List name={[props.name, 'car']}>
+                  <Form.List name={[props.name, 'cars']}>
                       {(list) => {
                           return (
                               <CarList containerFieldName={props.name} onAddCar={onAddCar} list={list}></CarList>

@@ -6,6 +6,7 @@ import { SideStaffLayout, TopStaffLayout } from "@/components/StaffLayout";
 import { SideClientLayout, TopClientLayout } from "@/components/ClientLayout";
 import { DeclarantLayout } from "@/components/DeclarantLayout";
 import LazyPage from "../components/LazyPage";
+import pubSub from "@/helpers/pubSub";
 // 还没写的页面 占个位先
 const placeholderUrls = [
   "/drive",
@@ -20,6 +21,11 @@ const routeGuarder = (routeState, next) => {
   console.log(routeState);
   return next();
 };
+
+pubSub.subscribe('Error:HTTP.Unauthorized', () => {
+  localStorage.removeItem('token')
+  router.navigate('/')
+})
 
 const router = createBrowserRouter([
   {

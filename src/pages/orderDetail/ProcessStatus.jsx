@@ -43,7 +43,7 @@ const ProcessStatus = ({className}) => {
       </div>
       <Label>REMARK</Label>
       <Form.Item name="remark" className="m-2">
-        <Input.TextArea disabled />
+        <Input.TextArea readOnly />
       </Form.Item>
     </div>
   )

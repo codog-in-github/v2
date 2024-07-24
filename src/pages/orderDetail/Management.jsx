@@ -14,10 +14,15 @@ const useGateCompanyOptions = () => {
       .send()
       .then((data) => {
         setLoading(false)
-        setOptions(data.map(item => ({
-          label: item.com_name,
-          value: item.id
-        })))
+        const options = [
+          { label: <div className="font-bold">春海组 株式会社</div>, value: -1 }
+        ]
+        setOptions(
+          options.concat(data.map(item => ({
+            label: item.com_name,
+            value: item.id
+          })))
+        )
       })
   }, [])
   return { options, loading }
@@ -98,14 +103,14 @@ const Management = ({
           <Form.Item label="DATE" name="orderDate">
             <DatePicker allowClear={false} />
           </Form.Item>
-          <Form.Item label="BKG NO." name="bkgNo" rules={[{ required: true, message: 'BKG NO.を入力してください' }]}>
+          <Form.Item label="BKG NO." name="bkgNo" className="[&_label]:!font-bold" rules={[{ required: true, message: 'BKG NO.を入力してください' }]}>
             <Input onBlur={setDefaultNumber} />
           </Form.Item>
           <Form.Item label="B/L NO." name="blNo">
             <Input />
           </Form.Item>
-          <Form.Item label="TYPE" name="type"  className="w-48" rules={[{ required: true, message: 'TYPEを入力してください' }]}>
-            <BkgTypeSelect />
+          <Form.Item label="TYPE" name="type"  className="w-48 [&_label]:!font-bold" rules={[{ required: true, message: 'TYPEを入力してください' }]}>
+            <BkgTypeSelect className="[&_input]:!text-lg" />
           </Form.Item>
           <Form.Item label="社内管理番号" name="orderNo">
             <Input readOnly />
@@ -113,10 +118,10 @@ const Management = ({
           <Form.Item
             label="通関"
             name="gateCompany"
-            className="w-52"
+            className="w-52 [&_label]:!font-bold"
             rules={[{ required: true, message: '通関を入力してください' }]}
           >
-            <Select options={options} loading={loading} />
+            <Select showSearch options={options} loading={loading} />
           </Form.Item>
         </div>
       </div>
