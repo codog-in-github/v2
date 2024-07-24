@@ -37,9 +37,9 @@ export function useInput (initialValue) {
  *                             当依赖数组中的任一元素发生变化时，动画状态将会更新。
  */
 export function useAnimate(play, dependency) {
-  const [lastState, setLastState] = useState(null)
+  const stateRef = useRef(null)
   useEffect(() => {
-    setLastState(play(lastState))
+    stateRef.current = play(stateRef.current)
   }, dependency)
 }
 
@@ -62,7 +62,6 @@ export const useAsyncCallback = (func) => {
   const loadingRef = useRef(false)
   const [loading, setLoading] = useState(false)
   const callback = useCallback((...args) => {
-    console.log('UseAsyncCallback: callback');
     if(loadingRef.current) {
       return Promise.reject(
         new Error('UseAsyncCallback: loading')
