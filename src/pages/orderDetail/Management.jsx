@@ -2,8 +2,7 @@ import { request } from "@/apis/requestBuilder"
 import Label from "@/components/Label"
 import { BKG_TYPE_CUSTOM, BKG_TYPES } from "@/constant"
 import { Form, Button, Input, DatePicker, Select, AutoComplete } from "antd"
-import { useMemo } from "react"
-import { useCallback, useRef, useEffect, useState } from "react"
+import { useMemo, useEffect, useState } from "react"
 
 const useGateCompanyOptions = () => {
   const [options, setOptions] = useState([])

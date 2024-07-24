@@ -1,4 +1,5 @@
 import { request } from "@/apis/requestBuilder"
+import { useRef } from "react"
 import {
   useCallback,
   useEffect,
@@ -52,23 +53,38 @@ export function useAnimate(play, dependency) {
  * @param {Function} func - 一个异步函数，它将被封装在callback中并带有加载状态管理。
  *                          这个函数的返回值可以是一个Promise，如果返回的是一个Promise，
  *                          则表示操作正在进行中，否则表示操作已完成。
- * @param {Array} dependency - 一个依赖数组，用于指定触发回调函数更新的条件。
  * @returns {Object} 返回一个包含loading状态和callback函数的对象。
+ *                   callback 始终返回同一函数
  */
-export const useAsyncCallback = (func, dependency) => {
+export const useAsyncCallback = (func) => {
+  const handleRef = useRef()
+  handleRef.current = func
+  const loadingRef = useRef(false)
   const [loading, setLoading] = useState(false)
   const callback = useCallback((...args) => {
-    const result = func(...args)
+    console.log('UseAsyncCallback: callback');
+    if(loadingRef.current) {
+      return Promise.reject(
+        new Error('UseAsyncCallback: loading')
+      )
+    }
+    const result = handleRef.current(...args)
     if(result instanceof Promise) {
       setLoading(true)
-      result.then(() => setLoading(false))
+      loadingRef.current = true
+      result
+        .then(() => {
+          setLoading(false)
+          loadingRef.current = false
+        })
         .catch((e) => {
           setLoading(false)
+          loadingRef.current = false
           throw e
         })
     }
     return result
-  }, dependency)
+  }, [])
   return {
     loading,
     callback

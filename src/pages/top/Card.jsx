@@ -1,11 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useState } from 'react';
 import classNames from 'classnames';
-import { namespaceClass } from '@/helpers/style';
 import CompanyAvatar from '@/components/CompanyAvatar';
-import { Button } from 'antd';
 
-const c = namespaceClass('top-card');
 
 /**
  * 
@@ -144,10 +141,9 @@ function Card({
         <div
           onClick={e => e.stopPropagation()}
           className="
-            fixed top-0 -right-24 w-24 z-50
+            fixed w-24 z-50 border
             text-center bg-white shadow-md
             leading-8 rounded-md overflow-hidden
-            border
           "
           style={{ left: optionsButtonPosition.x, top: optionsButtonPosition.y }}
         >
@@ -158,7 +154,7 @@ function Card({
           >指派任务</div>
           <div
             type='primary'
-            className='text-danger hover:text-white hover:bg-danger border-t active:bg-danger-600'
+            className='text-danger hover:text-white hover:bg-danger border-t active:bg-danger-700'
             onClick={() => onEnd(id)}
           >终止任务</div>
         </div>

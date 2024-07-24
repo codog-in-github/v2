@@ -81,7 +81,7 @@ export const useMessages = () => {
   }, [messages, isAtMe])
   
   const { callback: load, loading } = useAsyncCallback(async () => {
-    if(!hasMore) {
+    if(!hasMore || loading) {
       return
     }
     const data = {
@@ -93,7 +93,7 @@ export const useMessages = () => {
     const rep = await request('admin/order/message_list')
       .get(data).send()
 
-    if(!rep || !rep.length) {
+    if(!rep || !rep.length || rep.length < 10) {
       setHasMore(false)
       return
     }

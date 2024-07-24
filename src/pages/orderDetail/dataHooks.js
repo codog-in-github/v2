@@ -44,7 +44,12 @@ const formDataGenerator = (rep) => {
   setIfExist('orderDate', 'bkg_date', dayjs)
   setIfExist('bkgNo', 'bkg_no')
   setIfExist('blNo', 'bl_no')
-  setIfExist('type', 'bkg_type')
+  if(rep['bkg_type']) {
+    result.type = {
+      key: rep['bkg_type'],
+      text:  rep['bkg_type_text'] ?? ''
+    }
+  }
   setIfExist('orderNo', 'order_no')
 
   /**
@@ -194,6 +199,8 @@ export const apiSaveDataGenerator = (id, formData) => {
   setValue('orderDate', 'bkg_date', (dayjs) => dayjs.format('YYYY-MM-DD'))
   setValue('bkgNo', 'bkg_no')
   setValue('blNo', 'bl_no')
+  result['bkg_type'] = formData.type.key
+  result['bkg_type_text'] = formData.type.text
   setValue('type', 'bkg_type')
   setValue('orderNo', 'order_no')
 
