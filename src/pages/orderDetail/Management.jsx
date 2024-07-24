@@ -2,7 +2,7 @@ import { request } from "@/apis/requestBuilder"
 import Label from "@/components/Label"
 import { BKG_TYPE_CUSTOM, BKG_TYPES } from "@/constant"
 import { Form, Button, Input, DatePicker, Select, AutoComplete } from "antd"
-import { useMemo, useEffect, useState } from "react"
+import { useMemo, useEffect, useState, useRef } from "react"
 
 const useGateCompanyOptions = () => {
   const [options, setOptions] = useState([])
@@ -25,13 +25,15 @@ const useGateCompanyOptions = () => {
 
 const BkgTypeSelect = ({ value, onChange, ...props }) => {
   const [inputValue, setInputValue] = useState('');
-  
+  const onChangeRef = useRef(null)
+  onChangeRef.current = onChange 
+
   const options = useMemo(() => {
     return Object.entries(BKG_TYPES)
       .map(([key, text]) => ({ label: (
-        <div onClick={() => onChange({ key, text })}>{text}</div>
+        <div onClick={() => onChangeRef.current({ key, text })}>{text}</div>
       ) }))
-  }, [onChange])
+  }, [])
 
   const textToKeyMap = useMemo(() => {
     const map = {}
