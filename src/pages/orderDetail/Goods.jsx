@@ -64,13 +64,12 @@ const Pagination = ({
     )
   }
   return (
-    <div className={
-      classNames(
-        'flex flex-shrink-0 gap-2 justify-center', {
-            'flex-col': direction === 'vertical'
-        }
-      )
-    }>
+    <div
+      className={classNames(
+        'flex flex-shrink-0 gap-2 justify-center',
+        { 'flex-col': direction === 'vertical' }
+      )}
+    >
       {dots}
     </div>
   )

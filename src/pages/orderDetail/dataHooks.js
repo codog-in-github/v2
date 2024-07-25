@@ -3,7 +3,7 @@ import dayjs from "dayjs"
 import { downloadBlob, pipe, touch } from "@/helpers/utils"
 import { request } from "@/apis/requestBuilder"
 import { useAsyncCallback } from "@/hooks"
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useParams } from "react-router-dom"
 import pubSub from "@/helpers/pubSub"
 
@@ -139,7 +139,7 @@ const formDataGenerator = (rep) => {
       commodity: item['common'],
       containerType: item['container_type'],
       quantity: item['quantity'],
-      car: []
+      cars: []
     }
     result.containers.push(container)
     /**
@@ -176,10 +176,10 @@ const formDataGenerator = (rep) => {
           tare: jtem['tare'],
           tareType: jtem['tare_type'],
         }
-        container.car.push(car)
+        container.cars.push(car)
       }
     } else {
-      container.car.push(newCar())
+      container.cars.push(newCar())
     }
    }
   } else {
@@ -191,6 +191,19 @@ const formDataGenerator = (rep) => {
    */
   setIfExist('remark', 'remark')
   return result
+}
+
+const getContainerIdMap = ({ containers = [] }) => {
+  const map = {}
+  for(const item of containers) {
+    const children = []
+    const { details } = item
+    for(const jtem of details ) {
+      children.push(jtem['id'])
+    }
+    map[item['id']] = children
+  }
+  return map
 }
 
 export const apiSaveDataGenerator = (id, formData) => {
@@ -252,10 +265,9 @@ export const apiSaveDataGenerator = (id, formData) => {
   result['containers'] = []
   for(const item of formData.containers) {
     const container = {
-      'common' : item.commodity,
-      'container_type' : item.containerType,
-      'quantity' : item.quantity,
-      'details': []
+      'common' : item.commodity ?? '',
+      'container_type' : item.containerType ?? '',
+      'quantity' : item.quantity ?? '',
     }
     /**
     * * car
@@ -265,18 +277,18 @@ export const apiSaveDataGenerator = (id, formData) => {
       const date =  jtem.date?.formate('YYYY-MM-DD') ?? ''
       const time = jtem.time?.formate(' HH:mm:ss') ?? ''
       const detail = {
-        'van_place': jtem.vanPlace,
-        'van_type': jtem.vanType,
-        'bearing_type': jtem.carType,
+        'van_place': jtem.vanPlace ?? '',
+        'van_type': jtem.vanType ?? '',
+        'bearing_type': jtem.carType ?? '',
         'deliver_time': date + time,
-        'trans_com': jtem.transCom,
-        'driver': jtem.driver,
-        'tel': jtem.tel,
-        'car': jtem.carCode,
-        'container': jtem.container,
-        'seal': jtem.seal,
-        'tare': jtem.tare,
-        'tare_type': jtem.tareType,
+        'trans_com': jtem.transCom ?? '',
+        'driver': jtem.driver ?? '',
+        'tel': jtem.tel ?? '',
+        'car': jtem.carCode ?? '',
+        'container': jtem.container ?? '',
+        'seal': jtem.seal ?? '',
+        'tare': jtem.tare ?? '',
+        'tare_type': jtem.tareType ?? '',
       }
       details.push(detail)
     }
@@ -285,6 +297,39 @@ export const apiSaveDataGenerator = (id, formData) => {
   }
 
   return result
+}
+
+/**
+ * @param {*} saveData 
+ * @param {Record<string, number[]>} idMap 
+ */
+const addContainerId = (saveData, idMap = {}) => {
+  const containers = saveData['containers']
+  const containerIds = Object.keys(idMap).map(Number)
+  const newConatainers = []
+  for(let i = 0; i < containers.length; i++){
+    const containerId = containerIds[i] ?? null
+    const newDetails = []
+    const newConatainer = {
+      ...containers[i],
+      id: containerId,
+      details: newDetails
+    }
+    newConatainers.push(newConatainer)
+    for(let j = 0; j < containers[i].details.length; j++){
+      const detailsId = idMap[containerId]?.[j] ?? null
+      const newDetail = {
+        ...containers[i].details[j],
+        'id': detailsId,
+        'container_id': containerId
+      }
+      newDetails.push(newDetail)
+    }
+  }
+  return {
+    ...saveData,
+    'containers': newConatainers
+  }
 }
 
 const toMessageProps = (item) => {
@@ -318,6 +363,7 @@ export const useDetailData = () => {
   const [loading, setLoading] = useState(false)
   const [messages, setMessages] = useState([])
   const [files, setFiles] = useState({})
+  const containerIdsMapRef = useRef(null)
 
   const onDeleteFiles = useCallback((deleteFiles, success, fail) => {
     request('/admin/delete_files')
@@ -358,7 +404,6 @@ export const useDetailData = () => {
     try {
       formData = await form.validateFields()
     } catch ({ errorFields }) {
-      console.log('saveOrder', errorFields);
       for(const field of errorFields) {
         for(const error of field.errors) {
           pubSub.publish('Info.Toast.Error', new Error(error))
@@ -367,7 +412,10 @@ export const useDetailData = () => {
       return
     }
     await request('/admin/order/edit_order')
-      .data(apiSaveDataGenerator(id, formData))
+      .data(addContainerId(
+        apiSaveDataGenerator(id, formData),
+        containerIdsMapRef.current
+      ))
       .send()
   }, [form, id])
   const saveOrderFile = ({ fileUrl, type }) => {
@@ -392,6 +440,10 @@ export const useDetailData = () => {
     request('/admin/order/detail')
       .get({ id })
       .send()
+      .then(touch((rep => {
+        containerIdsMapRef.current =  getContainerIdMap(rep)
+        console.log(containerIdsMapRef.current);
+      })))
       .then(touch(pipe(
         formDataGenerator,
         form.setFieldsValue.bind(form)
@@ -410,7 +462,7 @@ export const useDetailData = () => {
         setFiles,
       )))
       .finally(() => setLoading(false))
-  }, [id, form])
+  }, [form, id])
 
   const {
     callback: sendMessage,
