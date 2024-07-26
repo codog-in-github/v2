@@ -2,12 +2,14 @@ import File from "@/components/File";
 import Label from "@/components/Label";
 import { chooseFile } from "@/helpers/file";
 import { useAsyncCallback, useFileUpload } from "@/hooks";
-import { Button, Tabs } from "antd"
+import { Button, Progress, Tabs } from "antd"
 import { useMemo } from "react";
 import { useEffect } from "react";
+import { useContext } from "react";
 import { useState } from "react";
-import { useCallback } from "react";
 import { useParams } from "react-router-dom";
+import { DetailDataContext } from "./dataProvider";
+import { Popconfirm } from "antd";
 const tabs = [
   {
     key: '1',
@@ -56,10 +58,11 @@ const useSelectedFiles = (allFiles) => {
   }
   return { files, isSelected, clear, select, inSelected }
 }
-export const Files = ({ files, className, onUpload = () => {}, onDelete = () => {}, onDownload = () => {} }) => {
+export const Files = ({ className }) => {
+  const { files, onDeleteFiles, onDownloadFiles, saveOrderFile } = useContext(DetailDataContext)
   const [activeTabKey, setActiveTabKey] = useState('1')
   const orderId = useParams().id
-  const { upload, uploading } = useFileUpload(orderId)
+  const { upload, uploading, total, loaded } = useFileUpload(orderId)
   const {
     files: selectedFiles, isSelected, clear, select, inSelected
   } = useSelectedFiles(files)
@@ -70,7 +73,7 @@ export const Files = ({ files, className, onUpload = () => {}, onDelete = () => 
           file,
           fileType: ~~activeTabKey
         })
-        onUpload({
+        saveOrderFile({
           fileUrl, type: activeTabKey
         })
       },
@@ -85,10 +88,10 @@ export const Files = ({ files, className, onUpload = () => {}, onDelete = () => 
       resolve()
     }
     eventHandle(selectedFiles, next, reject)
-  }), [clear, eventHandle, selectedFiles, inSelected])
+  }))
 
-  const { callback: deleteHandler, loading: deleteding} = createEventHandle(onDelete)
-  const { callback: downloadHandler } = createEventHandle(onDownload)
+  const { callback: deleteHandler, loading: deleteding} = createEventHandle(onDeleteFiles)
+  const { callback: downloadHandler } = createEventHandle(onDownloadFiles)
   
   const tabItems = useMemo(() => {
     const tabItems = []
@@ -121,9 +124,14 @@ export const Files = ({ files, className, onUpload = () => {}, onDelete = () => 
       <div className="flex">
         <Label className="mr-auto">資料状況</Label>
         <div className="flex gap-2 pt-1 pr-2">
-          <Button onClick={deleteHandler} loading={deleteding}>削除</Button>
-          <Button onClick={downloadHandler}>DOW</Button>
-          <Button type="primary" onClick={upClickHandle} loading={uploading}>UP</Button>
+          <Button className="w-20" loading={deleteding}>削除</Button>
+          <Button className="w-20" onClick={downloadHandler}>DOW</Button>
+          <Button className="w-20" type="primary" onClick={upClickHandle} disabled={uploading}>
+            { uploading && (
+              <Progress className="mr-2" type="circle" percent={(loaded / total) * 100} size={20}></Progress>
+            ) }
+            UP
+          </Button>
         </div>
       </div>
       <Tabs items={tabItems} onChange={setActiveTabKey}></Tabs>

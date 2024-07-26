@@ -6,80 +6,46 @@ import ProcessStatus from "./ProcessStatus"
 import Ship from "./Ship"
 import Chat from "./Chat"
 import Files from "./Files"
-import { newCar, newConatainer, useDetailData } from "./dataHooks"
-import { useParams } from "react-router-dom"
-import { Provider } from "react-redux"
+import { DetailDataContext, newConatainer, useDetailData } from "./dataProvider"
 
 const OrderDetail = () => {
-  const orderId = useParams().id
+  const detailHook = useDetailData()
   const {
-    loading,
     form,
     messages,
     sendMessage,
-    saveOrderFile,
-    files,
-    onDeleteFiles,
-    onDownloadFiles,
-    saveOrder,
-    savingOrder
-  } = useDetailData()
-  const onAddContainerHandle = () => {
-    const oldValue = form.getFieldValue('containers')
-    form.setFieldsValue({
-      containers: [...oldValue, newConatainer()]
-    })
-  }
-  const onAddCarHandle = (key) => {
-    const oldValue = form.getFieldValue('containers')
-    oldValue[key].car = [
-      ...oldValue[key].car,
-      newCar()
-    ]
-    form.setFieldsValue({
-      containers: [...oldValue]
-    })
-  }
+  } = detailHook
   return (
-    <Form
-      form={form}
-      layout="vertical"
-      className="
-        [&_.ant-form-item-label]:!pb-0
-        [&_.ant-form-item-explain]:hidden
-        [&_.ant-form-item]:mb-0
-        flex-1
-        grid grid-cols-3 gap-[2px] m-2 grid-rows-[100px_200px_160px_220px_1fr]
-        rounded bg-gray-400
-      "
-      initialValues={{
-        containers: [newConatainer()]
-      }}>
-      <Management
-        className="col-span-3 bg-white flex items-center"
-        onSave={saveOrder}
-        saving={savingOrder}
-      />
-      <Customer className="bg-white py-2" />
-      <Goods
-        className="row-span-2 bg-white flex flex-col overflow-hidden"
-        onAddContainer={onAddContainerHandle}
-        onAddCar={onAddCarHandle} />
-      <ProcessStatus className="row-span-4 bg-white" />
-      <Ship className="row-span-2 bg-white" />
-      <Chat
-        className="row-span-2 bg-white flex flex-col"
-        messages={messages}
-        onSend={sendMessage}
-      />
-      <Files
-        files={files}
-        onDelete={onDeleteFiles}
-        onDownload={onDownloadFiles}
-        className="bg-white"
-        onUpload={saveOrderFile}
-      />
-    </Form>
+    <DetailDataContext.Provider value={detailHook}>
+      <Form
+        form={form}
+        layout="vertical"
+        className="
+          [&_.ant-form-item-label]:!pb-0
+          [&_.ant-form-item-explain]:hidden
+          [&_.ant-form-item]:mb-0
+          flex-1
+          grid grid-cols-3 gap-[2px] m-2 grid-rows-[100px_200px_160px_220px_1fr]
+          rounded bg-gray-400
+        "
+        initialValues={{
+          containers: [newConatainer()]
+        }}>
+        <Management
+          className="col-span-3 bg-white flex items-center"
+        />
+        <Customer className="bg-white py-2" />
+        <Goods className="row-span-2 bg-white flex flex-col overflow-hidden" />
+        <ProcessStatus className="row-span-4 bg-white" />
+        <Ship className="row-span-2 bg-white" />
+        <Chat
+          className="row-span-2 bg-white flex flex-col"
+          messages={messages}
+          onSend={sendMessage}
+        />
+        <Files className="bg-white" />
+      </Form>
+    </DetailDataContext.Provider>
   )
 }
 

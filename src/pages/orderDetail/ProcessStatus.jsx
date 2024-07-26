@@ -2,6 +2,8 @@ import Label from "@/components/Label"
 import { Button, Input } from "antd"
 import { Form } from "antd"
 import classNames from "classnames"
+import { useContext } from "react"
+import { DetailDataContext } from "./dataProvider"
 const Light = ({ children, active, className, onToggle = () => {} }) => {
   const activeClassNames = ['!bg-[#ffe3dd]', '!text-[#fd7556]', '!border-[#fd7556]']
   return (
@@ -22,24 +24,36 @@ const Light = ({ children, active, className, onToggle = () => {} }) => {
   )
 }
 
-const ProcessBar = ({ active }) => {
+const ProcessBar = ({
+  canSend,
+  sended,
+  lightName,
+}) => {
   return (
     <div className="flex gap-4 items-center">
-      <Light onToggle={console.log} active={active}>BK</Light>
+      <Light onToggle={console.log} active={canSend && !sended}>{lightName}</Light>
       <div className="flex-1 border-dashed border-t border-gray-500"></div>
-      <div>2024-07-01 08:40:21  施双</div>
-      <Button>詳細</Button>
+      { sended ? (
+          [
+            <div key="1">2024-07-01 08:40:21  施双</div>,
+            <Button key="2">詳細</Button>
+          ]
+      ) : (
+        <Button disabled={!canSend} type="primary" key="2">送信</Button>
+      )}
     </div>
   )
 }
 
 const ProcessStatus = ({className}) => {
+  const { nodes } = useContext(DetailDataContext)
   return (
     <div className={className}>
       <Label>進捗状況</Label>
       <div lang="p-2" className="flex flex-col gap-2 p-2">
-        <ProcessBar></ProcessBar>
-        <ProcessBar active></ProcessBar>
+        {nodes.map((item, index) => (
+          <ProcessBar {...item} key={index} />
+        ))}
       </div>
       <Label>REMARK</Label>
       <Form.Item name="remark" className="m-2">

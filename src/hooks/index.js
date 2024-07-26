@@ -98,6 +98,7 @@ export const useFileUpload = (orderId) => {
     callback: upload,
     loading: uploading
   } = useAsyncCallback(async ({ file, fileType }) => {
+    setLoaded(0)
     const rep = await request('/admin/upload_file').form({
       file, 'order_id': orderId, 'type': fileType
     })

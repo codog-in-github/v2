@@ -2,7 +2,9 @@ import { request } from "@/apis/requestBuilder"
 import Label from "@/components/Label"
 import { BKG_TYPE_CUSTOM, BKG_TYPES } from "@/constant"
 import { Form, Button, Input, DatePicker, Select, AutoComplete } from "antd"
+import { useContext } from "react"
 import { useMemo, useEffect, useState, useRef } from "react"
+import { DetailDataContext } from "./dataProvider"
 
 const useGateCompanyOptions = () => {
   const [options, setOptions] = useState([])
@@ -79,8 +81,6 @@ const BkgTypeSelect = ({ value, onChange, ...props }) => {
 
 const Management = ({
   className,
-  saving = false,
-  onSave = () => {},
   onCancel = () => {},
   onDelete = () => {},
   onShowCopy = () => {},
@@ -89,6 +89,7 @@ const Management = ({
 }) => {
   const { options, loading } = useGateCompanyOptions()
   const form = Form.useFormInstance()
+  const { saveOrder, savingOrder  } = useContext(DetailDataContext)
   const setDefaultNumber = () => {
     const bkgNo = form.getFieldValue('bkgNo')
     if(bkgNo) {
@@ -127,10 +128,10 @@ const Management = ({
       </div>
       <div className="grid grid-cols-3 gap-1 mt-2">
         <Button
-          loading={saving}
+          loading={savingOrder}
+          onClick={saveOrder}
           type="primary"
           className="bg-success hover:!bg-success-400"
-          onClick={onSave}
         >新規登録</Button>
         <Button type="primary" danger onClick={onDelete}>削除</Button>
         <Button type="primary" className="!bg-gray-400 hover:!bg-gray-300" onClick={onCancel}>戻る</Button>

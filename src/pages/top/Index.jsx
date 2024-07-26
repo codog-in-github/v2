@@ -22,7 +22,7 @@ const useSaveOrder = (next) => {
   const orderType = useSelector(state => state.order.type)
   const saveHandle = useCallback(async (data) => {
     const id = await saveOrder({
-      'bkg_type': orderType,
+      'order_type': orderType,
       'customer_id': data.customer,
       'remark': data.remark
     })

@@ -6,6 +6,10 @@ import { useAsyncCallback } from "@/hooks"
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useParams } from "react-router-dom"
 import pubSub from "@/helpers/pubSub"
+import { createContext } from "react"
+import { EXPORT_NODE_NAMES } from "@/constant"
+
+export const DetailDataContext = createContext()
 
 export const newConatainer = () => {
   return {
@@ -19,9 +23,16 @@ export const newCar = () => {
   return {}
 }
 
-const orderLightsGenerator = (rep) => {
-  const data = rep['nodes']
-  console.log('orderLightsGenerator', data)
+const orderNodesGenerator = ({ nodes = []}) => {
+  const data = []
+  for(const item of nodes) {
+    data.push({
+      nodeType: item['node_type'],
+      lightName: EXPORT_NODE_NAMES[item['node_id']],
+      canSend: item['is_enable'] === 1,
+      sended: item['mail_status'] === 1,
+    })
+  }
   return data
 }
 
@@ -56,6 +67,7 @@ const formDataGenerator = (rep) => {
     }
   }
   setIfExist('orderNo', 'order_no')
+  setIfExist('gateCompany', 'custom_com_id')
 
   /**
    * * customer お客様情報
@@ -220,6 +232,7 @@ export const apiSaveDataGenerator = (id, formData) => {
   result['bkg_type'] = formData.type.key
   result['bkg_type_text'] = formData.type.text
   setValue('orderNo', 'order_no')
+  setValue('gateCompany', 'custom_com_id')
 
   /**
    * * customer お客様情報
@@ -359,11 +372,13 @@ const filesGenerator = (rep) => {
 export const useDetailData = () => {
   const { id } = useParams()
   const [form] = Form.useForm()
-  const [lights, setLights] = useState([])
+  const [nodes, setNodes] = useState([])
   const [loading, setLoading] = useState(false)
   const [messages, setMessages] = useState([])
   const [files, setFiles] = useState({})
   const containerIdsMapRef = useRef(null)
+
+  const isTempOrder = nodes.length === 0
 
   const onDeleteFiles = useCallback((deleteFiles, success, fail) => {
     request('/admin/delete_files')
@@ -441,16 +456,15 @@ export const useDetailData = () => {
       .get({ id })
       .send()
       .then(touch((rep => {
-        containerIdsMapRef.current =  getContainerIdMap(rep)
-        console.log(containerIdsMapRef.current);
+        containerIdsMapRef.current = getContainerIdMap(rep)
       })))
       .then(touch(pipe(
         formDataGenerator,
         form.setFieldsValue.bind(form)
       )))
       .then(touch(pipe(
-        orderLightsGenerator,
-        setLights
+        orderNodesGenerator,
+        setNodes
       )))
       .then(touch(pipe(
         messagesGenerator,
@@ -483,7 +497,7 @@ export const useDetailData = () => {
   return {
     loading,
     form,
-    lights,
+    nodes,
     messages,
     sendMessage,
     sending,
@@ -493,6 +507,7 @@ export const useDetailData = () => {
     onDownloadFiles,
     saveOrder,
     savingOrder,
+    isTempOrder
   }
 }
 
