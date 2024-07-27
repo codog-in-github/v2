@@ -23,16 +23,11 @@ export default defineConfig({
     },
   },
   server: {
-    port: 443,
     proxy: {
       '/api': {
         target: 'http://10.0.2.2',
         changeOrigin: true,
       }
     },
-    https: {
-      key:  fs.readFileSync('certs/cert.key'),
-      cert:  fs.readFileSync('certs/cert.crt'),
-    }
   }
 })
