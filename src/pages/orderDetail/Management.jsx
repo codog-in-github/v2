@@ -5,6 +5,7 @@ import { Form, Button, Input, DatePicker, Select, AutoComplete } from "antd"
 import { useContext } from "react"
 import { useMemo, useEffect, useState, useRef } from "react"
 import { DetailDataContext } from "./dataProvider"
+import ListModal from "./requestBook/ListModal"
 
 const useGateCompanyOptions = () => {
   const [options, setOptions] = useState([])
@@ -79,14 +80,7 @@ const BkgTypeSelect = ({ value, onChange, ...props }) => {
   )
 }
 
-const Management = ({
-  className,
-  onCancel = () => {},
-  onDelete = () => {},
-  onShowCopy = () => {},
-  onShowMakeDocu = () => {},
-  onShowInvoiceList = () => {}
-}) => {
+const Management = ({ className }) => {
   const { options, loading } = useGateCompanyOptions()
   const form = Form.useFormInstance()
   const { saveOrder, savingOrder  } = useContext(DetailDataContext)
@@ -96,6 +90,7 @@ const Management = ({
       form.setFieldValue('blNo', bkgNo)
     }
   }
+  const requestBookModalIntance = useRef(null)
   return (
     <div className={className}>
       <div className="mr-auto">
@@ -104,6 +99,7 @@ const Management = ({
           <Form.Item label="DATE" name="orderDate">
             <DatePicker allowClear={false} />
           </Form.Item>
+          <Form.Item name="id" hidden />
           <Form.Item label="BKG NO." name="bkgNo" className="[&_label]:!font-bold" rules={[{ required: true, message: 'BKG NO.を入力してください' }]}>
             <Input onBlur={setDefaultNumber} />
           </Form.Item>
@@ -133,12 +129,13 @@ const Management = ({
           type="primary"
           className="bg-success hover:!bg-success-400"
         >新規登録</Button>
-        <Button type="primary" danger onClick={onDelete}>削除</Button>
-        <Button type="primary" className="!bg-gray-400 hover:!bg-gray-300" onClick={onCancel}>戻る</Button>
-        <Button type="primary" onClick={onShowCopy}>類似事件</Button>
-        <Button type="primary" onClick={onShowMakeDocu}>各種書類作成</Button>
-        <Button type="primary" onClick={onShowInvoiceList}>請求書</Button>
+        <Button type="primary" danger onClick={() => {}}>削除</Button>
+        <Button type="primary" className="!bg-gray-400 hover:!bg-gray-300" onClick={() => {}}>戻る</Button>
+        <Button type="primary" onClick={() => {}}>類似事件</Button>
+        <Button type="primary" onClick={() => {}}>各種書類作成</Button>
+        <Button type="primary" onClick={() => { requestBookModalIntance.current.open() }}>請求書</Button>
       </div>
+      <ListModal instance={requestBookModalIntance}></ListModal>
     </div>
   )
 }

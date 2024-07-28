@@ -51,3 +51,20 @@ body {
     left: 0;
   }
 }
+
+
+.btn-link-group {
+  .btn-link:nth-child(n+2)::before {
+    content: '|';
+    @apply mx-2 text-gray-300;
+  }
+}
+
+.btn-link{
+  @apply text-primary-500
+    cursor-pointer;
+}
+
+svg.current-color {
+  fill: currentColor;
+}

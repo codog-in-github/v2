@@ -69,7 +69,7 @@ export const EXPORT_NODE_NAMES = {
   [ORDER_NODE_TYPE_ACL]: 'ACL',
   [ORDER_NODE_TYPE_CUSTOMS_CLEARANCE]: '許',
   [ORDER_NODE_TYPE_BL_COPY]: 'B/C',
-  [ORDER_NODE_TYPE_FM]: 'SUR',
+  [ORDER_NODE_TYPE_SUR]: 'SUR',
   [ORDER_NODE_TYPE_FM]: 'FM',
   [ORDER_NODE_TYPE_REQUEST]: '請',
 }
@@ -85,3 +85,8 @@ export const BKG_TYPES = {
 }
 
 export const BKG_TYPE_CUSTOM = 8
+
+export const COST_PART_CUSTOMS = 0
+export const COST_PART_SEA = 1
+export const COST_PART_LAND = 2
+export const COST_PART_OTHER = 3

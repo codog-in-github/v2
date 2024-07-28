@@ -33,6 +33,10 @@ const router = createBrowserRouter([
     element: <Login />,
   },
   {
+    path: "/rb",
+    element: <LazyPage load={() => import('@/pages/orderDetail/requestBook/EditForm.jsx')} />,
+  },
+  {
     element: <TopLayout />,
     children: [
       {

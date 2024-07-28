@@ -7,7 +7,6 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import { useParams } from "react-router-dom"
 import pubSub from "@/helpers/pubSub"
 import { createContext } from "react"
-import { EXPORT_NODE_NAMES } from "@/constant"
 
 export const DetailDataContext = createContext()
 
@@ -27,10 +26,8 @@ const orderNodesGenerator = ({ nodes = []}) => {
   const data = []
   for(const item of nodes) {
     data.push({
-      nodeType: item['node_type'],
-      lightName: EXPORT_NODE_NAMES[item['node_id']],
-      canSend: item['is_enable'] === 1,
-      sended: item['mail_status'] === 1,
+      nodeType: item['node_id'],
+      canDo: item['is_enable'] === 1,
     })
   }
   return data
@@ -57,6 +54,7 @@ const formDataGenerator = (rep) => {
    * $table->string('order_no')->default('')->comment('社内管理番号年月+本月第几单+标签');
    * $table->string('custom_com_id')->default('')->comment('报关公司id');
    */
+  setIfExist('id', 'id')
   setIfExist('orderDate', 'bkg_date', dayjs)
   setIfExist('bkgNo', 'bkg_no')
   setIfExist('blNo', 'bl_no')
@@ -146,8 +144,9 @@ const formDataGenerator = (rep) => {
   */
  result.containers = []
  if(rep.containers && rep.containers.length) {
-   for(const item in rep.containers) {
+   for(const item of rep.containers) {
     const container = {
+      id: item['id'],
       commodity: item['common'],
       containerType: item['container_type'],
       quantity: item['quantity'],
@@ -172,8 +171,10 @@ const formDataGenerator = (rep) => {
       * $table->tinyInteger('tare_type')->default(1)->comment('重量类型1 吨 2 kg');
       */
     if(item['details'] && item['details'].length) {
-      for(const jtem in item['details']) {
+      for(const jtem of item['details']) {
         const car = {
+          id: jtem['id'],
+          containerId: jtem['container_id'],
           vanPlace: jtem['van_place'],
           vanType: jtem['van_type'],
           carType: jtem['bearing_type'],
@@ -205,27 +206,15 @@ const formDataGenerator = (rep) => {
   return result
 }
 
-const getContainerIdMap = ({ containers = [] }) => {
-  const map = {}
-  for(const item of containers) {
-    const children = []
-    const { details } = item
-    for(const jtem of details ) {
-      children.push(jtem['id'])
-    }
-    map[item['id']] = children
-  }
-  return map
-}
-
-export const apiSaveDataGenerator = (id, formData) => {
-  const result = { id }
+export const apiSaveDataGenerator = (formData) => {
+  const result = {}
   const setValue = (localKey, remoteKey, transform = (v) => v) => {
     result[remoteKey] = transform(formData[localKey])
   }
   /**
    * * Management 管理情報
    */
+  setValue('id', 'id')
   setValue('orderDate', 'bkg_date', (dayjs) => dayjs.format('YYYY-MM-DD'))
   setValue('bkgNo', 'bkg_no')
   setValue('blNo', 'bl_no')
@@ -278,6 +267,7 @@ export const apiSaveDataGenerator = (id, formData) => {
   result['containers'] = []
   for(const item of formData.containers) {
     const container = {
+      'id' : item.id ?? '',
       'common' : item.commodity ?? '',
       'container_type' : item.containerType ?? '',
       'quantity' : item.quantity ?? '',
@@ -290,6 +280,8 @@ export const apiSaveDataGenerator = (id, formData) => {
       const date =  jtem.date?.formate('YYYY-MM-DD') ?? ''
       const time = jtem.time?.formate(' HH:mm:ss') ?? ''
       const detail = {
+        'id' : jtem.id ?? '',
+        'container_id' : jtem.containerId ?? '',
         'van_place': jtem.vanPlace ?? '',
         'van_type': jtem.vanType ?? '',
         'bearing_type': jtem.carType ?? '',
@@ -310,39 +302,6 @@ export const apiSaveDataGenerator = (id, formData) => {
   }
 
   return result
-}
-
-/**
- * @param {*} saveData 
- * @param {Record<string, number[]>} idMap 
- */
-const addContainerId = (saveData, idMap = {}) => {
-  const containers = saveData['containers']
-  const containerIds = Object.keys(idMap).map(Number)
-  const newConatainers = []
-  for(let i = 0; i < containers.length; i++){
-    const containerId = containerIds[i] ?? null
-    const newDetails = []
-    const newConatainer = {
-      ...containers[i],
-      id: containerId,
-      details: newDetails
-    }
-    newConatainers.push(newConatainer)
-    for(let j = 0; j < containers[i].details.length; j++){
-      const detailsId = idMap[containerId]?.[j] ?? null
-      const newDetail = {
-        ...containers[i].details[j],
-        'id': detailsId,
-        'container_id': containerId
-      }
-      newDetails.push(newDetail)
-    }
-  }
-  return {
-    ...saveData,
-    'containers': newConatainers
-  }
 }
 
 const toMessageProps = (item) => {
@@ -376,7 +335,6 @@ export const useDetailData = () => {
   const [loading, setLoading] = useState(false)
   const [messages, setMessages] = useState([])
   const [files, setFiles] = useState({})
-  const containerIdsMapRef = useRef(null)
 
   const isTempOrder = nodes.length === 0
 
@@ -427,10 +385,7 @@ export const useDetailData = () => {
       return
     }
     await request('/admin/order/edit_order')
-      .data(addContainerId(
-        apiSaveDataGenerator(id, formData),
-        containerIdsMapRef.current
-      ))
+      .data(apiSaveDataGenerator(formData))
       .send()
   }, [form, id])
   const saveOrderFile = ({ fileUrl, type }) => {
@@ -455,9 +410,6 @@ export const useDetailData = () => {
     request('/admin/order/detail')
       .get({ id })
       .send()
-      .then(touch((rep => {
-        containerIdsMapRef.current = getContainerIdMap(rep)
-      })))
       .then(touch(pipe(
         formDataGenerator,
         form.setFieldsValue.bind(form)

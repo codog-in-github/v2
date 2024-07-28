@@ -6,6 +6,7 @@ import { useState } from "react"
 import classNames from "classnames"
 import { newCar, newConatainer } from "./dataProvider"
 import { useCallback } from "react"
+import { Space } from "antd"
 
 const usePage = (list) => {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -97,6 +98,9 @@ const ContainerList = ({
               style={{
                 transform: `translateY(${-page * 100}%)`
               }}>
+              <Form.Item name={[props.name, 'id']} hidden>
+                <Input />
+              </Form.Item>
               <div className="flex gap-1 items-end mb-2">
                 <Form.Item className="flex-1" name={[props.name, 'commodity']}>
                   <Input addonBefore="COM" />
@@ -182,6 +186,8 @@ const CarList = ({
             key={props.key}
             className="bg-[#d9e4ef] p-2 h-full w-full flex-shrink-0 transition-transform overflow-hidden"
             style={{ transform: `translateX(${-page * 100}%)` }}>
+            <Form.Item name={[props.name, 'id']} hidden />
+            <Form.Item name={[props.name, 'containerId']} hidden />
             <div className="flex gap-2">
               <Form.Item className="flex-1" label="VAN場所" name={[props.name, 'vanPlace']}>
                 <Input />
@@ -245,13 +251,18 @@ const CarList = ({
               <Form.Item className="flex-1" label="SEAL" name={[props.name, 'seal']}>
                 <Input />
               </Form.Item>
-              <Form.Item className="flex-1" label="TARE" name={[props.name, 'tare']}>
-                <Input addonAfter={(
-                  <Select defaultValue="T" value={1} >
-                    <Select.Option value={1}>T</Select.Option>
-                    <Select.Option value={2}>KG</Select.Option>
-                  </Select>
-                )} />
+              <Form.Item className="flex-1" label="TARE">
+                <Space.Compact>
+                  <Form.Item noStyle name={[props.name, 'tare']}>
+                    <Input />
+                  </Form.Item>
+                  <Form.Item noStyle name={[props.name, 'tareType']}>
+                    <Select className="!w-auto" defaultValue="T" value={1} >
+                      <Select.Option value={1}>T</Select.Option>
+                      <Select.Option value={2}>KG</Select.Option>
+                    </Select>
+                  </Form.Item>
+                </Space.Compact>
               </Form.Item>
             </div>
           </div>

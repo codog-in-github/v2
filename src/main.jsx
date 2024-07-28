@@ -14,6 +14,9 @@ import 'handsontable/dist/handsontable.full.min.css';
 
 const antdGlobalConfig = {
   locale: ja_JP,
+  form: {
+    colon: false
+  },
   theme: {
     token: {
       colorPrimary: themeColor('primary'),
