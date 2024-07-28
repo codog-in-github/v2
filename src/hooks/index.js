@@ -118,3 +118,22 @@ export const useFileUpload = (orderId) => {
     upload
   }
 }
+
+export const useOptions = (selectId) => {
+  const [options, setOptions] = useState([])
+  const [loading, setLoading] = useState(false)
+  useEffect(() => {
+    setLoading(true)
+    request('/admin/option_list')
+      .get({
+        'select_id': selectId
+      })
+      .send()
+      .then(data => { setOptions(data) })
+      .finally(() => { setLoading(false) })
+  }, [selectId])
+  return {
+    options,
+    loading,
+  }
+}

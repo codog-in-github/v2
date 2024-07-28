@@ -90,3 +90,6 @@ export const COST_PART_CUSTOMS = 0
 export const COST_PART_SEA = 1
 export const COST_PART_LAND = 2
 export const COST_PART_OTHER = 3
+
+export const SELECT_ID_RB_EXTRA = 11
+export const SELECT_ID_RB_DETAIL_ITEM = 12
