@@ -1,11 +1,12 @@
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons"
-import { COST_PART_CUSTOMS, COST_PART_LAND, COST_PART_OTHER, COST_PART_SEA, SELECT_ID_RB_DETAIL_ITEM } from "@/constant"
+import { COST_PART_CUSTOMS, COST_PART_LAND, COST_PART_OTHER, COST_PART_SEA, SELECT_ID_RB_DETAIL_ITEM, SELECT_ID_RB_EXTRA_ITEM } from "@/constant"
 import { Select, Switch, Radio, InputNumber, AutoComplete, Button, Col, Form, Input, Row, Popover } from "antd"
 import { useMemo, useEffect } from "react"
 import { useOptions } from "@/hooks"
 import Label from "@/components/Label"
 import { createContext } from "react"
 import { useContext } from "react"
+import { useState } from "react"
 
 const costTypes = [
   COST_PART_CUSTOMS,
@@ -18,16 +19,28 @@ const EditFormContext = createContext()
 
 const ExtraInput = ({ datakey }) => {
   const form = Form.useFormInstance()
+  const { extraItems } = useContext(EditFormContext)
+  const add = () => {
+    const oldValue = form.getFieldValue('extra')
+    form.setFieldValue('extra', [
+      ...oldValue,
+      {}
+    ])
+  }
+  const del = () => {
+    const oldValue = form.getFieldValue('extra')
+    form.setFieldValue('extra', oldValue.filter((_, i) => i != datakey))
+  }
   return (
-    <div className="flex">
+    <div className="flex gap-2">
       <Form.Item noStyle name={[datakey, 'column']}>
-        <AutoComplete className="w-32"></AutoComplete>
+        <AutoComplete className="w-32" options={extraItems} filterOption="value"></AutoComplete>
       </Form.Item>
       <Form.Item noStyle name={[datakey, 'value']}>
-          <Input className="flex-1 ml-2"></Input>
-        </Form.Item>
-      <Button type="primary" className="ml-2" icon={<PlusOutlined />}></Button>
-      <Button type="primary" danger className="ml-2" icon={<MinusOutlined />}></Button>
+        <Input className="flex-1"></Input>
+      </Form.Item>
+      <Button type="primary" icon={<PlusOutlined />} onClick={add}></Button>
+      <Button type="primary" danger icon={<MinusOutlined />} onClick={del}></Button>
     </div>
   )
 }
@@ -53,7 +66,7 @@ const DetailRow = ({ partName, ...props }) => {
       <td  className="text-right">{partName}</td>
       <td>
         <Form.Item noStyle>
-          <AutoComplete className="w-full" options={detailItems}></AutoComplete>
+          <AutoComplete className="w-full" options={detailItems} filterOption="value"></AutoComplete>
         </Form.Item>
       </td>
       <td className="flex gap-2">
@@ -104,18 +117,34 @@ const detailPart = (type) => {
     if(!list.length) {
       return null
     }
-    return list.map((props, i) => <DetailRow key={props.key}  partName={i ? '' : partName} {...props} />)
+    return list.map((props, i) => (
+      <DetailRow
+        key={props.key} 
+        partName={i ? '' : partName}
+        {...props}
+      />
+    ))
   }
+}
+
+const useItemList = (selectId) => {
+  const { options } = useOptions(selectId)
+  const items = useMemo(() => {
+    return options.map(item => ({
+      value: item.value
+    }))
+  }, [options])
+  return items
+}
+
+const useBankList = () => {
+  const [banks, setBanks] = useState()
 }
 
 const EditForm = () => {
   const [form] = Form.useForm()
-  const { options: detailItemsData } = useOptions(SELECT_ID_RB_DETAIL_ITEM)
-  const detailItems = useMemo(() => {
-    return detailItemsData.map(item => ({
-      value: item.value
-    }))
-  }, [detailItemsData])
+  const extraItems = useItemList(SELECT_ID_RB_EXTRA_ITEM)
+  const detailItems = useItemList(SELECT_ID_RB_DETAIL_ITEM)
   useEffect(() => {
     form.setFieldsValue({
       extra: [{}, {}],
@@ -125,7 +154,7 @@ const EditForm = () => {
     })
   }, [])
   return (
-    <EditFormContext.Provider value={{ detailItems }}>
+    <EditFormContext.Provider value={{  detailItems, extraItems }}>
       <Form
         form={form}
         className="flex h-screen"
@@ -133,7 +162,7 @@ const EditForm = () => {
           <div className="h-full flex-1 pt-4">
             <div className="text-center text-xl font-bold">請求書</div>
 
-            <Row className="px-8 mt-6">
+            <Row className="px-16 mt-6">
               <Col span={8}>
                 <Form.Item label="請求番号" labelCol={{ span: 6 }} >
                   <Input></Input>
@@ -162,7 +191,7 @@ const EditForm = () => {
             </Row>
 
             <Form.List name="extra">{list => (
-              <div className="border-t py-8 border-gray-300 grid grid-cols-2 gap-x-12 gap-y-8 px-24">
+              <div className="border-t py-8 border-gray-300 grid grid-cols-2 gap-x-12 gap-y-8 px-16">
                 {list.map(({ key, name }) => (
                   <ExtraInput key={key} datakey={name} />
                 ))}
