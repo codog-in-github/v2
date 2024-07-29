@@ -33,7 +33,7 @@ const useSaveOrder = (next) => {
   return saveHandle
 }
 function MainContent() {
-  const { orders, loading } = useTopOrderList()
+  const { orders, loading, refresh } = useTopOrderList()
   const [modalOpen, setModalOpen] = useState(false)
   const navigate = useNavigate()
 
@@ -46,7 +46,10 @@ function MainContent() {
   }, [setModalOpen])
 
   const onOkEditHandle = useSaveOrder(toDetail)
-  const onOkHandle = useSaveOrder(closeAddModal)
+  const onOkHandle = useSaveOrder(() => {
+    refresh()
+    closeAddModal()
+  })
 
   return (
     <div className="flex h-full overflow-auto">

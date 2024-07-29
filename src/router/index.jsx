@@ -18,7 +18,7 @@ const placeholderUrls = [
 ];
 
 const routeGuarder = (routeState, next) => {
-  console.log(routeState);
+  // console.log(routeState);
   return next();
 };
 
@@ -37,7 +37,12 @@ const router = createBrowserRouter([
     element: <LazyPage load={() => import('@/pages/orderDetail/requestBook/EditForm.jsx')} />,
   },
   {
-    element: <TopLayout />,
+    element: (
+      <LazyPage
+        load={() => Promise.resolve({ default: TopLayout })}
+        beforeLoad={routeGuarder}
+      />
+    ),
     children: [
       {
         path: "/orderDetail/:id",

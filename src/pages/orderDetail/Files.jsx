@@ -59,7 +59,7 @@ const useSelectedFiles = (allFiles) => {
   return { files, isSelected, clear, select, inSelected }
 }
 export const Files = ({ className }) => {
-  const { files, onDeleteFiles, onDownloadFiles, saveOrderFile } = useContext(DetailDataContext)
+  const { files, onDeleteFiles, onDownloadFiles, saveOrderFile, downloading } = useContext(DetailDataContext)
   const [activeTabKey, setActiveTabKey] = useState('1')
   const orderId = useParams().id
   const { upload, uploading, total, loaded } = useFileUpload(orderId)
@@ -124,8 +124,8 @@ export const Files = ({ className }) => {
       <div className="flex">
         <Label className="mr-auto">資料状況</Label>
         <div className="flex gap-2 pt-1 pr-2">
-          <Button className="w-20" loading={deleteding}>削除</Button>
-          <Button className="w-20" onClick={downloadHandler}>DOW</Button>
+          <Button className="w-20" onClick={deleteHandler} loading={deleteding}>削除</Button>
+          <Button className="w-20" onClick={downloadHandler} loading={downloading}>DOW</Button>
           <Button className="w-20" type="primary" onClick={upClickHandle} disabled={uploading}>
             { uploading && (
               <Progress className="mr-2" type="circle" percent={(loaded / total) * 100} size={20}></Progress>

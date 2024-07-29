@@ -4,7 +4,7 @@ import {
   checkHttpState,
   checkJSONCode,
   getRequestBodyData,
-  toBlob,
+  getRequestJsonBodyData,
 } from './middleware';
 import { cloneDeep, isObject } from 'lodash';
 import QueryString from 'qs';
@@ -24,7 +24,7 @@ class Request {
     this.responseMiddleware = [
       checkHttpState,
       checkJSONCode,
-      getRequestBodyData,
+      getRequestJsonBodyData,
     ];
   }
 
@@ -170,8 +170,11 @@ class Request {
   }
 
   download() {
-    this.responseWithout(getRequestBodyData, checkJSONCode)
-    this.addResponseMiddleware(toBlob)
+    this.config({
+      responseType: 'blob'
+    })
+    this.responseWithout(getRequestJsonBodyData, checkJSONCode)
+    this.addResponseMiddleware(getRequestBodyData)
     return this
   }
 
@@ -219,8 +222,14 @@ class Request {
 export const request = import.meta.env.DEV
   ? (
     (url = '') => {
-      if(url.startsWith('http://10.0.2.2/api')) {
-        url = url.substring('http://10.0.2.2/api'.length)
+      const devAddrs = [
+        'http://10.0.2.2/api',
+        'http:///127.0.0.1:3100'
+      ]
+      for(const addr of devAddrs) {
+        if(url.startsWith(addr)) {
+          return new Request(url.substring(addr.length))
+        }
       }
       return new Request(url);
     }

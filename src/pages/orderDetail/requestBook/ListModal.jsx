@@ -1,8 +1,10 @@
 import { Button, Modal, Table } from "antd";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ListModal = ({ instance }) => {
   const [open, setOpen] = useState(false)
+  const navigate = useNavigate()
   if(instance) {
     instance.current = {
       open () {
@@ -40,7 +42,7 @@ const ListModal = ({ instance }) => {
         />
       </div>
       <div className="text-center">
-        <Button className="w-32" type="primary">新增请求书</Button>
+        <Button className="w-32" type="primary" onClick={() => navigate('/rb')}>新增请求书</Button>
         <Button className="ml-2 w-32">取消</Button>
       </div>
     </Modal>

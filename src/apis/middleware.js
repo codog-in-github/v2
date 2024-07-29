@@ -19,7 +19,7 @@ export function checkJSONCode(response, next) {
   return next(response);
 }
 
-export function getRequestBodyData(response, next) {
+export function getRequestJsonBodyData(response, next) {
   return next(response.data.data);
 }
 
@@ -29,11 +29,8 @@ export function getRequestBodyData(response, next) {
  * @param {* => *} next 
  * @returns 
  */
-export function toBlob(response, next) {
-  const blob = new Blob([response.data], {
-    type: response.headers["Content-Type"]
-  })
-  return next(blob);
+export function getRequestBodyData(response, next) {
+  return next(response.data);
 }
 
 /**

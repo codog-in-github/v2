@@ -1,12 +1,18 @@
-import { MinusOutlined, PlusOutlined } from "@ant-design/icons"
-import { COST_PART_CUSTOMS, COST_PART_LAND, COST_PART_OTHER, COST_PART_SEA, SELECT_ID_RB_DETAIL_ITEM, SELECT_ID_RB_EXTRA_ITEM } from "@/constant"
-import { Select, Switch, Radio, InputNumber, AutoComplete, Button, Col, Form, Input, Row, Popover } from "antd"
-import { useMemo, useEffect } from "react"
+import {
+  COST_PART_CUSTOMS, COST_PART_LAND, COST_PART_OTHER,
+  COST_PART_SEA, SELECT_ID_RB_DETAIL_ITEM, SELECT_ID_RB_DETAIL_UNIT, SELECT_ID_RB_EXTRA_ITEM
+} from "@/constant"
+import {
+  Switch, Radio, InputNumber, AutoComplete, Button,
+  Col, Form, Input, Row, Popover, Checkbox
+} from "antd"
+import { useMemo, useEffect, useContext, createContext, useState } from "react"
 import { useOptions } from "@/hooks"
+import { request } from "@/apis/requestBuilder"
+import { MinusOutlined, PlusOutlined } from "@ant-design/icons"
 import Label from "@/components/Label"
-import { createContext } from "react"
-import { useContext } from "react"
-import { useState } from "react"
+import { useCallback } from "react"
+import SingleCheckbox from "@/components/SingleCheckbox"
 
 const costTypes = [
   COST_PART_CUSTOMS,
@@ -34,7 +40,15 @@ const ExtraInput = ({ datakey }) => {
   return (
     <div className="flex gap-2">
       <Form.Item noStyle name={[datakey, 'column']}>
-        <AutoComplete className="w-32" options={extraItems} filterOption="value"></AutoComplete>
+        <AutoComplete
+          className="w-32"
+          options={extraItems}
+          filterOption="value"
+          onSelect={(_, { origin }) => {
+            console.log('select', origin)
+            form.setFieldValue(['extra', datakey, 'value'], origin['extra'])
+          }}
+        ></AutoComplete>
       </Form.Item>
       <Form.Item noStyle name={[datakey, 'value']}>
         <Input className="flex-1"></Input>
@@ -59,49 +73,59 @@ const getPartName = (type) => {
 }
 
 
-const DetailRow = ({ partName, ...props }) => {
-  const { detailItems } = useContext(EditFormContext)
+const DetailRow = ({ partType, partName, props }) => {
+  const { detailItems, units } = useContext(EditFormContext)
+  const form = Form.useFormInstance()
+  const calcTotal = useCallback(() => {
+    const row = form.getFieldValue(['details', partType, props.key])
+    // todo 計算总价
+    form.setFieldValue(['details', partType, props.key, 'total'], 1)
+  }, [partType, props])
   return (
-    <tr key={props.key}>
+    <tr key={props.key} name={[props.key, 'item_name']}>
       <td  className="text-right">{partName}</td>
       <td>
         <Form.Item noStyle>
-          <AutoComplete className="w-full" options={detailItems} filterOption="value"></AutoComplete>
+          <AutoComplete
+            className="w-full"
+            options={detailItems}
+            filterOption="value"
+            onSelect={(_, { origin }) => {
+              form.setFieldValue(['details', partType, props.key, 'unit'], origin['extra'])
+            }}
+          ></AutoComplete>
         </Form.Item>
       </td>
       <td className="flex gap-2">
-        <Form.Item noStyle name={[props.key, 'value']}>
+        <Form.Item noStyle name={[props.key, 'detail']}>
           <Input className="flex-1"></Input>
         </Form.Item>
-        <Form.Item noStyle name={[props.key, 'value']}>
-          <Select className="w-12"></Select>
+        <Form.Item noStyle name={[props.key, 'currency']}>
+          <SingleCheckbox  />
         </Form.Item>
       </td>
       <td>
-        <Form.Item noStyle name={[props.key, 'value']}>
-          <Input className="w-full"></Input>
+        <Form.Item noStyle name={[props.key, 'price']}>
+          <InputNumber className="w-full"></InputNumber>
         </Form.Item>
       </td>
       <td>
-        <Form.Item noStyle name={[props.key, 'value']}>
-          <InputNumber className="w-full" />
+        <Form.Item noStyle name={[props.key, 'num']}>
+          <InputNumber min={0} className="w-full" />
         </Form.Item>
       </td>
       <td>
-        <Form.Item noStyle name={[props.key, 'value']}>
-          <Select className="w-full" />
+        <Form.Item noStyle name={[props.key, 'unit']}>
+          <AutoComplete className="w-full" options={units} />
         </Form.Item>
       </td>
-      <td>
-        <Form.Item noStyle name={[props.key, 'value']}>
-          <Select className="w-full" options={[
-            { value: '课', label: '课' },
-            { value: '免', label: '免' }
-          ]} />
+      <td className="text-center">
+        <Form.Item noStyle name={[props.key, 'tax']}>
+          <SingleCheckbox onBlur={calcTotal} />
         </Form.Item>
       </td>
       <td className="flex gap-2">
-        <Form.Item noStyle name={[props.key, 'value']}>
+        <Form.Item noStyle name={[props.key, 'amount']}>
           <Input className="flex-1" />
         </Form.Item>
         <Button type="primary" icon={<PlusOutlined />}></Button>
@@ -119,9 +143,10 @@ const detailPart = (type) => {
     }
     return list.map((props, i) => (
       <DetailRow
-        key={props.key} 
+        key={props.key}
+        partType={type}
         partName={i ? '' : partName}
-        {...props}
+        props={props}
       />
     ))
   }
@@ -131,20 +156,71 @@ const useItemList = (selectId) => {
   const { options } = useOptions(selectId)
   const items = useMemo(() => {
     return options.map(item => ({
-      value: item.value
+      value: item.value,
+      origin: item
     }))
   }, [options])
   return items
 }
 
 const useBankList = () => {
-  const [banks, setBanks] = useState()
+  const [banks, setBanks] = useState([])
+  useEffect(() => {
+    request('/admin/bank_list').get().send()
+      .then(res => {
+        setBanks(res.map(item => ({
+          value: item.id,
+          label: item.name,
+          style: { width: 150 }
+        })))
+      })
+  }, [])
+  return banks
 }
 
+const useDepartmentList = () => {
+  const [departments, setDepartments] = useState([])
+  useEffect(() => {
+    request('/admin/department_list').get().send()
+      .then(res => {
+        setDepartments(res.map(item => ({
+          value: item.id,
+          label: item.name,
+          style: { width: 150 }
+        })))
+      })
+  }, [])
+  return departments
+}
+
+const Total = () => {
+  return (
+    <div className="border-t border-gray-300 px-16">
+      <div className="flex justify-between my-4">
+        <div>小計</div>
+        <div>小計</div>
+      </div>
+      <div className="flex justify-between my-4">
+        <div>消費税</div>
+        <div>消費税</div>
+      </div>
+      <div className="flex justify-between my-4 font-bold">
+        <div>御請求金額</div>
+        <div>御請求金額</div>
+      </div>
+    </div>
+  )
+}
 const EditForm = () => {
   const [form] = Form.useForm()
   const extraItems = useItemList(SELECT_ID_RB_EXTRA_ITEM)
   const detailItems = useItemList(SELECT_ID_RB_DETAIL_ITEM)
+  const units = useItemList(SELECT_ID_RB_DETAIL_UNIT)
+  const banks = useBankList()
+  const departments = useDepartmentList()
+  const submit = useCallback(() => {
+    console.log(form.getFieldsValue())
+  }, [])
   useEffect(() => {
     form.setFieldsValue({
       extra: [{}, {}],
@@ -154,7 +230,7 @@ const EditForm = () => {
     })
   }, [])
   return (
-    <EditFormContext.Provider value={{  detailItems, extraItems }}>
+    <EditFormContext.Provider value={{ detailItems, extraItems, units }}>
       <Form
         form={form}
         className="flex h-screen"
@@ -225,39 +301,18 @@ const EditForm = () => {
               </Popover>
             </div>
 
-            <div className="border-t border-gray-300 px-16">
-              <div className="flex justify-between my-4">
-                <div>小計</div>
-                <div>小計</div>
-              </div>
-              <div className="flex justify-between my-4">
-                <div>消費税</div>
-                <div>消費税</div>
-              </div>
-              <div className="flex justify-between my-4 font-bold">
-                <div>御請求金額</div>
-                <div>御請求金額</div>
-              </div>
-            </div>
+            <Total></Total>
             
             <div className="border-t py-8 border-gray-300 px-16">
               <Form.Item label="銀行" name="back">
-                  <Radio.Group options={[
-                    { label: '銀行1', value: '1'},
-                    { label: '銀行1', value: '2'},
-                    { label: '銀行1', value: '3'},
-                  ]}>
+                  <Radio.Group options={banks}>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="地址" name="back">
-                  <Radio.Group options={[
-                    { label: '銀行1', value: '1'},
-                    { label: '銀行1', value: '2'},
-                    { label: '銀行1', value: '3'},
-                  ]}>
+              <Form.Item label="地址" name="department">
+                  <Radio.Group options={departments} >
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="社印" name="back">
+              <Form.Item label="社印" name="sign">
                 <Switch></Switch>
               </Form.Item>
             </div>
@@ -266,7 +321,7 @@ const EditForm = () => {
               <Button className="w-32" type="primary">追加請求書</Button>
               <Button className="w-32" type="primary">参照入力</Button>
               <Button className="w-32" type="primary">出力</Button>
-              <Button className="w-32" type="primary">保存</Button>
+              <Button className="w-32" type="primary" onClick={submit}>保存</Button>
               <Button className="w-32">戻る</Button>
             </div>
         

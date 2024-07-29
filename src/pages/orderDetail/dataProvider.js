@@ -26,12 +26,14 @@ const orderNodesGenerator = ({ nodes = []}) => {
   const data = []
   for(const item of nodes) {
     data.push({
+      nodeId: item['id'],
       nodeType: item['node_id'],
       canDo: item['is_enable'] === 1,
     })
   }
   return data
 }
+
 
 const formDataGenerator = (rep) => {
   const result = {}
@@ -357,17 +359,17 @@ export const useDetailData = () => {
       .catch(fail)
   }, [])
   
-  const onDownloadFiles = useCallback((downloadFiles, success, fail) => {
-    Object.values(downloadFiles).flat().map(file => {
-      request(file).get().download().send()
+  const { callback: onDownloadFiles, loading: downloading } = useAsyncCallback((downloadFiles, success, fail) => {
+    return Promise.all(Object.values(downloadFiles).flat().map(file => {
+      return request(file).get().download().send()
         .then((blob) => {
           const fileName = file.split('/').pop()
           downloadBlob(blob, fileName)
           success()
         })
         .catch(fail)
-    })
-  }, [])
+    }))
+  })
 
   const {
     callback: saveOrder,
@@ -446,6 +448,21 @@ export const useDetailData = () => {
     setTimeout(scrollBottom, 20)
   })
 
+  const { callback: changeNodeStatus, loading: changingNodeStatus } = useAsyncCallback(async (id, enable) => {
+    if(isTempOrder)
+      return
+    await request('/admin/order/change_node_status')
+      .data({
+        'id': id,
+        'is_enable': enable ? 1 : 0
+      })
+      .send()
+    const newNodes = [...nodes]
+    nodes.find(item => item.nodeId === id).canDo = enable
+    console.log(newNodes)
+    setNodes(newNodes)
+  })
+
   return {
     loading,
     form,
@@ -457,9 +474,12 @@ export const useDetailData = () => {
     saveOrderFile,
     onDeleteFiles,
     onDownloadFiles,
+    downloading,
     saveOrder,
     savingOrder,
-    isTempOrder
+    isTempOrder,
+    changeNodeStatus,
+    changingNodeStatus
   }
 }
 

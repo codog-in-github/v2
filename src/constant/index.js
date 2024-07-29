@@ -93,3 +93,7 @@ export const COST_PART_OTHER = 3
 
 export const SELECT_ID_RB_EXTRA_ITEM = 11
 export const SELECT_ID_RB_DETAIL_ITEM = 12
+export const SELECT_ID_RB_DETAIL_UNIT = 13
+
+
+export const FILE_TYPE_CUSTOMS = 1

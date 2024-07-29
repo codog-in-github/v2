@@ -110,4 +110,5 @@ export const downloadBlob = (blob, fileName) => {
   a.download = fileName;
   a.click();
   URL.revokeObjectURL(url);
+  a.remove()
 }
