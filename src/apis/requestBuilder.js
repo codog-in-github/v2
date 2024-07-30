@@ -8,6 +8,7 @@ import {
 } from './middleware';
 import { cloneDeep, isObject } from 'lodash';
 import QueryString from 'qs';
+import { downloadBlob } from '@/helpers/utils';
 
 const baseURL = '/api';
 
@@ -169,12 +170,18 @@ class Request {
     return this;
   }
 
-  download() {
+  paginate() {
+    this.responseWithout(getRequestJsonBodyData)
+    this.addResponseMiddleware(getRequestBodyData)
+    return this
+  }
+
+  download(filename) {
     this.config({
       responseType: 'blob'
     })
     this.responseWithout(getRequestJsonBodyData, checkJSONCode)
-    this.addResponseMiddleware(getRequestBodyData)
+    this.addResponseMiddleware(getRequestBodyData, blob => downloadBlob(blob, filename))
     return this
   }
 

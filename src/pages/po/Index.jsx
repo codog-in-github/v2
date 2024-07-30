@@ -1,9 +1,31 @@
-import classNames from "classnames";
 import "./index.scss";
 import moment from "moment";
 import { themeColor } from "@/helpers/color";
+import { request } from "@/apis/requestBuilder";
+import { useEffect } from "react";
+import { useState } from "react";
+import { useAsyncCallback, useContextMenu } from "@/hooks";
+import { useRef } from "react";
 
-function Card({ end, type = "success", address = "", date }) {
+const useTabOrderList = (type) => {
+  const [list, setList] = useState([]);
+  const { callback, loading } = useAsyncCallback(async () => {
+    const res = await request('/admin/order/tab_order_list').get({
+      'node_status': type
+    }).send()
+    setList(res)
+  })
+  useEffect(() => {
+    callback()
+  }, [])
+  return {
+    list,
+    reload: callback,
+    loading
+  }
+}
+
+function Card({ end, type = "success", address = "", date, ...props }) {
   const grayscale = {};
   if (end) {
     grayscale.filter = "grayscale(100%)";
@@ -18,6 +40,7 @@ function Card({ end, type = "success", address = "", date }) {
         borderColor: themeColor(type, 60),
         ...grayscale
       }}
+      {...props}
     >
       
       <div className="flex p-2">
@@ -52,47 +75,56 @@ function Card({ end, type = "success", address = "", date }) {
 }
 
 function Po() {
+  const { list } = useTabOrderList(1)
+  const order = useRef(null)
+  
+  const [menu, open] = useContextMenu(
+    <div
+      className="
+        fixed w-24 z-50 border cursor-pointer
+        text-center bg-white shadow-md
+        leading-8 rounded-md overflow-hidden
+      "
+      onClick={e => e.stopPropagation()}
+    >
+      <div
+        type='primary'
+        className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
+        onClick={() => {}}
+      >指派任务</div>
+      <div
+        type='primary'
+        className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
+        onClick={() => {}}
+      >置顶任务</div>
+    </div>
+  )
+  /**
+   * 
+   * @param {Event} e 
+   */
+  const contextMenuHandle = (e, item) => {
+    e.preventDefault()
+    order.current = item
+    open({
+      x: e.clientX,
+      y: e.clientY
+    })
+  }
   return (
     <div className="flex-1">
       <div className="bg-white  m-2 rounded-lg shadow p-4">
         <div>未完成</div>
         <div className="flex gap-8 flex-wrap mt-4">
-          <Card
-            type="danger"
-            address="中国浙江省宁波市鄞州区中…"
-            date={Date.now()}
-          />
-          <Card
-            type="danger"
-            address="中国浙江省宁波市鄞州区中…"
-            date={Date.now()}
-          />
-          <Card
-            type="danger"
-            address="中国浙江省宁波市鄞州区中…"
-            date={Date.now()}
-          />
-          <Card
-            type="warning"
-            address="中国浙江省宁波市鄞州区中…"
-            date={Date.now()}
-          />
-          <Card
-            type="warning"
-            address="中国浙江省宁波市鄞州区中…"
-            date={Date.now()}
-          />
-          <Card
-            type="warning"
-            address="中国浙江省宁波市鄞州区中…"
-            date={Date.now()}
-          />
-          <Card address="中国浙江省宁波市鄞州区中…" date={Date.now()} />
-          <Card address="中国浙江省宁波市鄞州区中…" date={Date.now()} />
-          <Card address="中国浙江省宁波市鄞州区中…" date={Date.now()} />
-          <Card address="中国浙江省宁波市鄞州区中…" date={Date.now()} />
-          <Card address="中国浙江省宁波市鄞州区中…" date={Date.now()} />
-          <Card address="中国浙江省宁波市鄞州区中…" date={Date.now()} />
+          {list.map(item => (
+            <Card
+              onContextMenu={e => contextMenuHandle(e, item)}
+              key={item['id']}
+              type="danger"
+              address="中国浙江省宁波市鄞州区中…"
+              date={Date.now()}
+            />
+          ))}
         </div>
       </div>
       <div className="bg-white  m-2 rounded-lg shadow p-4">
@@ -106,6 +138,7 @@ function Po() {
           <Card address="中国浙江省宁波市鄞州区中…" end date={Date.now()} />
         </div>
       </div>
+      {menu}
     </div>
   );
 }

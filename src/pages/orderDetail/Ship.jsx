@@ -1,12 +1,14 @@
 import { request } from "@/apis/requestBuilder"
 import Label from "@/components/Label"
-import { useAsyncCallback } from "@/hooks"
+import { SELECT_ID_SHIP_CONPANY } from "@/constant"
+import { useAsyncCallback, useOptions } from "@/hooks"
 import { Form, Input, Select, DatePicker } from "antd"
 import { useState, useEffect } from "react"
 
 const getPorts = () => {
   return request('admin/country/tree').get().send()
 }
+
 const usePorts = () => {
   const [portTree, setPortTree] = useState([])
   const { callback, loading } = useAsyncCallback(async () => {
@@ -70,14 +72,21 @@ const PortSelect = ({ tree, bind, ...props }) => {
 }
 const Ship = ({ className }) => {
   const { portTree, loading: portLoading } = usePorts()
+  const form = Form.useFormInstance()
+  const { options: ships } = useOptions(SELECT_ID_SHIP_CONPANY)
+  const shipOptions = ships.map(item => ({ value: item.id, label: item.value, origin: item }))
   return (
     <div className={className}>
       <Label>船社情報</Label>
       <div className="px-2">
       <div className="flex items-end gap-1">
           <Input name="id" hidden />
-          <Form.Item className="flex-1" label="CARRIER" name="carrier">
-            <Input />
+          <Form.Item name="carrier" noStyle></Form.Item>
+          <Form.Item className="flex-1" label="CARRIER" name="carrier_id">
+            <Select options={shipOptions} onSelect={(_, { origin }) => {
+              form.setFieldValue('carrier', origin.value)
+              form.setFieldValue('vesselName', origin.extra ?? '')
+            }} />
           </Form.Item>
           <span className="relative bottom-1">/</span>
           <Form.Item className="flex-1" label="VESSEL NAME" name="vesselName">

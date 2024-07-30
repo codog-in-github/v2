@@ -1,35 +1,53 @@
 import { Space, Input, Select, Button, Table, Tag, Dropdown } from "antd";
 import { DashOutlined } from "@ant-design/icons";
 import { useState } from "react";
-const ColorTag = ({ color }) => {
-  const colorObj = {
-    red: "#FD7556",
-    yellow: "#FBBB21",
-    gray: "#D3D6DD",
-    green: "#429638",
-  };
-  return color.map((item, index) => (
-    <div
-      className="w-[8px] h-[18px] inline-block rounded mr-[3px]"
-      style={{ backgroundColor: colorObj[item] }}
-      key={index}
-    ></div>
-  ));
-};
-const OrderList = () => {
-  const selectArr = [
-    { value: "test1", label: "测试1" },
-    { value: "test2", label: "测试2" },
-  ];
-  const dataSource = [
-    {
-      id: 1,
-      name: "三祥贸易株式会社",
-      desi: "2024041081K",
-      bk: "GQF413SK202",
-      cut: "2024-06-06",
-      pol: "KOBE , 06/03",
-      pod: "BANGKOK , 07/09",
+import { useRef } from "react";
+import { useAsyncCallback } from "@/hooks";
+import { useEffect } from "react";
+import { request } from "@/apis/requestBuilder";
+import { EXPORT_NODE_NAMES } from "@/constant";
+import { Popover } from "antd";
+import { Link } from "react-router-dom";
+import { Form } from "antd";
+
+const nodeNames = Object.values(EXPORT_NODE_NAMES)
+
+const usePaginationRef = () => {
+  const pagination = useRef({
+    showSizeChanger: true,
+    showQuickJumper: true,
+    total: 0,
+    pageSize: 10,
+    showTotal: (total) => `共有 ${total} 条`,
+  })
+  const set = (value) => {
+    pagination.current = Object.assign(pagination.current, value)
+  }
+  const get = () => {
+    return {
+      'page_size': pagination.current.pageSize,
+      'page': pagination.current.current,
+    }
+  }
+  return { pagination, set , get }
+}
+const useOrderList = (pagination, filterForm) => {
+  const [list, setList] = useState([])
+  const { callback: getList, loading } = useAsyncCallback(async () => {
+    const rep = await request('/admin/order/list')
+      .get({
+        ...pagination.get(),
+        ...filterForm.getFieldsValue(),
+      }).paginate().send()
+    pagination.set({ total: rep.total, })
+    setList(rep.data.map(item => ({
+      id: item['id'],
+      name: item['company_name'],
+      desi: item['order_no'],
+      bk: item['bkg_no'],
+      cut: item['doc_cut'],
+      pol: item['loading_port_name'],
+      pod: item['delivery_port_name'],
       quantity: "40HQ , 6 ; 20HQ , 6",
       status: 1,
       color: [
@@ -45,218 +63,161 @@ const OrderList = () => {
         "green",
         "green",
       ],
-    },
-    {
-      id: 2,
-      name: "鹤丸海运株式会社",
-      desi: "2024041081K",
-      bk: "GQF413SK202",
-      cut: "2024-06-06",
-      pol: "KOBE , 06/03",
-      pod: "BANGKOK , 07/09",
-      quantity: "20HQ , 2",
-      status: 2,
-      color: [],
-    },
-    {
-      id: 3,
-      name: "鹤丸海运株式会社",
-      desi: "2024041081K",
-      bk: "GQF413SK202",
-      cut: "2024-06-06",
-      pol: "KOBE , 06/03",
-      pod: "BANGKOK , 07/09",
-      quantity: "20HQ , 2",
-      status: 3,
-      color: [],
-    },
-  ];
+    })))
+  })
+  return {
+    list, getList
+  }
+};
 
-  const items = [
-    {
-      label: <span>上传资料</span>,
-      key: "upload",
-    },
-    {
-      label: <span>下载资料</span>,
-      key: "download",
-    },
-  ];
 
-  const columns = [
-    {
-      title: "お客様",
-      dataIndex: "name",
-      key: "name",
-    },
-    {
-      title: "番号",
-      dataIndex: "desi",
-      key: "desi",
-      sorter: (a, b) => a.age - b.age,
-    },
-    {
-      title: "BK号",
-      dataIndex: "bk",
-      key: "bk",
-      sorter: (a, b) => a.age - b.age,
-    },
-    {
-      title: "CUT",
-      dataIndex: "cut",
-      key: "cut",
-      sorter: (a, b) => a.age - b.age,
-    },
-    {
-      title: "POL , ETD",
-      dataIndex: "pol",
-      key: "pol",
-      sorter: (a, b) => a.age - b.age,
-    },
-    {
-      title: "POD , ETA",
-      dataIndex: "pod",
-      key: "pod",
-      sorter: (a, b) => a.age - b.age,
-    },
-    {
-      title: "数量",
-      dataIndex: "quantity",
-      key: "quantity",
-      sorter: (a, b) => a.age - b.age,
-    },
-    {
-      title: "状態",
-      dataIndex: "status",
-      key: "status",
-      render: (status, row) => (
-        <div>
-          {status === 1 && <ColorTag color={row.color} />}
-          {status === 2 && <Tag color="red">未入账</Tag>}
-          {status === 3 && <Tag color="blue">已入账</Tag>}
-        </div>
-      ),
-    },
-    {
-      title: "操作",
-      key: "option",
-      fixed: "right",
-      width: 160,
-      render: () => (
-        <div>
-          <span className="text-blue-500 border-r border-gray-400 mr-3 pr-3">
-            <a>編集</a>
-          </span>
-          <span className="text-blue-500 border-r border-gray-400 mr-3 pr-3">
-            <a>复制</a>
-          </span>
-
-          <Dropdown
-            menu={{
-              items,
-            }}
-            trigger={["click"]}
-          >
-            <DashOutlined className="text-blue-500 cursor-pointer" />
-          </Dropdown>
-        </div>
-      ),
-    },
-  ];
-  const [form, setForm] = useState({
-    name: "",
-    desi: "",
-    bk: "",
-    pol: null,
-    pod: null,
-  });
-  const [page, setPage] = useState({
-    current: 1,
-    pageSize: 20,
-    total: 50,
-  });
-
-  const updateForm = (newData) => {
-    setForm({ ...form, ...newData });
+const ColorTag = ({ color }) => {
+  const colorObj = {
+    red: "#FD7556",
+    yellow: "#FBBB21",
+    gray: "#D3D6DD",
+    green: "#429638",
   };
+  return color.map((item, index) => (
+    <Popover key={index} content={nodeNames[index]} trigger="hover">
+      <div
+        className="w-[8px] h-[18px] inline-block rounded mr-[3px]"
+        style={{ backgroundColor: colorObj[item] }}
+      ></div>
+    </Popover>
+  ));
+};
 
-  const search = () => {
-    console.log(form);
-  };
-  const reset = () => {
-    const resetForm = {
-      name: "",
-      desi: "",
-      bk: "",
-      pol: null,
-      pod: null,
-    };
-    setForm(resetForm);
-  };
+const columns = [
+  {
+    title: "お客様",
+    dataIndex: "name",
+    key: "name",
+  },
+  {
+    title: "番号",
+    dataIndex: "desi",
+    key: "desi",
+    sorter: (a, b) => a.age - b.age,
+  },
+  {
+    title: "BK号",
+    dataIndex: "bk",
+    key: "bk",
+    sorter: (a, b) => a.age - b.age,
+  },
+  {
+    title: "CUT",
+    dataIndex: "cut",
+    key: "cut",
+    sorter: (a, b) => a.age - b.age,
+  },
+  {
+    title: "POL , ETD",
+    dataIndex: "pol",
+    key: "pol",
+    sorter: (a, b) => a.age - b.age,
+  },
+  {
+    title: "POD , ETA",
+    dataIndex: "pod",
+    key: "pod",
+    sorter: (a, b) => a.age - b.age,
+  },
+  {
+    title: "数量",
+    dataIndex: "quantity",
+    key: "quantity",
+    sorter: (a, b) => a.age - b.age,
+  },
+  {
+    title: "状態",
+    dataIndex: "status",
+    key: "status",
+    render: (status, row) => (
+      <div>
+        {status === 1 && <ColorTag color={row.color} />}
+        {status === 2 && <Tag color="red">未入账</Tag>}
+        {status === 3 && <Tag color="blue">已入账</Tag>}
+      </div>
+    ),
+  },
+  {
+    title: "操作",
+    dataIndex: "id",
+    key: "option",
+    fixed: "right",
+    width: 160,
+    render: (id) => (
+      <div className="btn-link-group">
+        <Link className="btn-link" to={`/orderDetail/${id}`}>編集</Link>
+        <a className="btn-link">复制</a>
+        <Dropdown
+          menu={{
+            items: [
+              {
+                label: <span>上传资料</span>,
+                key: "upload",
+              },
+              {
+                label: <span>下载资料</span>,
+                key: "download",
+              },
+            ],
+          }}
+          trigger="click"
+        >
+          <DashOutlined className="text-primary cursor-pointer ml-2 btn-link" />
+        </Dropdown>
+      </div>
+    ),
+  },
+];
 
-  const pageChange = ({ current, pageSize, total }) => {
-    setPage({ ...page, current, pageSize, total });
-  };
-
-  const showTotal = (total) => `共有 ${total} 条`;
+const OrderList = () => {
+  useEffect(() => {
+    getList()
+  }, [])
+  const [filters] = Form.useForm()
+  const page =  usePaginationRef()
+  const {
+    list: dataSource, getList, loading
+  } = useOrderList(page, filters)
 
   return (
     <div className="main-content">
-      <Space size={[10, 16]} wrap>
-        <Input
-          placeholder="お客様"
-          style={{ width: 200 }}
-          value={form.name}
-          onChange={(e) => updateForm({ name: e.target.value })}
-        />
-        <Input
-          placeholder="番号"
-          style={{ width: 160 }}
-          value={form.desi}
-          onChange={(e) => updateForm({ desi: e.target.value })}
-        />
-        <Input
-          placeholder="BK号"
-          style={{ width: 160 }}
-          value={form.bk}
-          onChange={(e) => updateForm({ bk: e.target.value })}
-        />
-
-        <Select
-          options={selectArr}
-          placeholder="POL"
-          style={{ width: 160 }}
-          value={form.pol}
-          onChange={(val) => updateForm({ pol: val })}
-        />
-        <DashOutlined className="text-gray-500" />
-        <Select
-          options={selectArr}
-          placeholder="POD"
-          style={{ width: 160 }}
-          value={form.pod}
-          onChange={(val) => updateForm({ pod: val })}
-        />
-
-        <Button type="primary" onClick={search}>
-          搜索
-        </Button>
-        <Button onClick={reset}>重置</Button>
-      </Space>
+      <Form form={filters}>
+        <Space size={[10, 16]} wrap>
+          <Form.Item name="company_name" noStyle>
+            <Input placeholder="お客様" style={{ width: 200 }} />
+          </Form.Item>
+          <Form.Item name="order_id" noStyle>
+            <Input placeholder="番号" style={{ width: 160 }} />
+          </Form.Item>
+          <Form.Item name="bk_no" style={{ width: 160 }} noStyle>
+            <Input placeholder="BK号"></Input>
+          </Form.Item>
+          <Form.Item name="pol" noStyle>
+            <Select placeholder="POL" style={{ width: 160 }} />
+          </Form.Item>
+          <DashOutlined className="text-gray-500" />
+          <Form.Item name="pod" noStyle>
+            <Select placeholder="POD" style={{ width: 160 }}/>
+          </Form.Item>
+          <Button type="primary" onClick={getList}>搜索</Button>
+          <Button onClick={() => filters.resetFields()}>重置</Button>
+        </Space>
+      </Form>
       <Table
+        loading={loading}
         rowKey="id"
         className="mt-5"
         dataSource={dataSource}
         columns={columns}
-        pagination={{
-          showSizeChanger: true,
-          showQuickJumper: true,
-          total: page.total,
-          pageSize: page.pageSize,
-          showTotal: showTotal,
-        }}
-        onChange={(page) => {
-          pageChange(page);
+        pagination={page.pagination.current}
+        onChange={(e) => {
+          page.set(e)
+          getList()
         }}
       />
     </div>

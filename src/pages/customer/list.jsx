@@ -2,20 +2,89 @@ import { Button, Input, Row, Col, Avatar, Progress } from "antd";
 import { PlusOutlined, RightOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-const { Search } = Input;
+import { useAsyncCallback } from "@/hooks";
+import { useEffect } from "react";
+import { request } from "@/apis/requestBuilder";
+import { Modal } from "antd";
+import { useRef } from "react";
+import { Form } from "antd";
+
+const CustomerAddModal = ({ modal, onSuccess }) => {
+  const [open, setOpen] = useState(false)
+  const [form] = Form.useForm()
+  if(modal) {
+    modal.current = {
+      open() {
+        setOpen(true)
+      }
+    }
+  }
+  const { callback: submit, loading} = useAsyncCallback(async () => {
+    const data = await form.validateFields()
+    await request('/admin/customer/save').data(data).send()
+    onSuccess()
+    setOpen(false)
+  })
+  return (
+    <Modal
+      open={open}
+      title="お客様新規登録"
+      footer={null}
+      onCancel={() => setOpen(false)}
+      width={800}
+    >
+      <Form className="mt-8 pr-8" form={form} labelCol={{ span: 4 }}>
+        <Form.Item label="お客様名" name="company_name" rules={[{ required: true }]}>
+          <Input placeholder="お客様名" />          
+        </Form.Item>
+        <Form.Item label="略称" name="short_name" rules={[{ required: true }]}>
+          <Input placeholder="略称" />          
+        </Form.Item>
+        <Form.Item label="担当者" name="header" rules={[{ required: true }]}>
+          <Input placeholder="担当者" />          
+        </Form.Item>
+        <Form.Item label="法人番号" name="legal_number" rules={[{ required: true }]}>
+          <Input placeholder="法人番号" />          
+        </Form.Item>
+        <Form.Item label="電話番号" name="mobile" rules={[{ required: true }]}>
+          <Input placeholder="電話番号" />          
+        </Form.Item>
+        <Form.Item label="E-MAIL" name="mail" rules={[{ required: true }]}>
+          <Input placeholder="email" />          
+        </Form.Item>
+        <Form.Item label="メールアドレス" name="email">
+          <Input placeholder="メールアドレス" />          
+        </Form.Item>
+        <Form.Item label="住所" name="address">
+          <Input placeholder="住所" />          
+        </Form.Item>
+        <Form.Item label="FAX" name="fax">
+          <Input placeholder="FAX" />          
+        </Form.Item>
+        <Form.Item label="郵便番号" name="zip_code">
+          <Input placeholder="郵便番号" />          
+        </Form.Item>
+      </Form>
+      <div className="flex gap-2 items-center justify-center">
+        <Button className="w-32" type="primary" loading={loading} onClick={submit}>确认</Button>
+        <Button className="w-32" onClick={() => setOpen(false)}>取消</Button>
+      </div>
+    </Modal>
+  )
+};
 
 const CustomerCard = ({ item }) => {
   const navigate = useNavigate()
   const handleClick = (id) => {
-    navigate(`/customer-top`)
+    navigate(`/customer/${id}/top`)
   };
 
   return (
     <div
-      className="border-2  px-2 py-2 relative rounded-lg cursor-pointer hover:border-blue-500 duration-150"
+      className="border-2  px-2 py-2 relative rounded-lg cursor-pointer hover:border-primary duration-150"
       onClick={() => handleClick(item.id)}
     >
-      <div className="absolute top-0 right-0 text-[12px] bg-blue-600 text-white px-[10px] py-[4px] rounded leading-none">
+      <div className="absolute top-0 right-0 text-[12px] bg-primary text-white px-[10px] py-[4px] rounded leading-none">
         情報編集
         <RightOutlined className="ml-1" />
       </div>
@@ -62,27 +131,29 @@ const CustomerCard = ({ item }) => {
   );
 };
 
-const CustomerList = () => {
-  const list = [
-    {
-      id: 1,
-      title: "無錫永興貨運有限公司",
-      avatar: "無",
-      person: "宋琴",
-      mobile: "86-15240056982",
+const useCustomerList = () => {
+  const [customers, setCustomers] = useState([]);
+  const { callback: getCustomerList } = useAsyncCallback(async () => {
+    const list = await request('/admin/customer/list').get().send()
+    const customers = list.map(item => ({
+      id: item['id'],
+      title: item['company_name'],
+      avatar: item['short_name'],
+      person: item['header'],
+      mobile: item['mobile'],
       all: 123,
       do: 4,
-    },
-    {
-      id: 2,
-      title: "原岛 株式会社",
-      avatar: "原",
-      person: "孙山小小",
-      mobile: "86-15240056982",
-      all: 50,
-      do: 40,
-    },
-  ];
+    }))
+    setCustomers(customers)
+  })
+  useEffect(() => {
+    getCustomerList()
+  }, [])
+  return { list: customers, reload: getCustomerList };
+};
+const CustomerList = () => {
+  const { list, reload } = useCustomerList()
+  const modal = useRef(null)
 
   const [keyword, setKeyword] = useState("");
 
@@ -90,7 +161,9 @@ const CustomerList = () => {
     setKeyword(value);
   };
 
-  const add = () => {};
+  const add = () => {
+    modal.current.open()
+  };
 
   return (
     <div className="main-content">
@@ -101,7 +174,7 @@ const CustomerList = () => {
           </Button>
         </div>
         <div>
-          <Search
+          <Input.Search
             placeholder="お客様"
             onSearch={onSearch}
             enterButton
@@ -119,6 +192,8 @@ const CustomerList = () => {
           ))}
         </Row>
       </div>
+
+      <CustomerAddModal modal={modal} onSuccess={reload}></CustomerAddModal>
     </div>
   );
 };

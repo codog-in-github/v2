@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import Login from "@/pages/Login.jsx";
 import Err404 from "@/pages/Err/404.jsx";
 import { SideLayout, TopLayout } from "@/components/NavLayout";
-import { SideStaffLayout, TopStaffLayout } from "@/components/StaffLayout";
+import CustomerLayout from "@/components/CustomerLayout";
 import { SideClientLayout, TopClientLayout } from "@/components/ClientLayout";
 import { DeclarantLayout } from "@/components/DeclarantLayout";
 import LazyPage from "../components/LazyPage";
@@ -93,28 +93,23 @@ const router = createBrowserRouter([
   },
   //员工端
   {
-    element: <TopStaffLayout />,
+    element: <CustomerLayout />,
     children: [
       {
-         element: <SideStaffLayout />,
-        children: [
-          {
-            path: "/customer-top",
-            element: <LazyPage load={() => import('@/pages/customer/top')} />,
-          },
-          {
-            path: "/customer-rules",
-            element: <LazyPage load={() => import('@/pages/customer/rules')} />,
-          },
-          {
-            path: "/customer-ship",
-            element: <LazyPage load={() => import('@/pages/customer/ship')} />,
-          },
-          {
-            path: "/customer-pet",
-            element: <LazyPage load={() => import('@/pages/customer/petition')} />,
-          },
-        ],
+        path: "/customer/:id/top",
+        element: <LazyPage load={() => import('@/pages/customer/top')} />,
+      },
+      {
+        path: "/customer/:id/rules",
+        element: <LazyPage load={() => import('@/pages/customer/rules')} />,
+      },
+      {
+        path: "/customer/:id/ship",
+        element: <LazyPage load={() => import('@/pages/customer/ship')} />,
+      },
+      {
+        path: "/customer/:id/pet",
+        element: <LazyPage load={() => import('@/pages/customer/petition')} />,
       },
     ],
   },

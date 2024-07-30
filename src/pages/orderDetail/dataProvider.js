@@ -361,12 +361,8 @@ export const useDetailData = () => {
   
   const { callback: onDownloadFiles, loading: downloading } = useAsyncCallback((downloadFiles, success, fail) => {
     return Promise.all(Object.values(downloadFiles).flat().map(file => {
-      return request(file).get().download().send()
-        .then((blob) => {
-          const fileName = file.split('/').pop()
-          downloadBlob(blob, fileName)
-          success()
-        })
+      return request(file).get().download(file.split('/').pop()).send()
+        .then(success)
         .catch(fail)
     }))
   })

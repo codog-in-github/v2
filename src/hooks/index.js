@@ -1,4 +1,5 @@
 import { request } from "@/apis/requestBuilder"
+import { createElement } from "react"
 import {
   useRef,
   useCallback,
@@ -136,4 +137,26 @@ export const useOptions = (selectId) => {
     options,
     loading,
   }
+}
+
+export const useContextMenu = (menu) => {
+  const [_show, setShow] = useState(false)
+  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const hidden = useCallback(() => {
+    setShow(false)
+  }, [])
+  const show = useCallback(({ x, y }) => {
+    setPosition({ x, y })
+    setShow(true)
+  }, [])
+  useEffect(() => {
+    document.addEventListener('click', hidden)
+    return () => {
+      document.removeEventListener('click', hidden)
+    }
+  }, [hidden])
+  const element = (
+    _show && createElement('div', { className: 'fixed', style: { left: position.x, top: position.y } }, menu)
+  )
+  return [element, show, hidden]
 }
