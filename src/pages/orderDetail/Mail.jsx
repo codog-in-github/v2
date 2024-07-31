@@ -48,36 +48,33 @@ const FileSelect = ({ files, value, onChange }) => {
     </div>
   )
 }
-const Mail = ({
-  mail,
-  title = '送信'
-}) => {
+const Mail = ({ mail }) => {
   const [open, setOpen] = useState(false)
   const orderId = useParams().id
   const { files } = useContext(DetailDataContext)
   const [form] = Form.useForm()
-  const [node, setNode] = useState({})
+  const [mailInfo, setMailInfo] = useState({ title: '送信' })
   const { callback: send, loading } = useAsyncCallback(async () => {
     const mailData = await form.validateFields()
     const data = {
       ...mailData,
-      'node_id': node.nodeId,
+      'node_id': mailInfo.nodeId,
       'order_id': orderId
     }
     await request('/admin/order/send_email').data(data).send()
   })
   if(mail) {
     mail.current = {
-      open(node) {
+      open(mailInfo) {
         setOpen(true)
-        setNode(node)
+        setMailInfo(mailInfo)
       }
     }
   }
   return <Modal
     width={800}
     open={open}
-    title={title}
+    title={mailInfo.title}
     onCancel={() => setOpen(false)}
     footer={null}
   >

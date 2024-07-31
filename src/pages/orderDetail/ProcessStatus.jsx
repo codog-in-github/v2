@@ -3,7 +3,12 @@ import { Form, Space, Select, Button, Input } from "antd"
 import classNames from "classnames"
 import { useContext } from "react"
 import { DetailDataContext } from "./dataProvider"
-import { EXPORT_NODE_NAMES, ORDER_NODE_TYPE_ACL, ORDER_NODE_TYPE_BL_COPY, ORDER_NODE_TYPE_SUR } from "@/constant"
+import { 
+  EXPORT_NODE_NAMES, MAIL_TO_CUSTOMER, MAIL_TO_CUSTOMS_COMPANY, MAIL_TO_SHIP, SUR_STEP_PAYED,
+  ORDER_NODE_TYPE_ACL, ORDER_NODE_TYPE_BL_COPY, ORDER_NODE_TYPE_CUSTOMER_DOCUMENTS, ORDER_NODE_TYPE_SUR,
+  SUR_STEP_WAIT_PAY, MAIL_TO_ACC, SUR_STEP_WAIT_CUSTOMER_CONFIRMED,
+  SUR_STEP_SENDED,
+} from "@/constant"
 import Mail from "./Mail"
 import { useRef } from "react"
 import * as Icon from '@/components/Icon'
@@ -37,7 +42,14 @@ const ProcessBar = ({
   isEnd,
   nodeType,
   children,
+  mail
 }) => {
+  const mailData = {
+    nodeType,
+    nodeId,
+    title: `${EXPORT_NODE_NAMES[nodeType]} - 改单申请`,
+    to: MAIL_TO_SHIP
+  }
   const { changeNodeStatus, changingNodeStatus } = useContext(DetailDataContext)
   let context = children
   if(!canDo) {
@@ -47,7 +59,7 @@ const ProcessBar = ({
       <>
         <div>2024-07-01 08:40:21  施双</div>
         { [ORDER_NODE_TYPE_SUR, ORDER_NODE_TYPE_BL_COPY].includes(nodeType) && (
-          <Button  type="primary" danger>改单申请</Button>
+          <Button  type="primary" onClick={() => mail.current.open(mailData)}>改单申请</Button>
         ) }
         <Button>詳細</Button>
       </>
@@ -55,34 +67,56 @@ const ProcessBar = ({
   }
   return (
     <div className="flex gap-4 items-center h-8">
-      <Light onToggle={(status) => { changingNodeStatus || changeNodeStatus(nodeId, status) }} active={canDo && !isEnd}>{EXPORT_NODE_NAMES[nodeType]}</Light>
+      <Light
+        onToggle={(status) => { changingNodeStatus || changeNodeStatus(nodeId, status) }}
+        active={canDo && !isEnd}
+      >{EXPORT_NODE_NAMES[nodeType]}</Light>
       <div className="flex-1 border-dashed border-t border-gray-500"></div>
       {context}
     </div>
   )
 }
- 
-const ProcessBarButtons = ({ nodeId, nodeType, step, isEnd, mail }) => {
-  const nodeData = { nodeType, nodeId }
+const getMailTo = (nodeType, step) => {
+  switch (nodeType) {
+    case ORDER_NODE_TYPE_CUSTOMER_DOCUMENTS:
+      return MAIL_TO_CUSTOMS_COMPANY
+    case ORDER_NODE_TYPE_SUR:
+      if(step === SUR_STEP_WAIT_PAY)
+        return MAIL_TO_ACC
+      if(step === SUR_STEP_PAYED) 
+        return MAIL_TO_SHIP
+      return MAIL_TO_CUSTOMER
+    default:
+      return MAIL_TO_CUSTOMER
+  }
+}
+const ProcessBarButtons = ({ nodeId, nodeType, step, mail, sended }) => {
+  const mailData = {
+    nodeType,
+    nodeId,
+    to: getMailTo(nodeType, step),
+    title: `${EXPORT_NODE_NAMES[nodeType]} - 送信`
+  }
   switch (nodeType) {
     case ORDER_NODE_TYPE_ACL:
       return (
         <>
-          <Button type="primary" onClick={() => mail.current.open(nodeData)}>送信</Button>
-          <Button type="primary">確認</Button>
+          <Button type="primary" onClick={() => mail.current.open(mailData)}>{ sended && '再' }送信</Button>
+          { sended && <Button type="primary">確認</Button> }
         </>
       )
     case ORDER_NODE_TYPE_SUR:
       return (
         <>
-          <Button type="primary">支払依頼</Button>
-          <Button>SUR依頼</Button>
-          <Button onClick={() => mail.current.open(nodeData)}>送信</Button>
+          { step === SUR_STEP_WAIT_CUSTOMER_CONFIRMED && <Button type="primary" onClick={() => mail.current.open(mailData)}>支払依頼</Button>}
+          { step === SUR_STEP_WAIT_PAY && <Button>SUR依頼</Button>}
+          { step === SUR_STEP_PAYED && <Button type="primary" onClick={() => mail.current.open(mailData)}>SUR依頼</Button>}
+          { step === SUR_STEP_SENDED && <Button type="primary" onClick={() => mail.current.open(mailData)}>送信</Button>}
         </>
       )
     default:
       return (
-        <Button type="primary" onClick={() => mail.current.open(nodeData)}>送信</Button>
+        <Button type="primary" onClick={() => mail.current.open(mailData)}>送信</Button>
       )
   }
 }
@@ -108,7 +142,7 @@ const ProcessStatus = ({className}) => {
       </div>
       <div lang="p-2" className="flex flex-col gap-2 p-2">
         {nodes.map((item, index) => (
-          <ProcessBar {...item} key={index}>
+          <ProcessBar {...item} mail={mail} key={index}>
             <ProcessBarButtons {...item} mail={mail} />
           </ProcessBar>
         ))}

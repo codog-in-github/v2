@@ -46,7 +46,7 @@ export const ORDER_NODE_TYPE_BL_COPY = 8;
 /**
  * SUR：客户来信告知可以付钱→
  *  业务员向财务申请付款给船公司（附账单）→
- *  财务打钱给船公司后取得回执，并且邮件付款凭证给船公司→
+ *  {} 财务打钱给船公司并且邮件付款凭证给船公司，后取得回执(电放单)→
  *  收到船公司的电放单后，业务员邮件给客户电放单
  */
 export const ORDER_NODE_TYPE_SUR = 9;
@@ -96,5 +96,20 @@ export const SELECT_ID_RB_EXTRA_ITEM = 11
 export const SELECT_ID_RB_DETAIL_ITEM = 12
 export const SELECT_ID_RB_DETAIL_UNIT = 13
 
-
 export const FILE_TYPE_CUSTOMS = 1
+export const FILE_TYPE_OPERATIONS = 2
+export const FILE_TYPE_REQUEST = 3
+export const FILE_TYPE_COST = 4
+
+export const MAIL_TO_CUSTOMER = 1;
+export const MAIL_TO_CAR = 2;
+export const MAIL_TO_SHIP = 3;
+export const MAIL_TO_CUSTOMS_COMPANY = 4;
+export const MAIL_TO_ACC = 5;
+export const MAIL_TO_CUSTOMS_DECLARANT = 6;
+
+export const SUR_STEP_WAIT_CUSTOMER_CONFIRMED = 0
+export const SUR_STEP_WAIT_PAY = 1
+export const SUR_STEP_PAYED = 2
+export const SUR_STEP_SENDED = 3
+export const SUR_REQUEST_CHANGE = -1
