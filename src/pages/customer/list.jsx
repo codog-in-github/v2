@@ -19,7 +19,7 @@ const CustomerAddModal = ({ modal, onSuccess }) => {
       }
     }
   }
-  const { callback: submit, loading} = useAsyncCallback(async () => {
+  const [submit, loading] = useAsyncCallback(async () => {
     const data = await form.validateFields()
     await request('/admin/customer/save').data(data).send()
     onSuccess()
@@ -133,7 +133,7 @@ const CustomerCard = ({ item }) => {
 
 const useCustomerList = () => {
   const [customers, setCustomers] = useState([]);
-  const { callback: getCustomerList } = useAsyncCallback(async () => {
+  const [getCustomerList] = useAsyncCallback(async () => {
     const list = await request('/admin/customer/list').get().send()
     const customers = list.map(item => ({
       id: item['id'],

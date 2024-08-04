@@ -7,6 +7,7 @@ import { SideClientLayout, TopClientLayout } from "@/components/ClientLayout";
 import { DeclarantLayout } from "@/components/DeclarantLayout";
 import LazyPage from "../components/LazyPage";
 import pubSub from "@/helpers/pubSub";
+import { Outlet } from "react-router-dom";
 // 还没写的页面 占个位先
 const placeholderUrls = [
   "/drive",
@@ -18,7 +19,7 @@ const placeholderUrls = [
 ];
 
 const routeGuarder = (routeState, next) => {
-  // console.log(routeState);
+  console.log(routeState);
   return next();
 };
 
@@ -33,118 +34,122 @@ const router = createBrowserRouter([
     element: <Login />,
   },
   {
-    path: "/rb",
-    element: <LazyPage load={() => import('@/pages/orderDetail/requestBook/EditForm.jsx')} />,
-  },
-  {
-    element: (
-      <LazyPage
-        load={() => Promise.resolve({ default: TopLayout })}
-        beforeLoad={routeGuarder}
-      />
-    ),
+    element: <LazyPage
+      load={() =>  Promise.resolve({ default: () => <Outlet /> })}
+      beforeLoad={routeGuarder}
+    />,
     children: [
       {
-        path: "/orderDetail/:id",
-        element: <LazyPage load={() => import('@/pages/orderDetail/Index.jsx')} />,
+        path: "/rb",
+        element: <LazyPage load={() => import('@/pages/orderDetail/requestBook/EditForm.jsx')} />,
       },
       {
-        element: <SideLayout />,
+        element: <TopLayout />,
         children: [
           {
-            path: "/top",
-            element: <LazyPage load={() => import('@/pages/top/Index')} />,
+            path: "/orderDetail/:id",
+            element: <LazyPage load={() => import('@/pages/orderDetail/Index.jsx')} />,
           },
           {
-            path: "/po",
-            element: <LazyPage load={() => import('@/pages/po/Index')} />,
-          },
-          {
-            path: "/customer-list",
-            element: <LazyPage load={() => import('@/pages/customer/list')} />,
-          },
-          {
-            path: "/order",
-            element: <LazyPage load={() => import('@/pages/order/list')} />,
-          },
-          {
-            path: "/calendar",
-            element: <LazyPage load={() => import('@/pages/order/calendar')} />,
-          },
-          {
-            path: "/ship",
-            element: <LazyPage load={() => import('@/pages/ship/list')} />,
-          },
-          {
-            path: "/petition",
-            element: <LazyPage load={() => import('@/pages/petition/list')} />,
-          },
-          {
-            path: '/acl',
-            element: <LazyPage load={() => import('@/pages/acl/index.jsx')} beforeLoad={routeGuarder} />,
-          },
-          ...placeholderUrls.map((url) => ({
-            path: url,
-            element: <></>,
-          })),
-        ],
-      },
-    ],
-  },
-  //员工端
-  {
-    element: <CustomerLayout />,
-    children: [
-      {
-        path: "/customer/:id/top",
-        element: <LazyPage load={() => import('@/pages/customer/top')} />,
-      },
-      {
-        path: "/customer/:id/rules",
-        element: <LazyPage load={() => import('@/pages/customer/rules')} />,
-      },
-      {
-        path: "/customer/:id/ship",
-        element: <LazyPage load={() => import('@/pages/customer/ship')} />,
-      },
-      {
-        path: "/customer/:id/pet",
-        element: <LazyPage load={() => import('@/pages/customer/petition')} />,
-      },
-    ],
-  },
-  //客户端
-  {
-    element: <TopClientLayout />,
-    children: [
-      {
-        element: <SideClientLayout />,
-        children: [
-          {
-            path: "/client-top",
-            element: <LazyPage load={() => import('@/pages/client/top')} />,
-          },
-          {
-            path: "/client-rules",
-            element: <LazyPage load={() => import('@/pages/client/rules')} />,
-          },
-          {
-            path: "/client-offer",
-            element: <LazyPage load={() => import('@/pages/client/offer')} />,
+            element: <SideLayout />,
+            children: [
+              {
+                path: "/top",
+                element: <LazyPage load={() => import('@/pages/top/Index')} />,
+              },
+              {
+                path: "/ct/:tab",
+                element: <LazyPage load={() => import('@/pages/tabs/ContainerList')} />,
+              },
+              {
+                path: "/customer-list",
+                element: <LazyPage load={() => import('@/pages/customer/list')} />,
+              },
+              {
+                path: "/order",
+                element: <LazyPage load={() => import('@/pages/order/list')} />,
+              },
+              {
+                path: "/calendar",
+                element: <LazyPage load={() => import('@/pages/order/calendar')} />,
+              },
+              {
+                path: "/ship",
+                element: <LazyPage load={() => import('@/pages/ship/list')} />,
+              },
+              {
+                path: "/petition",
+                element: <LazyPage load={() => import('@/pages/petition/list')} />,
+              },
+              {
+                path: '/acl',
+                element: <LazyPage load={() => import('@/pages/acl/index.jsx')} />,
+              },
+              ...placeholderUrls.map((url) => ({
+                path: url,
+                element: <></>,
+              })),
+            ],
           },
         ],
       },
-    ],
-  },
-  //报关员端
-  {
-    element: <DeclarantLayout />,
-    children: [
+      //员工端
       {
-        path: "/declarant",
-        element: <LazyPage load={() => import('@/pages/declarant/list')} />,
+        element: <CustomerLayout />,
+        children: [
+          {
+            path: "/customer/:id/top",
+            element: <LazyPage load={() => import('@/pages/customer/top')} />,
+          },
+          {
+            path: "/customer/:id/rules",
+            element: <LazyPage load={() => import('@/pages/customer/rules')} />,
+          },
+          {
+            path: "/customer/:id/ship",
+            element: <LazyPage load={() => import('@/pages/customer/ship')} />,
+          },
+          {
+            path: "/customer/:id/pet",
+            element: <LazyPage load={() => import('@/pages/customer/petition')} />,
+          },
+        ],
       },
-    ],
+      //客户端
+      {
+        element: <TopClientLayout />,
+        children: [
+          {
+            element: <SideClientLayout />,
+            children: [
+              {
+                path: "/client-top",
+                element: <LazyPage load={() => import('@/pages/client/top')} />,
+              },
+              {
+                path: "/client-rules",
+                element: <LazyPage load={() => import('@/pages/client/rules')} />,
+              },
+              {
+                path: "/client-offer",
+                element: <LazyPage load={() => import('@/pages/client/offer')} />,
+              },
+            ],
+          },
+        ],
+      },
+      //报关员端
+      {
+        element: <DeclarantLayout />,
+        children: [
+          {
+            path: "/declarant",
+            element: <LazyPage load={() => import('@/pages/declarant/list')} />,
+          },
+        ],
+      },
+      
+    ]
   },
   {
     path: "*",

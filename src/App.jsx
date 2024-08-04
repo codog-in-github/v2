@@ -28,13 +28,18 @@ const useGlobalMessage = () => {
     const showErrorToast = (err) => {
       messageApi.error(err.message);
     };
+    const showToast = (msg, type = "info") => {
+      messageApi[type](msg);
+    };
     pubSub.subscribe("Error:HTTP.State", showApiError);
     pubSub.subscribe("Error:API.Code", showApiError);
     pubSub.subscribe("Info.Toast.Error", showErrorToast)
+    pubSub.subscribe("Info.Toast", showToast)
     return () => {
       pubSub.unsubscribe("Error:HTTP.State", showApiError);
       pubSub.unsubscribe("Error:API.Code", showApiError);
       pubSub.unsubscribe("Info.Toast.Error", showErrorToast);
+      pubSub.unsubscribe("Info.Toast", showToast);
     };
   }, [messageApi]);
   return contextHolder;

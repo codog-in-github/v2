@@ -90,8 +90,8 @@ export const Files = ({ className }) => {
     eventHandle(selectedFiles, next, reject)
   }))
 
-  const { callback: deleteHandler, loading: deleteding} = createEventHandle(onDeleteFiles)
-  const { callback: downloadHandler } = createEventHandle(onDownloadFiles)
+  const [deleteHandler, deleteding] = createEventHandle(onDeleteFiles)
+  const [downloadHandler] = createEventHandle(onDownloadFiles)
   
   const tabItems = useMemo(() => {
     const tabItems = []

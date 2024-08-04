@@ -40,7 +40,7 @@ const ordersSort = (orders) => {
 export const useTopOrderList = () => { 
   const [orders, setOrders] = useState([])
 
-  const { loading, callback: refresh } = useAsyncCallback(async () => {
+  const [refresh, loading] = useAsyncCallback(async () => {
     const rep = await getOrders()
     setOrders(ordersSort(rep))
   }, [])
@@ -80,7 +80,7 @@ export const useMessages = () => {
     return messages
   }, [messages, isAtMe])
   
-  const { callback: load, loading } = useAsyncCallback(async () => {
+  const [load, loading] = useAsyncCallback(async () => {
     if(!hasMore || loading) {
       return
     }
@@ -100,7 +100,7 @@ export const useMessages = () => {
     setMessages(messages.concat(rep.map(toMessageProps)))
   }, [messages, hasMore])
 
-  const  { callback: LoadTop } = useAsyncCallback(async () => {
+  const  [LoadTop] = useAsyncCallback(async () => {
   })
 
   useEffect(() => {
@@ -112,7 +112,7 @@ export const useMessages = () => {
 
 export const useReadMessage =  (id) => {
   const [isReaded, setIsReaded] = useState(false)
-  const { callback: read, loading } = useAsyncCallback(async () => {
+  const [read, loading] = useAsyncCallback(async () => {
     await request('/admin/order/read_message').post({ id }).send()
     setIsReaded(true)
   })

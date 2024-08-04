@@ -13,6 +13,7 @@ import Mail from "./Mail"
 import { useRef } from "react"
 import * as Icon from '@/components/Icon'
 import { LoadingOutlined } from "@ant-design/icons"
+import MailDetail from "./MailDetail"
 const Light = ({ children, loading, active, className, onToggle = () => {} }) => {
   const activeClassNames = ['!bg-[#ffe3dd]', '!text-[#fd7556]', '!border-[#fd7556]']
   return (
@@ -42,7 +43,10 @@ const ProcessBar = ({
   isEnd,
   nodeType,
   children,
-  mail
+  sendTime,
+  sender,
+  mail,
+  onClickDetail
 }) => {
   const mailData = {
     nodeType,
@@ -57,11 +61,11 @@ const ProcessBar = ({
   } else if(isEnd) {
     context = (
       <>
-        <div>2024-07-01 08:40:21  施双</div>
+        <div>{sendTime}  {sender}</div>
         { [ORDER_NODE_TYPE_SUR, ORDER_NODE_TYPE_BL_COPY].includes(nodeType) && (
           <Button  type="primary" onClick={() => mail.current.open(mailData)}>改单申请</Button>
         ) }
-        <Button>詳細</Button>
+        <Button onClick={() => onClickDetail(nodeId)}>詳細</Button>
       </>
     )
   }
@@ -116,14 +120,16 @@ const ProcessBarButtons = ({ nodeId, nodeType, step, mail, sended }) => {
       )
     default:
       return (
-        <Button type="primary" onClick={() => mail.current.open(mailData)}>送信</Button>
+        <>
+          <Button type="primary" onClick={() => mail.current.open(mailData)}>送信</Button>
+        </>
       )
   }
 }
 
-
 const ProcessStatus = ({className}) => {
-  const { nodes } = useContext(DetailDataContext)
+  const { nodes, refreshNodes } = useContext(DetailDataContext)
+  const detailRef = useRef(null)
   // const multiSendOptions = nodes
   //   .filter(item => item.canDo && !item.isEnd)
   //   .map(item => ({
@@ -142,7 +148,7 @@ const ProcessStatus = ({className}) => {
       </div>
       <div lang="p-2" className="flex flex-col gap-2 p-2">
         {nodes.map((item, index) => (
-          <ProcessBar {...item} mail={mail} key={index}>
+          <ProcessBar {...item} mail={mail} key={index} onClickDetail={(id) => detailRef.current.open(id)}>
             <ProcessBarButtons {...item} mail={mail} />
           </ProcessBar>
         ))}
@@ -151,7 +157,8 @@ const ProcessStatus = ({className}) => {
       <Form.Item name="remark" className="m-2">
         <Input.TextArea readOnly />
       </Form.Item>
-      <Mail mail={mail}></Mail>
+      <Mail mail={mail} onSuccess={refreshNodes}></Mail>
+      <MailDetail modal={detailRef} />
     </div>
   )
 }

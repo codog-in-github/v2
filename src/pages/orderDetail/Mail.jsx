@@ -7,6 +7,7 @@ import { CloseOutlined } from "@ant-design/icons"
 import { useAsyncCallback } from "@/hooks"
 import { request } from "@/apis/requestBuilder"
 import { useParams } from "react-router-dom"
+import { useEffect } from "react"
 
 const fileName = (filePath) => {
   return filePath.split('/').pop()
@@ -20,7 +21,7 @@ const FileSelect = ({ files, value, onChange }) => {
     onChange(value.filter(item => item !== file))
   }
   return (
-    <div className="grid grid-cols-2 gap-8">
+    <div className="grid grid-cols-2 gap-8 mb-4">
       <div>
         <div className="mb-2">選択</div>
         <div className="h-32 bg-gray-100 overflow-auto px-4">
@@ -35,7 +36,7 @@ const FileSelect = ({ files, value, onChange }) => {
         </div>
       </div>
       <div>
-        <div>添付ファイル</div>
+        <div className="mb-2">添付ファイル</div>
         <div className="h-32 bg-gray-100 overflow-auto px-4">
           {value.map(item => (
             <div key={item} className="flex gap-2 items-center my-2">
@@ -48,13 +49,29 @@ const FileSelect = ({ files, value, onChange }) => {
     </div>
   )
 }
-const Mail = ({ mail }) => {
+const ToSelect = ({ type, value, onChange }) => {
+  // const [options, setOptions]= useState([])
+  // const { callback: getOptions, loading} = useAsyncCallback(async () => {
+  //   await request('/admin/order/get_email_options').data({
+  //     'node_id': type
+  //   }).send()
+  // })
+  // useEffect(() => {
+  //   getOptions()
+  // }, [type])
+  return (
+    <Input onChange={onChange} value={value}></Input>
+  )
+}
+
+
+const Mail = ({ mail, onSuccess }) => {
   const [open, setOpen] = useState(false)
   const orderId = useParams().id
   const { files } = useContext(DetailDataContext)
   const [form] = Form.useForm()
   const [mailInfo, setMailInfo] = useState({ title: '送信' })
-  const { callback: send, loading } = useAsyncCallback(async () => {
+  const [send, loading] = useAsyncCallback(async () => {
     const mailData = await form.validateFields()
     const data = {
       ...mailData,
@@ -62,12 +79,17 @@ const Mail = ({ mail }) => {
       'order_id': orderId
     }
     await request('/admin/order/send_email').data(data).send()
+    setOpen(false)
+    onSuccess()
   })
   if(mail) {
     mail.current = {
       open(mailInfo) {
         setOpen(true)
         setMailInfo(mailInfo)
+        form.setFieldsValue({
+
+        })
       }
     }
   }
@@ -80,7 +102,7 @@ const Mail = ({ mail }) => {
   >
     <Form form={form} layout="vertical" className="p-4">
       <Form.Item label="受信者" name="to">
-        <Input></Input>
+        <ToSelect></ToSelect>
       </Form.Item>
       <Form.Item label="件名" name="subject">
         <Input></Input>

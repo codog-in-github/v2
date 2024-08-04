@@ -33,7 +33,7 @@ const usePaginationRef = () => {
 }
 const useOrderList = (pagination, filterForm) => {
   const [list, setList] = useState([])
-  const { callback: getList, loading } = useAsyncCallback(async () => {
+  const [getList, loading] = useAsyncCallback(async () => {
     const rep = await request('/admin/order/list')
       .get({
         ...pagination.get(),

@@ -11,7 +11,7 @@ const getPorts = () => {
 
 const usePorts = () => {
   const [portTree, setPortTree] = useState([])
-  const { callback, loading } = useAsyncCallback(async () => {
+  const [callback, loading] = useAsyncCallback(async () => {
     const rep = await getPorts()
     setPortTree(rep)
   }, [])
@@ -24,7 +24,7 @@ const usePorts = () => {
   }
 }
 
-const CountrySelect = ({ tree, bind, onChange, ...props }) => {
+const CountrySelect = ({ tree, bind, bindName, ...props }) => {
   const form = Form.useFormInstance()
   return (
     <Select
@@ -32,9 +32,11 @@ const CountrySelect = ({ tree, bind, onChange, ...props }) => {
       showSearch
       options={tree}
       optionFilterProp="code"
-      onChange={(...args) => {
-        form.setFieldValue(bind, void 0)
-        onChange(...args)
+      onSelect={(_, option) =>{
+        form.setFieldsValue({
+          [bindName]: `${option['label']}/${option['code']}`,
+          [bind]: void 0
+        })
       }}
       fieldNames={{
         value: 'id',
@@ -45,7 +47,7 @@ const CountrySelect = ({ tree, bind, onChange, ...props }) => {
   )
 }
 
-const PortSelect = ({ tree, bind, ...props }) => {
+const PortSelect = ({ tree, bind, bindName, ...props }) => {
   let options = []
   const form = Form.useFormInstance()
   const parentValue = Form.useWatch(bind, form)
@@ -55,6 +57,7 @@ const PortSelect = ({ tree, bind, ...props }) => {
   return (
     <Select
       {...props}
+      onSelect={(_, option) => form.setFieldValue(bindName, `${option['label']}/${option['code']}`)}
       options={options}
       fieldNames={{
         value: 'id',
@@ -100,18 +103,22 @@ const Ship = ({ className }) => {
         <div className="flex gap-2 mt-2">
           <div className="grid grid-cols-2 gap-x-2 flex-1 bg-[#37832e] p-2 text-white [&_label]:!text-white">
             <div className="col-span-2">PORT OF LOADING</div>
+            <Form.Item name="loadingCountryName" noStyle/>
             <Form.Item label="Country/Region" name="loadingCountry">
               <CountrySelect
                 loading={portLoading}
                 tree={portTree}
                 bind="loadingPort"
+                bindName="loadingCountryName"
               />
             </Form.Item>
+            <Form.Item name="loadingPortName" noStyle />
             <Form.Item label="Port" name="loadingPort">
               <PortSelect
                 loading={portLoading}
                 tree={portTree}
                 bind="loadingCountry"
+                bindName="loadingPortName"
               />
             </Form.Item>
             <Form.Item className="col-span-2" label="ETD" name="etd">
@@ -129,18 +136,22 @@ const Ship = ({ className }) => {
           </div>
           <div className="grid grid-cols-2 flex-1 bg-[#abdae0] p-2 gap-x-2">
             <div className="col-span-2">PORT OF DELIVERY</div>
+            <Form.Item name="deliveryCountryName" noStyle />
             <Form.Item label="Country/Region" name="deliveryCountry">
               <CountrySelect
                 loading={portLoading}
                 tree={portTree}
                 bind="deliveryPort"
+                bindName="deliveryCountryName"
               />
             </Form.Item>
+            <Form.Item noStyle name="deliveryPortName" />
             <Form.Item label="Port" name="deliveryPort">
               <PortSelect
                 loading={portLoading}
                 tree={portTree}
                 bind="deliveryCountry"
+                bindName="deliveryPortName"
               />
             </Form.Item>
             <Form.Item className="col-span-2" label="ETA" name="eta">
@@ -153,18 +164,22 @@ const Ship = ({ className }) => {
               <Input />
             </Form.Item>
             <div className="col-span-2">PORT OF DISCHARGE</div>
+            <Form.Item noStyle name="dischargeCountryName" />
             <Form.Item label="Country/Region" name="dischargeCountry">
               <CountrySelect
                 loading={portLoading}
                 tree={portTree}
                 bind="dischargePort"
+                bindName="dischargeCountryName"
               />
             </Form.Item>
+            <Form.Item noStyle name="dischargePortName" />
             <Form.Item label="Port" name="dischargePort">
               <PortSelect
                 loading={portLoading}
                 tree={portTree}
                 bind="dischargeCountry"
+                bindName="dischargePortName"
               />
             </Form.Item>
           </div>

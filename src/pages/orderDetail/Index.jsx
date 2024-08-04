@@ -7,6 +7,7 @@ import Ship from "./Ship"
 import Chat from "./Chat"
 import Files from "./Files"
 import { DetailDataContext, newConatainer, useDetailData } from "./dataProvider"
+import { Spin } from "antd/lib"
 
 const OrderDetail = () => {
   const detailHook = useDetailData()
@@ -14,6 +15,7 @@ const OrderDetail = () => {
     form,
     messages,
     sendMessage,
+    loading,
   } = detailHook
   return (
     <DetailDataContext.Provider value={detailHook}>
@@ -45,6 +47,7 @@ const OrderDetail = () => {
         />
         <Files className="bg-white" />
       </Form>
+      <Spin spinning={loading}  fullscreen />
     </DetailDataContext.Provider>
   )
 }

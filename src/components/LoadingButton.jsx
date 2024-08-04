@@ -3,10 +3,7 @@ import PropTypes from "prop-types"
 import { useAsyncCallback } from "@/hooks"
 
 const LoadingButton = ({ children, onClick, ...props }) => {
-  const {
-    loading,
-    callback: handleClick
-  } = useAsyncCallback(onClick, [onClick])
+  const [handleClick, loading] = useAsyncCallback(onClick, [onClick])
   return (
     <Button {...props} loading={loading} onClick={handleClick}>
       {children}

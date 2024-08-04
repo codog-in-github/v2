@@ -85,20 +85,17 @@ export const useAsyncCallback = (func) => {
     }
     return result
   }, [])
-  return {
-    loading,
-    callback
-  }
+  return [
+    callback,
+    loading
+  ]
 }
 
 export const useFileUpload = (orderId) => {
   const [total, setTotal] = useState(0)
   const [loaded, setLoaded] = useState(0)
 
-  const {
-    callback: upload,
-    loading: uploading
-  } = useAsyncCallback(async ({ file, fileType }) => {
+  const [upload, uploading] = useAsyncCallback(async ({ file, fileType }) => {
     setLoaded(0)
     const rep = await request('/admin/upload_file').form({
       file, 'order_id': orderId, 'type': fileType

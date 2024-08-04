@@ -29,6 +29,10 @@ const orderNodesGenerator = ({ nodes = []}) => {
       nodeId: item['id'],
       nodeType: item['node_id'],
       canDo: item['is_enable'] === 1,
+      sended: item['mail_status'] === 1,
+      isEnd:  item['is_confirm'] === 1,
+      sendTime: item['mail_at'],
+      sender: item['sender']
     })
   }
   return data
@@ -112,7 +116,9 @@ const formDataGenerator = (rep) => {
    * $table->date('doc_cut')->nullable()->comment('文件结关时间');
    */
   setIfExist('loadingCountry', 'loading_country_id')
+  setIfExist('loadingCountryName', 'loading_country_name')
   setIfExist('loadingPort', 'loading_port_id')
+  setIfExist('loadingPortName', 'loading_port_name')
   setIfExist('etd', 'etd', dayjs)
   setIfExist('cyOpen', 'cy_open', dayjs)
   setIfExist('cyCut', 'cy_cut', dayjs)
@@ -131,12 +137,16 @@ const formDataGenerator = (rep) => {
    * $table->string('discharge_port')->default('')->comment('卸货港口');
    */
   setIfExist('deliveryCountry', 'delivery_country_id')
+  setIfExist('deliveryCountryName', 'delivery_country_name')
   setIfExist('deliveryPort', 'delivery_port_id')
+  setIfExist('deliveryPortName', 'delivery_port_name')
   setIfExist('eta', 'eta', dayjs)
   setIfExist('freeTimeDem', 'free_time_dem')
   setIfExist('freeTimeDet', 'free_time_det')
   setIfExist('dischargeCountry', 'discharge_country_id')
+  setIfExist('dischargeCountryName', 'discharge_country_name')
   setIfExist('dischargePort', 'discharge_port_id')
+  setIfExist('dischargePortName', 'discharge_port_name')
 
   /**
    * * containers 集装箱信息
@@ -246,7 +256,9 @@ export const apiSaveDataGenerator = (formData) => {
    * * loading 装船信息
    */
   setValue('loadingCountry', 'loading_country_id')
+  setValue('loadingCountryName', 'loading_country_name')
   setValue('loadingPort', 'loading_port_id')
+  setValue('loadingPortName', 'loading_port_name')
   setValue('etd', 'etd', (dayjs) => dayjs?.format('YYYY-MM-DD HH:mm:ss'))
   setValue('cyOpen', 'cy_open', (dayjs) => dayjs?.format('YYYY-MM-DD HH:mm:ss'))
   setValue('cyCut', 'cy_cut', (dayjs) => dayjs?.format('YYYY-MM-DD HH:mm:ss'))
@@ -256,12 +268,16 @@ export const apiSaveDataGenerator = (formData) => {
    * * delivery
    */
   setValue('deliveryCountry', 'delivery_country_id')
+  setValue('deliveryCountryName', 'delivery_country_name')
   setValue('deliveryPort', 'delivery_port_id')
+  setValue('deliveryPortName', 'delivery_port_name')
   setValue('eta', 'eta', (dayjs) => dayjs?.format('YYYY-MM-DD HH:mm:ss'))
   setValue('freeTimeDem', 'free_time_dem')
   setValue('freeTimeDet', 'free_time_det')
   setValue('dischargeCountry', 'discharge_country_id')
+  setValue('dischargeCountryName', 'discharge_country_name')
   setValue('dischargePort', 'discharge_port_id')
+  setValue('dischargePortName', 'discharge_port_name')
 
   /**
    * * containers 集装箱信息
@@ -279,8 +295,9 @@ export const apiSaveDataGenerator = (formData) => {
     */
     const details = []
     for(const jtem of item.cars) {
-      const date =  jtem.date?.formate('YYYY-MM-DD') ?? ''
-      const time = jtem.time?.formate(' HH:mm:ss') ?? ''
+      console.log(jtem);
+      const date = jtem.date?.format('YYYY-MM-DD') ?? ''
+      const time = jtem.time?.format(' HH:mm:ss') ?? ''
       const detail = {
         'id' : jtem.id ?? '',
         'container_id' : jtem.containerId ?? '',
@@ -359,7 +376,7 @@ export const useDetailData = () => {
       .catch(fail)
   }, [])
   
-  const { callback: onDownloadFiles, loading: downloading } = useAsyncCallback((downloadFiles, success, fail) => {
+  const [onDownloadFiles, downloading] = useAsyncCallback((downloadFiles, success, fail) => {
     return Promise.all(Object.values(downloadFiles).flat().map(file => {
       return request(file).get().download(file.split('/').pop()).send()
         .then(success)
@@ -367,10 +384,7 @@ export const useDetailData = () => {
     }))
   })
 
-  const {
-    callback: saveOrder,
-    loading: savingOrder
-  } = useAsyncCallback(async () => {
+  const [saveOrder, savingOrder] = useAsyncCallback(async () => {
     let formData
     try {
       formData = await form.validateFields()
@@ -428,10 +442,17 @@ export const useDetailData = () => {
       .finally(() => setLoading(false))
   }, [form, id])
 
-  const {
-    callback: sendMessage,
-    loading: sending
-  } = useAsyncCallback(async ({msg, at}) => {
+  const [refreshNodes] = useAsyncCallback(() => 
+    request('/admin/order/detail')
+      .get({ id })
+      .send()
+      .then(touch(pipe(
+        orderNodesGenerator,
+        setNodes
+      )))
+  )
+
+  const [sendMessage, sending] = useAsyncCallback(async ({msg, at}) => {
     const data = { 'order_id': id, 'content': msg }
     if(at) {
       data['receive_id'] = at
@@ -444,7 +465,7 @@ export const useDetailData = () => {
     setTimeout(scrollBottom, 20)
   })
 
-  const { callback: changeNodeStatus, loading: changingNodeStatus } = useAsyncCallback(async (id, enable) => {
+  const [changeNodeStatus, changingNodeStatus] = useAsyncCallback(async (id, enable) => {
     if(isTempOrder)
       return
     await request('/admin/order/change_node_status')
@@ -475,7 +496,8 @@ export const useDetailData = () => {
     savingOrder,
     isTempOrder,
     changeNodeStatus,
-    changingNodeStatus
+    changingNodeStatus,
+    refreshNodes
   }
 }
 

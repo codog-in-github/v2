@@ -30,35 +30,35 @@ const NavTopbar = ({ className }) => {
           <Icon.Top classname="w-4 h-4 inline relative bottom-[3px]" />
           <span className='ml-2'>TOP</span>
         </NavButton>
-        <NavButton to="/po">
+        <NavButton to="/ct/1">
           <Icon.Po className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>PO</span>
         </NavButton>
-        <NavButton to="/drive">
+        <NavButton to="/ct/2">
           <Icon.Drive className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>DRIVE</span>
         </NavButton>
-        <NavButton to="/customs">
+        <NavButton to="/tab/2">
           <Icon.GateDoc className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>通関資料</span>
         </NavButton>
-        <NavButton to="/acl">
+        <NavButton to="/tab/3">
           <Icon.Acl className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>ACL</span>
         </NavButton>
-        <NavButton to="/permission">
+        <NavButton to="/tab/4">
           <Icon.Permission className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>許可</span>
         </NavButton>
-        <NavButton to="/blCopy">
+        <NavButton to="/tab/5">
           <Icon.BlCopy className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>BL COPY</span>
         </NavButton>
-        <NavButton to="/sur">
+        <NavButton to="/tab/6">
           <Icon.Sur className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>SUR</span>
           </NavButton>
-        <NavButton to="/invoice">
+        <NavButton to="/tab/9">
           <Icon.RequestBook className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>請求書</span>
         </NavButton>

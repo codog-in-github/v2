@@ -1,3 +1,6 @@
+/**
+ * @type {PubSub}
+ */
 let instance;
 
 /**
@@ -38,10 +41,10 @@ class PubSub {
       this.events[event] = this.events[event].filter(cb => cb !== callback);
   }
 
-  publish(event, data) {
+  publish(event, ...data) {
       if (!this.events[event]) return;
 
-      this.events[event].forEach(callback => callback(data));
+      this.events[event].forEach(callback => callback(...data));
   }
 }
 
