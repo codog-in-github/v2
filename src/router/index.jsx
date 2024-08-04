@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Outlet } from "react-router-dom";
 import Login from "@/pages/Login.jsx";
 import Err404 from "@/pages/Err/404.jsx";
 import { SideLayout, TopLayout } from "@/components/NavLayout";
@@ -7,7 +7,6 @@ import { SideClientLayout, TopClientLayout } from "@/components/ClientLayout";
 import { DeclarantLayout } from "@/components/DeclarantLayout";
 import LazyPage from "../components/LazyPage";
 import pubSub from "@/helpers/pubSub";
-import { Outlet } from "react-router-dom";
 // 还没写的页面 占个位先
 const placeholderUrls = [
   "/drive",
@@ -55,7 +54,7 @@ const router = createBrowserRouter([
             children: [
               {
                 path: "/top",
-                element: <LazyPage load={() => import('@/pages/top/Index')} />,
+                element: <LazyPage load={() => import('@/pages/tabs/top/Index')} />,
               },
               {
                 path: "/ct/:tab",
