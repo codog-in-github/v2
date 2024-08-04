@@ -1,31 +1,101 @@
 import { useState } from "react";
-import { Select, Radio, Avatar } from "antd";
+import { Select, Avatar } from "antd";
+import { BKG_TYPES } from "@/constant";
+import { useEffect } from "react";
+import { request } from "@/apis/requestBuilder";
+import dayjs from "dayjs";
+import { Button, Space, Spin } from "antd/lib";
+import { useAsyncCallback } from "@/hooks";
+import { useNavigate } from "react-router-dom";
+import { useRef } from "react";
+
+const bkgTypes = Object.entries(BKG_TYPES)
+  .map(([value, label]) => ({
+    label, value: Number(value)
+  }))
+
+const useCalendarList = () => {
+  const start = useRef(dayjs())
+  const bkgType = useRef(null)
+  const [list, setList] = useState([]);
+  const moveNext = () => {
+    start.current = start.current.add(1, "week")
+    reload()
+  };
+  const movePrev = () => {
+    start.current = start.current.subtract(1, "week")
+    reload()
+  };
+  const moveCurrent = () => {
+    start.current = dayjs()
+    reload()
+  };
+  const changeType = (val) => {
+    bkgType.current = val
+    reload()
+  }
+  const [reload, loading] = useAsyncCallback(async () => {
+    const rep = await request('/admin/order/list_by_calendar').get({
+      'start': start.current.format("YYYY-MM-DD"),
+      'end': start.current.add(6, "day").format("YYYY-MM-DD"),
+      'bkg_type': bkgType.current
+    }).send()
+    const weeks = []
+    for(let i = 0; i< 7; i++) {
+      const list = []
+      const ymd = start.current.add(i, "day").format("YYYY-MM-DD")
+      if(rep[ymd]) {
+        list.push(...rep[ymd].map(item => ({
+          id: item['id'],
+          avatar: item['company_name'][0],
+          type: "通",
+          ben: 6,
+          loading: item['loading_port_name']?.split('/')[0].trim(),
+          delivery: item['delivery_port_name']?.split('/')[0].trim(),
+          bkgNo: item['bkg_no']
+        })))
+      }
+      weeks.push({
+        id: i,
+        title: start.current.add(i, "day").format("ddd"),
+        date: start.current.add(i, "day").format("M-D"),
+        children: list,
+      })
+    }
+    setList(weeks)
+  })
+  useEffect(() => {
+    reload()
+  }, [])
+  return {
+    loading, moveNext, movePrev, start, moveCurrent, list, changeType
+  }
+}
 
 const CalendarItem = ({ item }) => {
+  const navigate = useNavigate()
   return (
     <div className="flex-1 border-r border-gray-500 text-[15px] first:border-l">
       <div className="text-center text-gray-600 text-[16px] mb-1">
         {item.title}
       </div>
-      <div className="text-center text-gray-600  mb-2">{item.date}</div>
-      {item.children.map((el, index) => (
+      <div className="text-center text-gray-600 mb-2">{item.date}</div>
+      {item.children.map((el) => (
         <div
-          className="flex items-center justify-around odd:bg-gray-100 text-gray-700"
-          key={index}
+          className="flex items-center justify-around odd:bg-gray-100 text-gray-700 cursor-pointer"
+          onClick={() => navigate(`/orderDetail/${el.id}`)}
+          key={el.id}
         >
           <Avatar size={26} style={{ backgroundColor: "#313131" }}>
             {el.avatar}
           </Avatar>
           <div>{el.ben}本</div>
           <div className="flex flex-col">
-            <span>{el.name1}</span>
-            <span>{el.name2}</span>
+            <div className="text-nowrap">{el.loading}</div>
+            <div className="text-nowrap">{el.delivery}</div>
           </div>
-          <div className="flex flex-col">
-            <span>{el.name3}</span>
-            <span>{el.name4}</span>
-          </div>
-          {el.type !== "" && (
+          <div className="break-words w-12">{el.bkgNo}</div>
+          {el.type && (
             <Avatar size={26} style={{ backgroundColor: "#FD7556" }}>
               {el.type}
             </Avatar>
@@ -35,107 +105,38 @@ const CalendarItem = ({ item }) => {
     </div>
   );
 };
+
 const OrderCalendar = () => {
-  const options = [
-    { label: "前周", value: 1 },
-    { label: "本周", value: 2 },
-    { label: "后周", value: 3 },
-  ];
-  const selectArr = [
-    { value: "test1", label: "测试1" },
-    { value: "test2", label: "测试2" },
-  ];
-  const weeks = [
-    {
-      id: 1,
-      title: "日",
-      date: "6-2",
-      children: [
-        {
-          avatar: "原",
-          type: "通",
-          ben: 6,
-          name1: "CNSZP",
-          name2: "LLLTKY2",
-          name3: "JPTYO",
-          name4: "4520257",
-        },
-        {
-          avatar: "京",
-          type: "請",
-          ben: 1,
-          name1: "CNSZP",
-          name2: "LLLTKY2",
-          name3: "JPTYO",
-          name4: "4520257",
-        },
-      ],
-    },
-    {
-      id: 2,
-      title: "月",
-      date: "6-3",
-      children: [],
-    },
-    {
-      id: 3,
-      title: "火",
-      date: "6-4",
-      children: [],
-    },
-    {
-      id: 4,
-      title: "水",
-      date: "6-5",
-      children: [],
-    },
-    {
-      id: 5,
-      title: "木",
-      date: "6-6",
-      children: [],
-    },
-  ];
-  const [parmas, setParmas] = useState({
-    weak: 1,
-    type: null,
-  });
-
-  const updateForm = (newData) => {
-    setParmas({ ...parmas, ...newData });
-  };
-
+  const { start, moveNext, moveCurrent, movePrev, changeType, loading, list } = useCalendarList();
   return (
     <div className="main-content">
       <div className="flex justify-end relative">
         <div className="absolute left-0 right-0 m-auto w-[100px] text-center text-gray-700 text-[22px] font-bold">
-          2024-06
+          {start.current.format("YYYY-MM")}
         </div>
         <div>
           <Select
             className="mr-4"
-            options={selectArr}
-            placeholder="POL"
+            options={bkgTypes}
+            placeholder="BKG TYPE"
             style={{ width: 160 }}
-            value={parmas.type}
-            onChange={(val) => updateForm({ type: val })}
+            onChange={changeType}
+            allowClear
           />
-
-          <Radio.Group
-            options={options}
-            onChange={({ target: { value } }) => updateForm({ weak: value })}
-            value={parmas.weak}
-            optionType="button"
-            buttonStyle="solid"
-          />
+          <Space.Compact>
+            <Button onClick={movePrev}>前周</Button>
+            <Button onClick={moveCurrent} type="primary">本周</Button>
+            <Button onClick={moveNext}>翌周</Button>
+          </Space.Compact>
         </div>
       </div>
 
       <div className="flex mt-4" style={{ height: "calc(100% - 32px)" }}>
-        {weeks.map((item) => (
+        {list.map((item) => (
           <CalendarItem key={item.id} item={item} />
         ))}
       </div>
+      <Spin spinning={loading}  fullscreen />
     </div>
   );
 };

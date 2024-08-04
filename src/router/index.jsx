@@ -5,7 +5,7 @@ import { SideLayout, TopLayout } from "@/components/NavLayout";
 import CustomerLayout from "@/components/CustomerLayout";
 import { SideClientLayout, TopClientLayout } from "@/components/ClientLayout";
 import { DeclarantLayout } from "@/components/DeclarantLayout";
-import LazyPage from "../components/LazyPage";
+import LazyPage from "@/components/LazyPage";
 import pubSub from "@/helpers/pubSub";
 // 还没写的页面 占个位先
 const placeholderUrls = [
@@ -18,7 +18,7 @@ const placeholderUrls = [
 ];
 
 const routeGuarder = (routeState, next) => {
-  console.log(routeState);
+  // console.log(routeState);
   return next();
 };
 
@@ -61,6 +61,10 @@ const router = createBrowserRouter([
                 element: <LazyPage load={() => import('@/pages/tabs/ContainerList')} />,
               },
               {
+                path: "/od/:tab",
+                element: <LazyPage load={() => import('@/pages/tabs/OrderList')} />,
+              },
+              {
                 path: "/customer-list",
                 element: <LazyPage load={() => import('@/pages/customer/list')} />,
               },
@@ -79,10 +83,6 @@ const router = createBrowserRouter([
               {
                 path: "/petition",
                 element: <LazyPage load={() => import('@/pages/petition/list')} />,
-              },
-              {
-                path: '/acl',
-                element: <LazyPage load={() => import('@/pages/acl/index.jsx')} />,
               },
               ...placeholderUrls.map((url) => ({
                 path: url,

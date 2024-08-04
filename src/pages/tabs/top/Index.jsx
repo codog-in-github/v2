@@ -10,8 +10,9 @@ import { useNavigate } from 'react-router-dom';
 import { useCallback } from 'react';
 import { request } from '@/apis/requestBuilder';
 import { useSelector } from 'react-redux';
-import { useTopOrderList } from './dataHooks';
+import { useTopOrderList } from './dataProvide';
 import MessageList from './MessageList';
+import { useContextMenu } from '@/hooks';
 
 const c = namespaceClass('page-top')
 const saveOrder = (data) => {
@@ -51,6 +52,26 @@ function MainContent() {
     closeAddModal()
   })
 
+  const [menu, show] = useContextMenu(
+    <div
+      onClick={e => e.stopPropagation()}
+      className="
+        fixed w-24 z-50 border
+        text-center bg-white shadow-md
+        leading-8 rounded-md overflow-hidden
+      "
+    >
+      <div
+        type='primary'
+        className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
+      >指派任务</div>
+      <div
+        type='primary'
+        className='text-danger hover:text-white hover:bg-danger border-t active:bg-danger-700'
+      >终止任务</div>
+    </div>
+  )
+
   return (
     <div className="flex h-full overflow-auto">
       <div className={classNames(c('main-content'), 'flex-1', 'overflow-auto')}>
@@ -70,6 +91,12 @@ function MainContent() {
               key={i}
               {...order}
               onToDetail={id => navigate(`/orderDetail/${id}`)}
+              onContextMenu={e => {
+                e.preventDefault()
+                show({
+                  x: e.clientX, y: e.clientY
+                })
+              }}
             />
           ))}
         </div>
@@ -85,6 +112,7 @@ function MainContent() {
               </Skeleton.Node>
             )
           })}
+            {/*
             <Card 
               avatarText='無'
               avatarColor='#8F8F8F'
@@ -93,6 +121,7 @@ function MainContent() {
               contactPhone='86-15240056982'
               end
             />
+            */}
           </div>
         </div>
       </div>
@@ -105,6 +134,7 @@ function MainContent() {
         onOk={onOkHandle}
         onOkEdit={onOkEditHandle}
       />
+      {menu}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { useMessages, useReadMessage } from "./dataHooks";
+import { useMessages, useReadMessage } from "./dataProvide";
 import { Switch } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";

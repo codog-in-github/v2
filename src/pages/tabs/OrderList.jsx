@@ -6,20 +6,17 @@ import { useNavigate } from "react-router-dom";
 import { LoadingOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import pubSub from "@/helpers/pubSub";
-import { ORDER_TAB_STATUS_PO } from "@/constant";
 import { useParams } from "react-router-dom";
 
 const useTabOrderList = (type) => {
   const [list, setList] = useState([]);
   const [reload, loading] = useAsyncCallback(async () => {
-    const res = await request('/admin/order/container_list').get({
+    const res = await request('/admin/order/tab_order_list').get({
       'node_status': type
     }).send()
     setList(res)
   })
-  useEffect(() => {
-    reload()
-  }, [type])
+  useEffect(() => { reload() }, [type])
   return { list, reload, loading }
 }
 const colors = ['danger', 'warning', 'success']
@@ -67,7 +64,7 @@ function Card({
           <div className="flex text-lg font-bold">
             <div>{customer[0]}</div>
             <div className="w-0.5 h-full bg-gray-300 mx-4"></div>
-            <div>{transCom?.[0]}</div>
+            <div>{transCom[0]}</div>
           </div>
           <div className="text-sm text-gray-400 mt-2">{bkgNo}</div>
         </div>
@@ -83,7 +80,7 @@ function Card({
   );
 }
 
-function Po() {
+function OrderList() {
   const { tab } = useParams()
   const { list, reload } = useTabOrderList(tab)
   const order = useRef(null)
@@ -101,7 +98,7 @@ function Po() {
   const [menu, open] = useContextMenu(
     <div
       className="
-        fixed w-32 z-50 border cursor-pointer
+        fixed w-32 z-50 border cursor-OrderListinter
         text-center bg-white shadow-md
         leading-8 rounded-md overflow-hidden
       "
@@ -159,7 +156,7 @@ function Po() {
       <div className="bg-white  m-2 rounded-lg shadow p-4">
         <div>直近完了</div>
         <div className="flex gap-8 flex-wrap mt-4">
-          {/* <Card address="中国浙江省宁波市鄞州区中…" end date={Date.now()} /> */}
+          <Card address="中国浙江省宁波市鄞州区中…" end date={Date.now()} />
         </div>
       </div>
       {menu}
@@ -167,4 +164,4 @@ function Po() {
   );
 }
 
-export default Po;
+export default OrderList;

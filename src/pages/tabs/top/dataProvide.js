@@ -1,4 +1,5 @@
 import { request } from "@/apis/requestBuilder"
+import { TOP_TAG_NAME } from "@/constant"
 import { useAsyncCallback } from "@/hooks"
 import dayjs from "dayjs"
 import { useMemo } from "react"
@@ -6,32 +7,46 @@ import { useEffect } from "react"
 import { useState } from "react"
 
 const getOrders = () => {
-  return request('admin/order/list')
-    .get({ 'node_state': 1 }).send()
-}
-
-const formatTempOrder = (item) => {
-  if(item['bkg_no']) {
-    return null
-  }
-  return {
-    isTempOrder: true,
-    id: item['id'],
-    expiredAt: dayjs(item['created_at']).add(1, 'hour'),
-    remark: item['remark'],
-    companyName: item['company_name'],
-  }
+  return request('admin/order/top_list')
+    .get().send()
 }
 
 const ordersSort = (orders) => {
   const newOrders = []
-  // todo 置顶订单
-  // 临时订单
-  for(const item of orders) {
-    const tempOrder = formatTempOrder(item)
-    if(tempOrder) {
-      newOrders.push(tempOrder)
-    }
+  for(const item of orders['top']) {
+    newOrders.push({
+      top: true,
+      avatarColor: 'red',
+      topName: TOP_TAG_NAME[item['node_id']],
+      id: item['order']['id'],
+      expiredAt: dayjs(item['top_finish_time']),
+      remark: item['remark'],
+      contactPerson: item['order']['header'],
+      contactPhone: item['order']['mobile'],
+      avatarText: item['order']['company_name'][0],
+      companyName: item['order']['company_name'],
+    })
+  }
+  for(const item of orders['tmp']) {
+    newOrders.push({
+      isTempOrder: true,
+      id: item['id'],
+      expiredAt: dayjs(item['created_at']).add(1, 'hour'),
+      remark: item['remark'],
+      companyName: item['company_name'],
+    })
+  }
+  for(const item of orders['no_send']) {
+    newOrders.push({
+      avatarColor: 'red',
+      id: item['order']['id'],
+      expiredAt: dayjs(item['created_at']).add(1, 'hour'),
+      remark: item['remark'],
+      contactPerson: item['order']['header'],
+      contactPhone: item['order']['mobile'],
+      avatarText: item['order']['company_name'][0],
+      companyName: item['order']['company_name'],
+    })
   }
   // todo 订单
   return newOrders

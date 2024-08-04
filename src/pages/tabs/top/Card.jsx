@@ -3,7 +3,6 @@ import { useState } from 'react';
 import classNames from 'classnames';
 import CompanyAvatar from '@/components/CompanyAvatar';
 
-
 /**
  * 
  * @param {Date} start 
@@ -34,7 +33,7 @@ function Timer({ expiredAt }) {
   )
   useEffect(() => {
     let timerId = setInterval(() => {
-      if( expiredAt  < new Date()) {
+      if( expiredAt.toDate()  < new Date()) {
         clearInterval(timerId)
       }
       setDisplay(
@@ -63,6 +62,8 @@ function Card({
   isTempOrder,
   remark,
   end,
+  top,
+  topName,
   avatarText,
   avatarColor,
   companyName,
@@ -70,47 +71,23 @@ function Card({
   contactPhone,
   expiredAt,
   onToDetail,
-  onEnd,
-  onAppoint,
+  ...props
 }) {
-  const [optionsButtonPosition, setOptionsButtonPosition] = useState({ x: 0, y: 0 })
-  const rootRef = useRef()
-  const [active, setActive] = useState(false)
-  useEffect(() => {
-    const setInactive = () => {
-      setActive(false)
-    }
-    document.addEventListener('contextmenu', setInactive)
-    document.addEventListener('click', setInactive)
-    return () => {
-      document.removeEventListener('contextmenu', setInactive)
-      document.removeEventListener('click', setInactive)
-    }
-  })
   return (
     <div
-      ref={rootRef}
       className={classNames(
-        'bg-white p-4 shadow rounded border-2 flex-shrink-0 flex flex-col relative',
-        active ? 'border-primary' : 'border-transparent',
+        'bg-white p-4 shadow rounded border-2 flex-shrink-0 flex flex-col relative hover:border-primary overflow-hidden',
         { 'cursor-pointer': isTempOrder },
         className,
       )}
       onClick={() => onToDetail(id)}
-      onContextMenu={e => {
-        e.preventDefault()
-        if(active) {
-          e.stopPropagation()
-        } else {
-          setTimeout(setActive, 0, true)
-        }
-        setOptionsButtonPosition({
-          x: e.clientX,
-          y: e.clientY
-        })
-      }}
+      {...props}
     >
-
+      { top && (
+        <div className='absolute top-2 -right-4 rotate-45 bg-red-500 text-xs text-white w-16 text-center'>
+          {topName}
+        </div>
+      ) }
       { isTempOrder ? (
         <div className='flex flex-1'>
           <CompanyAvatar className="!text-[10px]" bg="#D46DE0" text="REMARK"></CompanyAvatar>
@@ -135,29 +112,6 @@ function Card({
         </div>
       ) : (
         <Timer expiredAt={expiredAt}></Timer>
-      )}
- 
-      {active && (
-        <div
-          onClick={e => e.stopPropagation()}
-          className="
-            fixed w-24 z-50 border
-            text-center bg-white shadow-md
-            leading-8 rounded-md overflow-hidden
-          "
-          style={{ left: optionsButtonPosition.x, top: optionsButtonPosition.y }}
-        >
-          <div
-            type='primary'
-            className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
-            onClick={() => onAppoint(id)}
-          >指派任务</div>
-          <div
-            type='primary'
-            className='text-danger hover:text-white hover:bg-danger border-t active:bg-danger-700'
-            onClick={() => onEnd(id)}
-          >终止任务</div>
-        </div>
       )}
     </div>
   );

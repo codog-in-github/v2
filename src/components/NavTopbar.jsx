@@ -38,23 +38,23 @@ const NavTopbar = ({ className }) => {
           <Icon.Drive className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>DRIVE</span>
         </NavButton>
-        <NavButton to="/tab/2">
+        <NavButton to="/od/3">
           <Icon.GateDoc className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>通関資料</span>
         </NavButton>
-        <NavButton to="/tab/3">
+        <NavButton to="/od/4">
           <Icon.Acl className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>ACL</span>
         </NavButton>
-        <NavButton to="/tab/4">
+        <NavButton to="/od/5">
           <Icon.Permission className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>許可</span>
         </NavButton>
-        <NavButton to="/tab/5">
+        <NavButton to="/od/6">
           <Icon.BlCopy className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>BL COPY</span>
         </NavButton>
-        <NavButton to="/tab/6">
+        <NavButton to="/od/7">
           <Icon.Sur className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>SUR</span>
           </NavButton>
