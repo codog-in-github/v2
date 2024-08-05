@@ -60,9 +60,7 @@ export const useTopOrderList = () => {
     setOrders(ordersSort(rep))
   }, [])
 
-  useEffect(() => {
-    refresh()
-  }, [])
+  useEffect(() => { refresh() }, [])
 
   return {
     orders,

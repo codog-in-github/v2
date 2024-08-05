@@ -6,8 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { LoadingOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import pubSub from "@/helpers/pubSub";
-import { ORDER_TAB_STATUS_PO } from "@/constant";
 import { useParams } from "react-router-dom";
+import SkeletonList from "@/components/SkeletonList";
 
 const useTabOrderList = (type) => {
   const [list, setList] = useState([]);
@@ -85,14 +85,13 @@ function Card({
 
 function Po() {
   const { tab } = useParams()
-  const { list, reload } = useTabOrderList(tab)
+  const { list, reload, loading} = useTabOrderList(tab)
   const order = useRef(null)
   const navigate = useNavigate()
   const [topNode, topNodeLoading] = useAsyncCallback(async () => {
     await request('/admin/order/change_top').data({
       'id': order.current['order_id'],
       'node_status': tab,
-      'is_top': 1
     }).send()
     pubSub.publish('Info.Toast', '已置顶任务', 'success')
     reload()
@@ -138,22 +137,29 @@ function Po() {
     <div className="flex-1">
       <div className="bg-white  m-2 rounded-lg shadow p-4">
         <div>未完成</div>
-        <div className="grid grid-cols-4 lg:grid-cols-5 gap-8 flex-wrap mt-4">
-          {list.map(item => (
-            <Card
-              onContextMenu={e => contextMenuHandle(e, item)}
-              onClick={() => navigate(`/orderDetail/${item['order_id']}`)}
-              customer={item['company_name']}
-              transCom={item['trans_com']}
-              key={item['id']}
-              pol={item['loading_port_name']}
-              pod={item['delivery_port_name']}
-              bkgNo={item['bkg_no']}
-              type={item['color']}
-              address={item['van_place']}
-              date={item['deliver_time']}
-            />
-          ))}
+        <div className="grid grid-cols-4 lg:grid-cols-5 gap-8 flex-wrap mt-4 [&>*]:!h-[140px]">
+          <SkeletonList
+            skeletonCount={10}
+            skeletonClassName="!w-full !h-full"
+            loading={loading}
+            list={list}
+          >
+            {item => (
+              <Card
+                onContextMenu={e => contextMenuHandle(e, item)}
+                onClick={() => navigate(`/orderDetail/${item['order_id']}`)}
+                customer={item['company_name']}
+                transCom={item['trans_com']}
+                key={item['id']}
+                pol={item['loading_port_name']}
+                pod={item['delivery_port_name']}
+                bkgNo={item['bkg_no']}
+                type={item['color']}
+                address={item['van_place']}
+                date={item['deliver_time']}
+              />
+            )}
+          </SkeletonList>
         </div>
       </div>
       <div className="bg-white  m-2 rounded-lg shadow p-4">

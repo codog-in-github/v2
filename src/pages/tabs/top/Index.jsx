@@ -13,6 +13,7 @@ import { useSelector } from 'react-redux';
 import { useTopOrderList } from './dataProvide';
 import MessageList from './MessageList';
 import { useContextMenu } from '@/hooks';
+import SkeletonList from '@/components/SkeletonList';
 
 const c = namespaceClass('page-top')
 const saveOrder = (data) => {
@@ -67,7 +68,7 @@ function MainContent() {
       >指派任务</div>
       <div
         type='primary'
-        className='text-danger hover:text-white hover:bg-danger border-t active:bg-danger-700'
+        className='text-danger-500 hover:text-white hover:bg-danger-500 border-t active:bg-danger-700'
       >终止任务</div>
     </div>
   )
@@ -78,40 +79,31 @@ function MainContent() {
         <div
           className="grid min-[1800px]:grid-cols-4 grid-cols-3 [&>*]:!h-[160px] gap-4 flex-wrap"
         >
-          <AddCard onClick={() => setModalOpen(true)} />
-          {loading && Array(7).fill(0).map((_, k) => {
-            return (
-              <Skeleton.Node className='!w-full !h-full' key={k} active>
-                <></>
-              </Skeleton.Node>
-            )
-          })}
-          {orders.map((order, i) => (
-            <Card
-              key={i}
-              {...order}
-              onToDetail={id => navigate(`/orderDetail/${id}`)}
-              onContextMenu={e => {
-                e.preventDefault()
-                show({
-                  x: e.clientX, y: e.clientY
-                })
-              }}
-            />
-          ))}
+          <SkeletonList
+            skeletonCount={7}
+            skeletonClassName="!w-full !h-full"
+            loading={loading}
+            list={orders}
+            prepend={<AddCard onClick={() => setModalOpen(true)} />}
+          >
+            {(order) => (
+              <Card
+                key={order['id']}
+                {...order}
+                onToDetail={id => navigate(`/orderDetail/${id}`)}
+                onContextMenu={e => {
+                  e.preventDefault()
+                  show({ x: e.clientX, y: e.clientY })
+                }}
+              />
+            )}
+          </SkeletonList>
         </div>
         <div className="mt-8">
           <h2 className="text-xl font-semibold mb-4">直近完了</h2>
           <div 
             className="grid min-[1800px]:grid-cols-4 grid-cols-3 [&>*]:!h-[160px] gap-4 flex-wrap"
           >
-            {loading && Array(7).fill(0).map((_, k) => {
-            return (
-              <Skeleton.Node className='!w-full !h-full' key={k} active >
-                <></>
-              </Skeleton.Node>
-            )
-          })}
             {/*
             <Card 
               avatarText='無'
