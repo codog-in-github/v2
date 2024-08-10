@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { useMessages, useReadMessage } from "./dataProvide";
+import { useMessages, useReadMessage } from "./dataProvider";
 import { Switch } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
@@ -46,13 +46,13 @@ function Message({ id, from, at, datetime, content, isReaded, orderId, isAtMe })
 }
 
 const MessageList = ({ className }) => {
-  const { filteredMessages: messages, setIsAtMe, isAtMe, load, loading} = useMessages();
+  const { filteredMessages: messages, toggleAtMe, isAtMe, load, loading} = useMessages();
   return (
     <>
       <div className="flex mb-4">
         <div className='mr-auto'>社内伝達</div>
         <div className='mr-1'>@ME</div>
-        <Switch onChange={setIsAtMe} value={isAtMe}></Switch>
+        <Switch onChange={toggleAtMe} value={isAtMe}></Switch>
       </div>
       <ScrollView
         scrollY

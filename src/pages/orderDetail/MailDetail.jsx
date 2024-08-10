@@ -43,7 +43,7 @@ const MailDetail = ({
       onCancel={() => setOpen(false)}
     >
       <div className="flex flex-col gap-4">
-        {loading ? <LoadingOutlined /> : contents.map(rec => (
+        {loading ? <div className="text-center"><LoadingOutlined /></div>: contents.map(rec => (
            <MailRecord key={rec.id} record={rec} />
         ))}
       </div>

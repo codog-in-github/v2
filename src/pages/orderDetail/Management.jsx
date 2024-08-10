@@ -83,7 +83,7 @@ const BkgTypeSelect = ({ value, onChange, ...props }) => {
 const Management = ({ className }) => {
   const { options, loading } = useGateCompanyOptions()
   const form = Form.useFormInstance()
-  const { saveOrder, savingOrder  } = useContext(DetailDataContext)
+  const { saveOrder, savingOrder, delOrder, deletingOrder } = useContext(DetailDataContext)
   const setDefaultNumber = () => {
     const bkgNo = form.getFieldValue('bkgNo')
     if(bkgNo) {
@@ -129,8 +129,19 @@ const Management = ({ className }) => {
           type="primary"
           className="bg-success hover:!bg-success-400"
         >新規登録</Button>
-        <Button type="primary" danger onClick={() => {}}>削除</Button>
-        <Button type="primary" className="!bg-gray-400 hover:!bg-gray-300" onClick={() => {}}>戻る</Button>
+        <Button
+          type="primary"
+          danger
+          onClick={delOrder}
+          loading={deletingOrder}
+        >削除</Button>
+        <Button
+          type="primary"
+          className="!bg-gray-400 hover:!bg-gray-300"
+          onClick={() => {
+            window.history.back()
+          }}
+        >戻る</Button>
         <Button type="primary" onClick={() => {}}>類似事件</Button>
         <Button type="primary" onClick={() => {}}>各種書類作成</Button>
         <Button type="primary" onClick={() => { requestBookModalIntance.current.open() }}>請求書</Button>

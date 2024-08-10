@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCallback } from 'react';
 import { request } from '@/apis/requestBuilder';
 import { useSelector } from 'react-redux';
-import { useTopOrderList } from './dataProvide';
+import { useTopOrderList } from './dataProvider';
 import MessageList from './MessageList';
 import { useContextMenu } from '@/hooks';
 import SkeletonList from '@/components/SkeletonList';
@@ -88,8 +88,8 @@ function MainContent() {
           >
             {(order) => (
               <Card
-                key={order['id']}
-                {...order}
+                key={order.renderKey}
+                orderInfo={order}
                 onToDetail={id => navigate(`/orderDetail/${id}`)}
                 onContextMenu={e => {
                   e.preventDefault()

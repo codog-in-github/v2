@@ -57,61 +57,50 @@ function Timer({ expiredAt }) {
 }
 
 function Card({
-  id,
-  className,
-  isTempOrder,
-  remark,
-  end,
-  top,
-  topName,
-  avatarText,
-  avatarColor,
-  companyName,
-  contactPerson,
-  contactPhone,
-  expiredAt,
+  orderInfo = {},
   onToDetail,
+  className,
   ...props
 }) {
   return (
     <div
       className={classNames(
         'bg-white p-4 shadow rounded border-2 flex-shrink-0 flex flex-col relative hover:border-primary overflow-hidden',
-        { 'cursor-pointer': isTempOrder },
+        { 'cursor-pointer': orderInfo.isTempOrder },
         className,
       )}
-      onClick={() => onToDetail(id)}
+      onClick={() => onToDetail(orderInfo.id)}
       {...props}
     >
       { top && (
         <div className='absolute top-2 -right-4 rotate-45 bg-red-500 text-xs text-white w-16 text-center'>
-          {topName}
+          {orderInfo.topName}
         </div>
       ) }
-      { isTempOrder ? (
+      { orderInfo.isTempOrder ? (
         <div className='flex flex-1'>
           <CompanyAvatar className="!text-[10px]" bg="#D46DE0" text="REMARK"></CompanyAvatar>
           <div className='ml-4'>
-            <div className="font-semibold">{remark}</div>
+            <div className="font-semibold">{orderInfo.remark}</div>
           </div>
         </div>
       ) : (
         <div className='flex flex-1'>
-          <CompanyAvatar bg={avatarColor} text={avatarText}></CompanyAvatar>
+          <CompanyAvatar bg={orderInfo.avatarColor} text={orderInfo.avatarText}></CompanyAvatar>
           <div className='ml-4'>
-            <div className="font-semibold">{companyName}</div>
-            <div className="mt-2 text-sm text-gray-500">{contactPerson} | {contactPhone}</div>
+            <div className="font-semibold">{orderInfo.companyName}</div>
+            <div className="mt-2 text-sm text-gray-500">{orderInfo.contactPerson} | {orderInfo.contactPhone}</div>
           </div>
         </div>
       )}
 
-      { end ? (
+      { orderInfo.end ? (
         <div className='flex items-center text-sm'>
           <div className='text-gray-800'>2024年6月3日18:00:58</div>
           <div className='ml-auto p-2 bg-gray-200 rounded'>吉田</div>
         </div>
       ) : (
-        <Timer expiredAt={expiredAt}></Timer>
+        <Timer expiredAt={orderInfo.expiredAt}></Timer>
       )}
     </div>
   );

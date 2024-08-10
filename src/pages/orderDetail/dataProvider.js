@@ -384,6 +384,16 @@ export const useDetailData = () => {
     }))
   })
 
+  const [delOrder, deletingOrder] = useAsyncCallback(async () => {
+    await request('/admin/order/delete')
+      .post()
+      .send({
+        'id': form.getFieldValue('id')
+      })
+    pubSub.publish('Info.Toast', '删除成功', 'success')
+    window.history.back()
+  })
+
   const [saveOrder, savingOrder] = useAsyncCallback(async () => {
     let formData
     try {
@@ -399,6 +409,7 @@ export const useDetailData = () => {
     await request('/admin/order/edit_order')
       .data(apiSaveDataGenerator(formData))
       .send()
+    pubSub.publish('Info.Toast', '保存成功', 'success')
   }, [form, id])
   const saveOrderFile = ({ fileUrl, type }) => {
     const _files = {
@@ -497,7 +508,9 @@ export const useDetailData = () => {
     isTempOrder,
     changeNodeStatus,
     changingNodeStatus,
-    refreshNodes
+    refreshNodes,
+    delOrder,
+    deletingOrder
   }
 }
 

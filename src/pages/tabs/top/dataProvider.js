@@ -16,6 +16,7 @@ const ordersSort = (orders) => {
   for(const item of orders['top']) {
     newOrders.push({
       top: true,
+      renderKey: `top-${item['order']['id']}`,
       avatarColor: 'red',
       topName: TOP_TAG_NAME[item['node_id']],
       id: item['order']['id'],
@@ -31,6 +32,7 @@ const ordersSort = (orders) => {
     newOrders.push({
       isTempOrder: true,
       id: item['id'],
+      renderKey: `tmp-${item['id']}`,
       expiredAt: dayjs(item['created_at']).add(1, 'hour'),
       remark: item['remark'],
       companyName: item['company_name'],
@@ -40,6 +42,7 @@ const ordersSort = (orders) => {
     newOrders.push({
       avatarColor: 'red',
       id: item['order']['id'],
+      renderKey: `no_send-${item['order']['id']}`,
       expiredAt: dayjs(item['created_at']).add(1, 'hour'),
       remark: item['remark'],
       contactPerson: item['order']['header'],
@@ -94,11 +97,13 @@ export const useMessages = () => {
   }, [messages, isAtMe])
   
   const [load, loading] = useAsyncCallback(async () => {
+    console.log('load', messages)
     if(!hasMore || loading) {
       return
     }
     const data = {
-      'page_size': 10
+      'page_size': 10,
+      'at_me': isAtMe ? 1 : 0
     }
     if(messages.length) {
       data['max_id'] = messages[messages.length - 1].id
@@ -111,16 +116,22 @@ export const useMessages = () => {
       return
     }
     setMessages(messages.concat(rep.map(toMessageProps)))
-  }, [messages, hasMore])
+  })
 
   const  [LoadTop] = useAsyncCallback(async () => {
   })
+
+  const [toggleAtMe] = useAsyncCallback(async () => {
+    setMessages([])
+    setIsAtMe(!isAtMe)
+    await load()
+  }) 
 
   useEffect(() => {
     load()
   }, [])
 
-  return { messages, loading, load, LoadTop, filteredMessages, isAtMe, setIsAtMe }
+  return { messages, loading, load, LoadTop, filteredMessages, isAtMe, toggleAtMe }
 }
 
 export const useReadMessage =  (id) => {
