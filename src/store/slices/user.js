@@ -4,7 +4,10 @@ const userSlice = createSlice({
   name: 'user',
   initialState: {
     token: localStorage.getItem('token'),
-    userInfo: {}
+    userInfo: {
+      name: '',
+      role: null,
+    }
   },
   reducers: {
     setToken(state, action) {
@@ -16,6 +19,8 @@ const userSlice = createSlice({
   }
 })
 
-export const actions = userSlice.actions;
+export const {
+  setUserInfo
+} = userSlice.actions;
 
 export default userSlice.reducer;

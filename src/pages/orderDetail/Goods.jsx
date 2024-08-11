@@ -79,17 +79,15 @@ const Pagination = ({
 }
 const ContainerList = ({
   list,
-  onAddCar,
   onAddContainer,
   onRemoveContainer,
-  onRemoveCar
 }) => {
   const {
     page, onWheelHandle, movePage, movePageForce
   } = usePage(list)
   return (
-    <div className="flex h-full overflow-hidden">
-      <div className="flex flex-col overflow-hidden flex-1" onWheel={onWheelHandle}>
+    <div className="flex overflow-hidden">
+      <div className="flex-1 h-16" onWheel={onWheelHandle}>
         {
           list.map((props) => (
             <div
@@ -98,9 +96,7 @@ const ContainerList = ({
               style={{
                 transform: `translateY(${-page * 100}%)`
               }}>
-              <Form.Item name={[props.name, 'id']} hidden>
-                <Input />
-              </Form.Item>
+              <Form.Item name={[props.name, 'id']} hidden />
               <div className="flex gap-1 items-end mb-2">
                 <Form.Item className="flex-1" name={[props.name, 'commodity']}>
                   <Input addonBefore="COM" />
@@ -144,16 +140,6 @@ const ContainerList = ({
                   }}>ADD</Button>
                 )}
               </div>
-              <Form.List name={[props.name, 'cars']}>
-                {(list) => (
-                  <CarList
-                    containerFieldName={props.name}
-                    onAddCar={onAddCar}
-                    list={list}
-                    onRemoveCar={onRemoveCar}
-                  />
-                )}
-              </Form.List>
             </div>
           ))
         }
@@ -187,7 +173,6 @@ const CarList = ({
             className="bg-[#d9e4ef] p-2 h-full w-full flex-shrink-0 transition-transform overflow-hidden"
             style={{ transform: `translateX(${-page * 100}%)` }}>
             <Form.Item name={[props.name, 'id']} hidden />
-            <Form.Item name={[props.name, 'containerId']} hidden />
             <div className="flex gap-2">
               <Form.Item className="flex-1" label="VAN場所" name={[props.name, 'vanPlace']}>
                 <Input />
@@ -283,33 +268,21 @@ const Goods = ({ className }) => {
   const form = Form.useFormInstance()
   const onAddContainerHandle = useCallback(() => {
     const oldValue = form.getFieldValue('containers')
-    form.setFieldsValue({
-      containers: [...oldValue, newConatainer()]
-    })
+    form.setFieldValue('containers', [...oldValue, newConatainer()])
   }, [])
-  const onAddCarHandle = useCallback((key) => {
-    const oldValue = form.getFieldValue('containers')
-    oldValue[key].cars = [
-      ...oldValue[key].cars,
-      newCar()
-    ]
-    form.setFieldsValue({
-      containers: [...oldValue]
-    })
+  const onAddCarHandle = useCallback(() => {
+    const oldValue = form.getFieldValue('cars')
+    form.setFieldValue('cars', [...oldValue, newCar()])
   }, [])
   const onRemoveContainerHandle = useCallback((key) => {
     const oldValue = form.getFieldValue('containers')
     oldValue.splice(key, 1)
-    form.setFieldsValue({
-      containers: [...oldValue]
-    })
+    form.setFieldValue('containers', [...oldValue])
   }, [])
-  const onRemoveCarHandle = useCallback((containerFieldName, key) => {
-    const oldValue = form.getFieldValue('containers')
-    oldValue[containerFieldName].cars.splice(key, 1)
-    form.setFieldsValue({
-      containers: [...oldValue]
-    })
+  const onRemoveCarHandle = useCallback((key) => {
+    const oldValue = form.getFieldValue('cars')
+    oldValue.splice(key, 1)
+    form.setFieldValue('cars', [...oldValue])
   }, [])
   return (
     <div className={className}>
@@ -320,9 +293,16 @@ const Goods = ({ className }) => {
             <ContainerList
               onAddContainer={onAddContainerHandle}
               onRemoveContainer={onRemoveContainerHandle}
+              list={list}
+            />
+          )}
+        </Form.List>
+        <Form.List name="cars">
+          {(list) => (
+            <CarList
+              list={list}
               onAddCar={onAddCarHandle}
               onRemoveCar={onRemoveCarHandle}
-              list={list}
             />
           )}
         </Form.List>

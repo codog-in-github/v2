@@ -8,6 +8,7 @@ import { request } from "@/apis/requestBuilder";
 import { Modal } from "antd";
 import { useRef } from "react";
 import { Form } from "antd";
+import SkeletonList from "@/components/SkeletonList";
 
 const CustomerAddModal = ({ modal, onSuccess }) => {
   const [open, setOpen] = useState(false)
@@ -133,7 +134,7 @@ const CustomerCard = ({ item }) => {
 
 const useCustomerList = () => {
   const [customers, setCustomers] = useState([]);
-  const [getCustomerList] = useAsyncCallback(async () => {
+  const [getCustomerList, loading] = useAsyncCallback(async () => {
     const list = await request('/admin/customer/list').get().send()
     const customers = list.map(item => ({
       id: item['id'],
@@ -149,10 +150,10 @@ const useCustomerList = () => {
   useEffect(() => {
     getCustomerList()
   }, [])
-  return { list: customers, reload: getCustomerList };
+  return { list: customers, reload: getCustomerList, loading };
 };
 const CustomerList = () => {
-  const { list, reload } = useCustomerList()
+  const { list, reload, loading } = useCustomerList()
   const modal = useRef(null)
 
   const [keyword, setKeyword] = useState("");
@@ -184,13 +185,18 @@ const CustomerList = () => {
       </div>
 
       <div className="mt-5">
-        <Row gutter={[16, 16]}>
-          {list.map((item, index) => (
-            <Col span={6} key={index}>
-              <CustomerCard item={item} />
-            </Col>
-          ))}
-        </Row>
+        <div className="grid grid-cols-5 gap-4">
+          <SkeletonList
+            skeletonClassName="h-full w-full"
+            skeletonCount={8}
+            loading={loading}
+            list={list}
+          >
+            {(item) => (
+              <CustomerCard item={item} key={item.id} />
+            )}
+          </SkeletonList>
+        </div>
       </div>
 
       <CustomerAddModal modal={modal} onSuccess={reload}></CustomerAddModal>

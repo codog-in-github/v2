@@ -6,7 +6,7 @@ import ProcessStatus from "./ProcessStatus"
 import Ship from "./Ship"
 import Chat from "./Chat"
 import Files from "./Files"
-import { DetailDataContext, newConatainer, useDetailData } from "./dataProvider"
+import { DetailDataContext, newCar, newConatainer, useDetailData } from "./dataProvider"
 import { Spin } from "antd/lib"
 
 const OrderDetail = () => {
@@ -31,7 +31,8 @@ const OrderDetail = () => {
           rounded bg-gray-400
         "
         initialValues={{
-          containers: [newConatainer()]
+          containers: [newConatainer()],
+          cars: [newCar()]
         }}>
         <Management
           className="col-span-3 bg-white flex items-center"

@@ -1,9 +1,9 @@
 import { Form } from "antd"
 import dayjs from "dayjs"
-import { downloadBlob, pipe, touch } from "@/helpers/utils"
+import { pipe, touch } from "@/helpers/utils"
 import { request } from "@/apis/requestBuilder"
 import { useAsyncCallback } from "@/hooks"
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useParams } from "react-router-dom"
 import pubSub from "@/helpers/pubSub"
 import { createContext } from "react"
@@ -15,7 +15,6 @@ export const newConatainer = () => {
     commodity: '',
     containerType: '',
     quantity: '',
-    cars: [newCar()]
   }
 }
 export const newCar = () => {
@@ -162,55 +161,55 @@ const formDataGenerator = (rep) => {
       commodity: item['common'],
       containerType: item['container_type'],
       quantity: item['quantity'],
-      cars: []
     }
     result.containers.push(container)
-    /**
-      * * car
-      * $table->integer('order_id')->comment('订单id');
-      * $table->integer('container_id')->comment('集装箱id');
-      * $table->string('van_place')->default('')->comment('van_place');
-      * $table->tinyInteger('van_type')->default(1)->comment('van类型');
-      * $table->tinyInteger('bearing_type')->comment(1)->comment('轴承类型1 二轴 2三轴');
-      * $table->dateTime('deliver_time')->nullable()->comment('交付日期');
-      * $table->string('trans_com')->default('')->comment('运输公司');
-      * $table->string('driver')->default('')->comment('司机');
-      * $table->string('tel')->default('')->comment('联络方式');
-      * $table->string('car')->default('')->comment('车号');
-      * $table->string('container')->default('')->comment('集装箱');
-      * $table->string('seal')->default('')->comment('封装');
-      * $table->string('tare')->default('')->comment('重量');
-      * $table->tinyInteger('tare_type')->default(1)->comment('重量类型1 吨 2 kg');
-      */
-    if(item['details'] && item['details'].length) {
-      for(const jtem of item['details']) {
-        const car = {
-          id: jtem['id'],
-          containerId: jtem['container_id'],
-          vanPlace: jtem['van_place'],
-          vanType: jtem['van_type'],
-          carType: jtem['bearing_type'],
-          date: jtem['deliver_time'] ? dayjs(jtem['deliver_time']) : null,
-          time: jtem['deliver_time'] ? dayjs(jtem['deliver_time']) : null,
-          transCom: jtem['trans_com'],
-          driver: jtem['driver'],
-          tel: jtem['tel'],
-          carCode: jtem['car'],
-          container: jtem['container'],
-          seal: jtem['seal'],
-          tare: jtem['tare'],
-          tareType: jtem['tare_type'],
-        }
-        container.cars.push(car)
-      }
-    } else {
-      container.cars.push(newCar())
-    }
    }
   } else {
     result.containers.push(newConatainer())
   }
-  
+
+    /**
+     * * car
+     * $table->integer('order_id')->comment('订单id');
+     * $table->integer('container_id')->comment('集装箱id');
+     * $table->string('van_place')->default('')->comment('van_place');
+     * $table->tinyInteger('van_type')->default(1)->comment('van类型');
+     * $table->tinyInteger('bearing_type')->comment(1)->comment('轴承类型1 二轴 2三轴');
+     * $table->dateTime('deliver_time')->nullable()->comment('交付日期');
+     * $table->string('trans_com')->default('')->comment('运输公司');
+     * $table->string('driver')->default('')->comment('司机');
+     * $table->string('tel')->default('')->comment('联络方式');
+     * $table->string('car')->default('')->comment('车号');
+     * $table->string('container')->default('')->comment('集装箱');
+     * $table->string('seal')->default('')->comment('封装');
+     * $table->string('tare')->default('')->comment('重量');
+     * $table->tinyInteger('tare_type')->default(1)->comment('重量类型1 吨 2 kg');
+     */
+    result.cars = []
+    if(rep['details'] && rep['details'].length) {
+      for(const item of rep['details']) {
+        const car = {
+          id: item['id'],
+          containerId: item['container_id'],
+          vanPlace: item['van_place'],
+          vanType: item['van_type'],
+          carType: item['bearing_type'],
+          date: item['deliver_time'] ? dayjs(item['deliver_time']) : null,
+          time: item['deliver_time'] ? dayjs(item['deliver_time']) : null,
+          transCom: item['trans_com'],
+          driver: item['driver'],
+          tel: item['tel'],
+          carCode: item['car'],
+          container: item['container'],
+          seal: item['seal'],
+          tare: item['tare'],
+          tareType: item['tare_type'],
+        }
+        result.cars.push(car)
+      }
+    } else {
+      result.cars.push(newCar())
+    }
   /**
    * $table->string('remark')->default('')->comment('备注');
    */
@@ -290,36 +289,35 @@ export const apiSaveDataGenerator = (formData) => {
       'container_type' : item.containerType ?? '',
       'quantity' : item.quantity ?? '',
     }
-    /**
-    * * car
-    */
-    const details = []
-    for(const jtem of item.cars) {
-      console.log(jtem);
-      const date = jtem.date?.format('YYYY-MM-DD') ?? ''
-      const time = jtem.time?.format(' HH:mm:ss') ?? ''
-      const detail = {
-        'id' : jtem.id ?? '',
-        'container_id' : jtem.containerId ?? '',
-        'van_place': jtem.vanPlace ?? '',
-        'van_type': jtem.vanType ?? '',
-        'bearing_type': jtem.carType ?? '',
-        'deliver_time': date + time,
-        'trans_com': jtem.transCom ?? '',
-        'driver': jtem.driver ?? '',
-        'tel': jtem.tel ?? '',
-        'car': jtem.carCode ?? '',
-        'container': jtem.container ?? '',
-        'seal': jtem.seal ?? '',
-        'tare': jtem.tare ?? '',
-        'tare_type': jtem.tareType ?? '',
-      }
-      details.push(detail)
-    }
-    container['details'] = details
     result['containers'].push(container)
   }
 
+    /**
+    * * car
+    */
+  const details = []
+  result['details'] = details
+  for(const item of formData.cars) {
+    const date = item.date?.format('YYYY-MM-DD') ?? ''
+    const time = item.time?.format(' HH:mm:ss') ?? ''
+    const detail = {
+      'id' : item.id ?? '',
+      'container_id' : item.containerId ?? '',
+      'van_place': item.vanPlace ?? '',
+      'van_type': item.vanType ?? '',
+      'bearing_type': item.carType ?? '',
+      'deliver_time': date + time,
+      'trans_com': item.transCom ?? '',
+      'driver': item.driver ?? '',
+      'tel': item.tel ?? '',
+      'car': item.carCode ?? '',
+      'container': item.container ?? '',
+      'seal': item.seal ?? '',
+      'tare': item.tare ?? '',
+      'tare_type': item.tareType ?? '',
+    }
+    details.push(detail)
+  }
   return result
 }
 

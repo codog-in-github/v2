@@ -2,9 +2,7 @@ import { request } from "@/apis/requestBuilder"
 import { TOP_TAG_NAME } from "@/constant"
 import { useAsyncCallback } from "@/hooks"
 import dayjs from "dayjs"
-import { useMemo } from "react"
-import { useEffect } from "react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 const getOrders = () => {
   return request('admin/order/top_list')
@@ -89,49 +87,43 @@ export const useMessages = () => {
   const [hasMore, setHasMore] = useState(true)
   const [isAtMe, setIsAtMe] = useState(false)
 
-  const filteredMessages = useMemo(() => {
-    if(isAtMe){
-      return messages.filter(item => item.isAtMe)
-    }
-    return messages
-  }, [messages, isAtMe])
-  
-  const [load, loading] = useAsyncCallback(async () => {
-    console.log('load', messages)
-    if(!hasMore || loading) {
-      return
-    }
+  const [load, loading] = useAsyncCallback(async (atMe = isAtMe) => {
+    let lastMessages = messages
+    const clear = atMe !== isAtMe
     const data = {
       'page_size': 10,
-      'at_me': isAtMe ? 1 : 0
+      'at_me': atMe ? 1 : 0
     }
-    if(messages.length) {
-      data['max_id'] = messages[messages.length - 1].id
+    if(clear) {
+      lastMessages = []
+      setHasMore(true)
+      setIsAtMe(atMe)
+    } else if(!hasMore) {
+      return
+    } if(lastMessages.length) {
+      data['max_id'] = lastMessages[messages.length - 1].id
     }
     const rep = await request('admin/order/message_list')
       .get(data).send()
 
     if(!rep || !rep.length || rep.length < 10) {
       setHasMore(false)
-      return
     }
-    setMessages(messages.concat(rep.map(toMessageProps)))
+    setMessages(lastMessages.concat(rep.map(toMessageProps)))
   })
 
   const  [LoadTop] = useAsyncCallback(async () => {
   })
 
   const [toggleAtMe] = useAsyncCallback(async () => {
-    setMessages([])
-    setIsAtMe(!isAtMe)
-    await load()
+    await load(!isAtMe)
   }) 
 
   useEffect(() => {
     load()
   }, [])
 
-  return { messages, loading, load, LoadTop, filteredMessages, isAtMe, toggleAtMe }
+  return { messages, loading, load, LoadTop, isAtMe, toggleAtMe }
 }
 
 export const useReadMessage =  (id) => {

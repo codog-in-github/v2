@@ -46,13 +46,13 @@ function Message({ id, from, at, datetime, content, isReaded, orderId, isAtMe })
 }
 
 const MessageList = ({ className }) => {
-  const { filteredMessages: messages, toggleAtMe, isAtMe, load, loading} = useMessages();
+  const { messages, toggleAtMe, isAtMe, load, loading} = useMessages();
   return (
     <>
       <div className="flex mb-4">
         <div className='mr-auto'>社内伝達</div>
         <div className='mr-1'>@ME</div>
-        <Switch onChange={toggleAtMe} value={isAtMe}></Switch>
+        <Switch loading={loading} onChange={toggleAtMe} value={isAtMe}></Switch>
       </div>
       <ScrollView
         scrollY
@@ -60,7 +60,7 @@ const MessageList = ({ className }) => {
           'gap-4 flex flex-col flex-1 pr-2',
           className
         )}
-        onScrollBottom={load}
+        onScrollBottom={() => load()}
       >
         {messages.map(item => (
           <Message key={item.id} {...item} />

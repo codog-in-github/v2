@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useState } from 'react';
 import classNames from 'classnames';
 import CompanyAvatar from '@/components/CompanyAvatar';
+import { useMemo } from 'react';
 
 /**
  * 
@@ -56,12 +57,21 @@ function Timer({ expiredAt }) {
   )
 }
 
+const colors = [
+  '#426CF6',
+  '#45A73A',
+  '#FBD521',
+  '#FD7556'
+];
 function Card({
   orderInfo = {},
   onToDetail,
   className,
   ...props
 }) {
+  const avatarColor = useMemo(() => {
+    return colors[Math.floor(Math.random() * colors.length)]
+  }, [])
   return (
     <div
       className={classNames(
@@ -73,7 +83,9 @@ function Card({
       {...props}
     >
       { top && (
-        <div className='absolute top-2 -right-4 rotate-45 bg-red-500 text-xs text-white w-16 text-center'>
+        <div
+          className='absolute top-2 -right-4 rotate-45 bg-red-500 text-xs text-white w-16 text-center'
+        >
           {orderInfo.topName}
         </div>
       ) }
@@ -86,7 +98,7 @@ function Card({
         </div>
       ) : (
         <div className='flex flex-1'>
-          <CompanyAvatar bg={orderInfo.avatarColor} text={orderInfo.avatarText}></CompanyAvatar>
+          <CompanyAvatar bg={avatarColor} text={orderInfo.avatarText}></CompanyAvatar>
           <div className='ml-4'>
             <div className="font-semibold">{orderInfo.companyName}</div>
             <div className="mt-2 text-sm text-gray-500">{orderInfo.contactPerson} | {orderInfo.contactPhone}</div>

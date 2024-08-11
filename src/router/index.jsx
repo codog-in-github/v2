@@ -7,6 +7,9 @@ import { SideClientLayout, TopClientLayout } from "@/components/ClientLayout";
 import { DeclarantLayout } from "@/components/DeclarantLayout";
 import LazyPage from "@/components/LazyPage";
 import pubSub from "@/helpers/pubSub";
+import { request } from "@/apis/requestBuilder";
+import store from "@/store";
+import { setUserInfo } from "@/store/slices/user"
 // 还没写的页面 占个位先
 const placeholderUrls = [
   "/drive",
@@ -17,9 +20,13 @@ const placeholderUrls = [
   "/sur",
 ];
 
-const routeGuarder = (routeState, next) => {
-  // console.log(routeState);
-  return next();
+const routeGuarder = async (routeState, next) => {
+  const rep = await request('/admin/user/me').get().send()
+  store.dispatch(setUserInfo({
+    name: rep.name,
+    role: rep.role_id,
+  }))
+  next()
 };
 
 pubSub.subscribe('Error:HTTP.Unauthorized', () => {
