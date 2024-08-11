@@ -1,6 +1,6 @@
 import { NavButton, NavButtonGroup } from "./NavButton";
 import classNames from "classnames";
-
+import * as Icon from '@/components/Icon'
 function Sidebar({ className }) {
   return (
     <NavButtonGroup
@@ -9,6 +9,7 @@ function Sidebar({ className }) {
       className={classNames("nav-side-bar bg-white p-4 flex-col", className)}
     >
       <NavButton to="/customer-list" className="mb-2">
+      {/* <Icon.Customer className="w-2 h-2" /> */}
         顧客名簿
       </NavButton>
       <NavButton to="/order" className="mb-2">

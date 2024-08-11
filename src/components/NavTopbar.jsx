@@ -10,6 +10,7 @@ import { useNavigate, Link } from 'react-router-dom';
 const c = namespaceClass('nav-top-bar')
 import * as Icon from '@/components/Icon'
 import { useSelector } from 'react-redux';
+import { ORDER_TAB_STATUS_ACL, ORDER_TAB_STATUS_BL_COPY, ORDER_TAB_STATUS_CUSTOMER_DOCUMENTS, ORDER_TAB_STATUS_CUSTOMS, ORDER_TAB_STATUS_DRIVE, ORDER_TAB_STATUS_PO, ORDER_TAB_STATUS_SUR } from '@/constant';
 const useLogout = () => {
   const navigate = useNavigate()
   const handle = useCallback(() => {
@@ -32,31 +33,31 @@ const NavTopbar = ({ className }) => {
           <Icon.Top classname="w-4 h-4 inline relative bottom-[3px]" />
           <span className='ml-2'>TOP</span>
         </NavButton>
-        <NavButton to="/ct/1">
+        <NavButton to={`/ct/${ORDER_TAB_STATUS_PO}`}>
           <Icon.Po className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>PO</span>
         </NavButton>
-        <NavButton to="/ct/2">
+        <NavButton to={`/ct/${ORDER_TAB_STATUS_DRIVE}`}>
           <Icon.Drive className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>DRIVE</span>
         </NavButton>
-        <NavButton to="/od/3">
+        <NavButton to={`/od/${ORDER_TAB_STATUS_CUSTOMS}`}>
           <Icon.GateDoc className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>通関資料</span>
         </NavButton>
-        <NavButton to="/od/4">
+        <NavButton to={`/od/${ORDER_TAB_STATUS_ACL}`}>
           <Icon.Acl className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>ACL</span>
         </NavButton>
-        <NavButton to="/od/5">
+        <NavButton to={`/od/${ORDER_TAB_STATUS_CUSTOMER_DOCUMENTS}`}>
           <Icon.Permission className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>許可</span>
         </NavButton>
-        <NavButton to="/od/6">
+        <NavButton to={`/od/${ORDER_TAB_STATUS_BL_COPY}`}>
           <Icon.BlCopy className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>BL COPY</span>
         </NavButton>
-        <NavButton to="/od/7">
+        <NavButton to={`/od/${ORDER_TAB_STATUS_SUR}`}>
           <Icon.Sur className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>SUR</span>
           </NavButton>

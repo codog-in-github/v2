@@ -114,13 +114,14 @@ export const SUR_STEP_PAYED = 2
 export const SUR_STEP_SENDED = 3
 export const SUR_REQUEST_CHANGE = -1
 
-export const ORDER_TAB_STATUS_PO = 1
-export const ORDER_TAB_STATUS_DRIVE = 2
-export const ORDER_TAB_STATUS_CUSTOMS = 3
-export const ORDER_TAB_STATUS_ACL = 4
-export const ORDER_TAB_STATUS_CUSTOMER_DOCUMENTS = 5
-export const ORDER_TAB_STATUS_BL_COPY = 6
-export const ORDER_TAB_STATUS_SUR = 7
+export const ORDER_TAB_STATUS_TOP = 1
+export const ORDER_TAB_STATUS_PO = 2
+export const ORDER_TAB_STATUS_DRIVE = 3
+export const ORDER_TAB_STATUS_CUSTOMS = 4
+export const ORDER_TAB_STATUS_ACL = 5
+export const ORDER_TAB_STATUS_CUSTOMER_DOCUMENTS = 6
+export const ORDER_TAB_STATUS_BL_COPY = 7
+export const ORDER_TAB_STATUS_SUR = 8
 export const ORDER_TAB_STATUS_REQUEST = 9
 
 export const TOP_TAG_NAME = {

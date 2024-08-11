@@ -7,6 +7,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import pubSub from "@/helpers/pubSub";
 import { useParams } from "react-router-dom";
+import SkeletonList from "@/components/SkeletonList";
 
 const useTabOrderList = (type) => {
   const [list, setList] = useState([]);
@@ -21,60 +22,37 @@ const useTabOrderList = (type) => {
 }
 const colors = ['danger', 'warning', 'success']
 function Card({
-  end,
-  type = 0,
-  transCom = '',
-  customer = '',
-  address = '',
-  date,
-  bkgNo = '',
-  pod = '',
-  pol = '',
+  orderInfo = {},
   ...props
 }) {
   const grayscale = {};
-  if (end) {
+  if (orderInfo.end) {
     grayscale.filter = "grayscale(100%)";
   }
-  const m = dayjs(date);
-  const md = m.format("MM-DD");
-  const hm = m.format("HH:mm");
   return (
     <div
-      className="border-2 border-t-[6px] rounded cursor-pointer overflow-hidden"
+      className="border-2 border-t-[6px] rounded h-32 cursor-pointer overflow-hidden"
       style={{
-        borderColor: themeColor(colors[type], 60),
+        borderColor: themeColor(colors[orderInfo.color], 60),
         ...grayscale
       }}
       {...props}
     >
-      
-      <div className="flex p-2 overflow-hidden">
+      <div className="flex p-2 overflow-hidden" style={{background: themeColor(colors[orderInfo.color], 95)}}>
         <div
           className="rounded-full w-8 h-8 leading-8 text-center text-white flex-shrink-0"
-          style={{ backgroundColor: themeColor(colors[type], 60) }}
-        ></div>
-        <div className="ml-2 flex-1 w-1">
-          <div className="truncate">{address}</div>
-          <div>{pol.split('/')[0]}-{pod.split('/')[0]}</div>
+          style={{ backgroundColor: themeColor(colors[orderInfo.color], 60) }}
+        >
+          {orderInfo['company_name']?.[0]}
+        </div>
+        <div className="ml-2 flex-1 w-1" >
+          <div className="truncate">{orderInfo['cy_cut']?.substring(5)}</div>
+          <div>{orderInfo['loading_port_name']?.split('/')[0]}-{orderInfo['delivery_port_name']?.split('/')[0]}</div>
         </div>
       </div>
-      <div className="flex">
-        <div className="flex-1 flex flex-col items-center  p-2">
-          <div className="flex text-lg font-bold">
-            <div>{customer[0]}</div>
-            <div className="w-0.5 h-full bg-gray-300 mx-4"></div>
-            <div>{transCom[0]}</div>
-          </div>
-          <div className="text-sm text-gray-400 mt-2">{bkgNo}</div>
-        </div>
-        <div
-          className="flex justify-center items-center flex-col px-2"
-          style={{ background: themeColor(colors[type], 90) }}
-        >
-          <div>{md}</div>
-          <div>{hm}</div>
-        </div>
+      <div className="flex justify-between p-2">
+        <div>{orderInfo.containers?.[0]?.['common']}</div>
+        <div>{orderInfo['bkg_no']}</div>
       </div>
     </div>
   );
@@ -82,7 +60,7 @@ function Card({
 
 function OrderList() {
   const { tab } = useParams()
-  const { list, reload } = useTabOrderList(tab)
+  const { list, reload, loading } = useTabOrderList(tab)
   const order = useRef(null)
   const navigate = useNavigate()
   const [topNode, topNodeLoading] = useAsyncCallback(async () => {
@@ -136,27 +114,26 @@ function OrderList() {
       <div className="bg-white  m-2 rounded-lg shadow p-4">
         <div>未完成</div>
         <div className="grid grid-cols-4 lg:grid-cols-5 gap-8 flex-wrap mt-4">
-          {list.map(item => (
-            <Card
-              onContextMenu={e => contextMenuHandle(e, item)}
-              onClick={() => navigate(`/orderDetail/${item['order_id']}`)}
-              customer={item['company_name']}
-              transCom={item['trans_com']}
-              key={item['id']}
-              pol={item['loading_port_name']}
-              pod={item['delivery_port_name']}
-              bkgNo={item['bkg_no']}
-              type={item['color']}
-              address={item['van_place']}
-              date={item['deliver_time']}
-            />
-          ))}
+          <SkeletonList
+            list={list}
+            loading={loading}
+            skeletonCount={8}
+            skeletonClassName="w-full h-32"
+          >
+            {item => (
+              <Card
+                key={item['id']}
+                onContextMenu={e => contextMenuHandle(e, item)}
+                onClick={() => navigate(`/orderDetail/${item['id']}`)}
+                orderInfo={item}
+              />
+            )}
+          </SkeletonList>
         </div>
       </div>
       <div className="bg-white  m-2 rounded-lg shadow p-4">
         <div>直近完了</div>
         <div className="flex gap-8 flex-wrap mt-4">
-          <Card address="中国浙江省宁波市鄞州区中…" end date={Date.now()} />
         </div>
       </div>
       {menu}
