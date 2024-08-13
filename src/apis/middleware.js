@@ -19,7 +19,7 @@ export function checkJSONCode(response, next) {
   return next(response);
 }
 
-export function getRequestJsonBodyData(response, next) {
+export function getResponseJsonBodyData(response, next) {
   return next(response.data.data);
 }
 

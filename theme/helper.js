@@ -11,14 +11,12 @@ const loadConfig = () => {
 
 export const config = loadConfig()
 
-export const colorSplit = (input, lights = []) => {
+export const colorLightSplit = (input, lights = []) => {
   const color = Color(input)
   const colors = Array(lights.length)
   for(let i = 0; i < lights.length; i ++) {
     const light = lights[i]
-    const hsl = color.hsl().array()
-    hsl[2] = light
-    colors[i] = Color.hsl(hsl).hex().toString()
+    colors[i] = color.lightness(light).hex().toString()
   }
   return colors
 }

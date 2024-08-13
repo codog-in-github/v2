@@ -4,7 +4,7 @@ import {
   checkHttpState,
   checkJSONCode,
   getRequestBodyData,
-  getRequestJsonBodyData,
+  getResponseJsonBodyData,
 } from './middleware';
 import { cloneDeep, isObject } from 'lodash';
 import QueryString from 'qs';
@@ -25,7 +25,7 @@ class Request {
     this.responseMiddleware = [
       checkHttpState,
       checkJSONCode,
-      getRequestJsonBodyData,
+      getResponseJsonBodyData,
     ];
   }
 
@@ -171,7 +171,7 @@ class Request {
   }
 
   paginate() {
-    this.responseWithout(getRequestJsonBodyData)
+    this.responseWithout(getResponseJsonBodyData)
     this.addResponseMiddleware(getRequestBodyData)
     return this
   }
@@ -180,7 +180,7 @@ class Request {
     this.config({
       responseType: 'blob'
     })
-    this.responseWithout(getRequestJsonBodyData, checkJSONCode)
+    this.responseWithout(getResponseJsonBodyData, checkJSONCode)
     this.addResponseMiddleware(getRequestBodyData, blob => downloadBlob(blob, filename))
     return this
   }
