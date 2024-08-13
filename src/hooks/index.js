@@ -157,3 +157,33 @@ export const useContextMenu = (menu) => {
   )
   return [element, show, hidden]
 }
+
+
+export const useDepartmentList = () => {
+  const [departments, setDepartments] = useState([])
+  useEffect(() => {
+    request('/admin/department_list').get().send()
+      .then(res => {
+        setDepartments(res.map(item => ({
+          value: item.id,
+          label: item.name,
+        })))
+      })
+  }, [])
+  return departments
+}
+
+
+export const useBankList = () => {
+  const [banks, setBanks] = useState([])
+  useEffect(() => {
+    request('/admin/bank_list').get().send()
+      .then(res => {
+        setBanks(res.map(item => ({
+          value: item.id,
+          label: item.name,
+        })))
+      })
+  }, [])
+  return banks
+}

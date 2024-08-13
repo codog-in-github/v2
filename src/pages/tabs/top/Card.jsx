@@ -3,6 +3,7 @@ import { useState } from 'react';
 import classNames from 'classnames';
 import CompanyAvatar from '@/components/CompanyAvatar';
 import { useMemo } from 'react';
+import { themeColor } from '@/helpers/color';
 
 /**
  * 
@@ -32,10 +33,14 @@ function Timer({ expiredAt }) {
   const [display, setDisplay] = useState(
     getTimeDistant(new Date(), expiredAt.toDate())
   )
+  const [color, setColor] = useState('primary')
   useEffect(() => {
-    let timerId = setInterval(() => {
+    const timerId = setInterval(() => {
       if( expiredAt.toDate()  < new Date()) {
         clearInterval(timerId)
+      }
+      if(expiredAt.diff(new Date(), 'minutes') < 20) {
+        setColor('danger')
       }
       setDisplay(
         getTimeDistant(new Date(), expiredAt.toDate() )
@@ -46,13 +51,18 @@ function Timer({ expiredAt }) {
     }
   }, [ expiredAt ])
   return (
-    <div className='bg-[#d8eaff] h-[40px] rounded flex items-center px-4 py-1 text-primarbg-primary-500'>
-      <div className='text-sm text-[#426CF6]'>残時間：</div>
-      <div className='ml-2 bg-primary-400 px-0.5 rounded text-white'>{display[0]}</div>
+    <div className='h-[40px] rounded flex items-center px-4 py-1' style={{ backgroundColor: themeColor(color, 95) }}>
+      <div className='text-sm' style={{ color: themeColor(color, 60)}}>残時間：</div>
+      <div
+        className='ml-2 px-0.5 rounded text-white'
+        style={{
+          backgroundColor: themeColor(color, 60)
+        }}
+      >{display[0]}</div>
       <div className='mx-1'>:</div>
-      <div className='bg-primary-400 px-0.5 rounded text-white'>{display[1]}</div>
+      <div className='px-0.5 rounded text-white' style={{ backgroundColor: themeColor(color, 60) }}>{display[1]}</div>
       <div className='mx-1'>:</div>
-      <div className='bg-primary-400 px-0.5 rounded text-white'>{display[2]}</div>
+      <div className='px-0.5 rounded text-white' style={{ backgroundColor: themeColor(color, 60) }}>{display[2]}</div>
     </div>
   )
 }

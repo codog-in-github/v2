@@ -345,10 +345,18 @@ const filesGenerator = (rep) => {
   }
   return files
 }
+
+const requestBookGenerator = (rep) => {
+  if(rep['request_books'] && rep['request_books'].length) {
+    return rep['request_books']
+  }
+  return []
+}
 export const useDetailData = () => {
   const { id } = useParams()
   const [form] = Form.useForm()
   const [nodes, setNodes] = useState([])
+  const [requestBooks, setRequestBooks] = useState([])
   const [loading, setLoading] = useState(false)
   const [messages, setMessages] = useState([])
   const [files, setFiles] = useState({})
@@ -448,6 +456,10 @@ export const useDetailData = () => {
         filesGenerator,
         setFiles,
       )))
+      .then(touch(pipe(
+        requestBookGenerator,
+        setRequestBooks,
+      )))
       .finally(() => setLoading(false))
   }, [form, id])
 
@@ -508,7 +520,8 @@ export const useDetailData = () => {
     changingNodeStatus,
     refreshNodes,
     delOrder,
-    deletingOrder
+    deletingOrder,
+    requestBooks,
   }
 }
 

@@ -1,8 +1,11 @@
 import { Button, Modal, Table } from "antd";
+import { useContext } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { DetailDataContext } from "../dataProvider";
 
 const ListModal = ({ instance }) => {
+  const { requestBooks, form } = useContext(DetailDataContext)
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
   if(instance) {
@@ -22,11 +25,7 @@ const ListModal = ({ instance }) => {
     >
       <div className="p-2">
         <Table
-          dataSource={[{
-            name: '請求書1-20241155K-01',
-            datetime: '2024-07-01  08:40:21',
-            status: 1,
-          }]}
+          dataSource={requestBooks}
           pagination={false}
           columns={[
             { dataIndex: 'name', title: '履歴請求書' },
@@ -41,9 +40,10 @@ const ListModal = ({ instance }) => {
           ]}
         />
       </div>
-      <div className="text-center">
-        <Button className="w-32" type="primary" onClick={() => navigate('/rb')}>新增请求书</Button>
-        <Button className="ml-2 w-32">取消</Button>
+      <div className="flex justify-center gap-2">
+        <Button className="w-32" type="primary" onClick={() => navigate(`/rb/add/${form.getFieldValue('id')}`)}>新增请求书</Button>
+        <Button className="w-32" type="primary" onClick={() => navigate('/rb')}>新增立替请求书</Button>
+        <Button className="w-32">取消</Button>
       </div>
     </Modal>
   )
