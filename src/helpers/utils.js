@@ -112,3 +112,15 @@ export const downloadBlob = (blob, fileName) => {
   URL.revokeObjectURL(url);
   a.remove()
 }
+
+export const fileNameParse = (contentDisposition) => {
+  if(contentDisposition.includes('filename*=')) {
+    const [, charset, fileName] = /filename\*=(.*)''(.*)/.exec(contentDisposition) ?? []
+    console.log('res', charset, fileName)
+    if(charset === 'utf-8') {
+      return decodeURIComponent(fileName)
+    }
+    return fileName
+  }
+  return contentDisposition.split('filename=')[1]
+}

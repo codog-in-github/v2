@@ -8,7 +8,7 @@ import {
 } from './middleware';
 import { cloneDeep, isObject } from 'lodash';
 import QueryString from 'qs';
-import { downloadBlob } from '@/helpers/utils';
+import { downloadBlob, fileNameParse } from '@/helpers/utils';
 
 const baseURL = '/api';
 
@@ -181,7 +181,17 @@ class Request {
       responseType: 'blob'
     })
     this.responseWithout(getResponseJsonBodyData, checkJSONCode)
-    this.addResponseMiddleware(getRequestBodyData, blob => downloadBlob(blob, filename))
+    this.addResponseMiddleware((rep, next) => {
+      if(!filename) {
+        const repFileName = fileNameParse(rep.headers['content-disposition'])
+        if(repFileName) {
+          filename = repFileName
+        } else {
+          filename = 'download'
+        }
+      }
+      return next(downloadBlob(rep.data, filename))
+    })
     return this
   }
 

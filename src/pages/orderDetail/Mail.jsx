@@ -6,7 +6,6 @@ import { Checkbox } from "antd"
 import { CloseOutlined } from "@ant-design/icons"
 import { useAsyncCallback, useOptions } from "@/hooks"
 import { request } from "@/apis/requestBuilder"
-import { useParams } from "react-router-dom"
 import { useMemo } from "react"
 
 const fileName = (filePath) => {

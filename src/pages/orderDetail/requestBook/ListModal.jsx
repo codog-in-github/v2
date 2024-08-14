@@ -3,6 +3,7 @@ import { useContext } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DetailDataContext } from "../dataProvider";
+import dayjs from "dayjs";
 
 const ListModal = ({ instance }) => {
   const { requestBooks, form } = useContext(DetailDataContext)
@@ -29,11 +30,11 @@ const ListModal = ({ instance }) => {
           pagination={false}
           columns={[
             { dataIndex: 'name', title: '履歴請求書' },
-            { dataIndex: 'datetime', title: '时间' },
-            { title: '操作', render: () =>  (
+            { dataIndex: 'created_at', title: '时间' , render: value => dayjs(value).format('YYYY-MM-DD HH:mm:ss')  },
+            { title: '操作',  dataIndex:'id', render: (id) =>  (
               <div className="btn-link-group">
-                <span className="btn-link">編集</span>
-                <span className="btn-link">预览</span>
+                <span className="btn-link" onClick={() => navigate(`/rb/edit/${id}`)}>編集</span>
+                <span className="btn-link">预览</span>          
                 <span className="btn-link">删除</span>
               </div>
             ) },
