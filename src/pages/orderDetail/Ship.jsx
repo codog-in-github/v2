@@ -76,7 +76,7 @@ const PortSelect = ({ tree, bind, bindName, ...props }) => {
 const Ship = ({ className }) => {
   const { portTree, loading: portLoading } = usePorts()
   const form = Form.useFormInstance()
-  const { options: ships } = useOptions(SELECT_ID_SHIP_CONPANY)
+  const [ships] = useOptions(SELECT_ID_SHIP_CONPANY)
   const shipOptions = ships.map(item => ({ value: item.id, label: item.value, origin: item }))
   return (
     <div className={className}>

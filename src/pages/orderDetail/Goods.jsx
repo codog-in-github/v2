@@ -7,6 +7,7 @@ import classNames from "classnames"
 import { newCar, newConatainer } from "./dataProvider"
 import { useCallback } from "react"
 import { Space } from "antd"
+import { useOptions } from "@/hooks"
 
 const usePage = (list) => {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -284,6 +285,7 @@ const Goods = ({ className }) => {
     oldValue.splice(key, 1)
     form.setFieldValue('cars', [...oldValue])
   }, [])
+  // const [carCompanys] = useOptions(1)
   return (
     <div className={className}>
       <Label className="flex-shrink-0">貨物情報</Label>

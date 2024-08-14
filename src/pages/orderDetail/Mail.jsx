@@ -1,13 +1,13 @@
 import { Button, Modal, Input, Form, Select } from "antd"
-import { useState, useContext } from "react"
+import { useState, useContext, useEffect } from "react"
 import { DetailDataContext } from "./dataProvider"
-import { FILE_TYPE_CUSTOMS } from "@/constant"
+import { FILE_TYPE_CUSTOMS, MAIL_TO_CUSTOMER, MAIL_TO_SHIP, SELECT_ID_SHIP_CONPANY } from "@/constant"
 import { Checkbox } from "antd"
 import { CloseOutlined } from "@ant-design/icons"
-import { useAsyncCallback } from "@/hooks"
+import { useAsyncCallback, useOptions } from "@/hooks"
 import { request } from "@/apis/requestBuilder"
 import { useParams } from "react-router-dom"
-import { useEffect } from "react"
+import { useMemo } from "react"
 
 const fileName = (filePath) => {
   return filePath.split('/').pop()
@@ -50,34 +50,63 @@ const FileSelect = ({ files, value, onChange }) => {
   )
 }
 const ToSelect = ({ type, value, onChange }) => {
-  // const [options, setOptions]= useState([])
-  // const { callback: getOptions, loading} = useAsyncCallback(async () => {
-  //   await request('/admin/order/get_email_options').data({
-  //     'node_id': type
-  //   }).send()
-  // })
-  // useEffect(() => {
-  //   getOptions()
-  // }, [type])
+  const [customers, setCustomers] = useState([])
+  const [shipOriginList, loadingChipCompany] = useOptions(SELECT_ID_SHIP_CONPANY)
+  const shipOptions = useMemo(() => {
+    return shipOriginList.map(item => ({
+      value: item['id'],
+      label: item['name']
+    }))
+  }, [shipOriginList])
+  const [getCustomers, loadingCustomers] = useAsyncCallback(async () => {
+    const rep = await request('/admin/customer/list').get().send()
+    const options = rep.map(item => ({
+      value: item['email'],
+      label: `${item['company_name']} - ${item['header']} - ${item['email']}`
+    }))
+    setCustomers(options)
+  })
+  useEffect(() => { getCustomers() }, [])
+  let options = []
+  switch (type) {
+    case MAIL_TO_CUSTOMER:
+      options = customers
+      break
+    case MAIL_TO_SHIP:
+      options = shipOptions
+      break
+  }
   return (
-    <Input onChange={onChange} value={value}></Input>
+    <Select
+      mode="tags"
+      loading={loadingCustomers || loadingChipCompany}
+      onChange={onChange}
+      value={value}
+      options={options}
+    />
   )
 }
 
 
 const Mail = ({ mail, onSuccess }) => {
   const [open, setOpen] = useState(false)
-  const orderId = useParams().id
-  const { files } = useContext(DetailDataContext)
+  const { files, form: orderForm } = useContext(DetailDataContext)
+  const [mailToType, setMailToType] = useState(MAIL_TO_CUSTOMER)
   const [form] = Form.useForm()
-  const [mailInfo, setMailInfo] = useState({ title: '送信' })
+  const [title, setTitle] = useState('送信')
+  const [setDefaultValue] = useAsyncCallback(async (mailInfo) => {
+    setTitle(mailInfo.title)
+    form.setFieldsValue({
+      'node_id': mailInfo.nodeId,
+      'order_id': orderForm.getFieldValue('id')
+    })
+    // const rep = await request('/admin/order/mail_template')
+    //   .get({ 'type': 1, 'order_id': orderForm.getFieldValue('id') }).send()
+    // console.log(rep)
+  })
   const [send, loading] = useAsyncCallback(async () => {
     const mailData = await form.validateFields()
-    const data = {
-      ...mailData,
-      'node_id': mailInfo.nodeId,
-      'order_id': orderId
-    }
+    const data = { ...mailData }
     await request('/admin/order/send_email').data(data).send()
     setOpen(false)
     onSuccess()
@@ -86,23 +115,22 @@ const Mail = ({ mail, onSuccess }) => {
     mail.current = {
       open(mailInfo) {
         setOpen(true)
-        setMailInfo(mailInfo)
-        form.setFieldsValue({
-
-        })
+        setDefaultValue(mailInfo)
       }
     }
   }
   return <Modal
     width={800}
     open={open}
-    title={mailInfo.title}
+    title={title}
     onCancel={() => setOpen(false)}
     footer={null}
   >
     <Form form={form} layout="vertical" className="p-4">
+      <Form.Item noStyle name="order_id"></Form.Item>
+      <Form.Item noStyle name="node_id"></Form.Item>
       <Form.Item label="受信者" name="to">
-        <ToSelect></ToSelect>
+        <ToSelect type={mailToType}></ToSelect>
       </Form.Item>
       <Form.Item label="件名" name="subject">
         <Input></Input>

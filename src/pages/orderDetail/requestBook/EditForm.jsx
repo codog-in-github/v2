@@ -153,7 +153,7 @@ const detailPart = (type) => {
 }
 
 const useItemList = (selectId) => {
-  const { options } = useOptions(selectId)
+  const [options] = useOptions(selectId)
   const items = useMemo(() => {
     return options.map(item => ({
       value: item.value,
