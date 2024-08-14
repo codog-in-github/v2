@@ -91,6 +91,8 @@ export const COST_PART_SEA = 1
 export const COST_PART_LAND = 2
 export const COST_PART_OTHER = 3
 
+export const COST_PARTS = [COST_PART_CUSTOMS, COST_PART_SEA, COST_PART_LAND, COST_PART_OTHER]
+
 export const SELECT_ID_SHIP_CONPANY = 5
 export const SELECT_ID_RB_EXTRA_ITEM = 11
 export const SELECT_ID_RB_DETAIL_ITEM = 12

@@ -1,18 +1,23 @@
 import {
   COST_PART_CUSTOMS, COST_PART_LAND, COST_PART_OTHER,
-  COST_PART_SEA, SELECT_ID_RB_DETAIL_ITEM, SELECT_ID_RB_DETAIL_UNIT, SELECT_ID_RB_EXTRA_ITEM
+  COST_PART_SEA, COST_PARTS, SELECT_ID_RB_DETAIL_ITEM, SELECT_ID_RB_DETAIL_UNIT, SELECT_ID_RB_EXTRA_ITEM
 } from "@/constant"
 import {
   Switch, Radio, InputNumber, AutoComplete, Button,
-  Col, Form, Input, Row, Popover, Checkbox
+  Col, Form, Input, Row, Popover, Checkbox, Dropdown
 } from "antd"
 import { useMemo, useEffect, useContext, createContext, useState } from "react"
-import { useOptions } from "@/hooks"
+import { useBankList, useDepartmentList, useOptions } from "@/hooks"
 import { request } from "@/apis/requestBuilder"
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons"
 import Label from "@/components/Label"
 import { useCallback } from "react"
 import SingleCheckbox from "@/components/SingleCheckbox"
+import { useParams } from "react-router-dom"
+import dayjs from "dayjs"
+import { DatePicker } from "antd"
+import { useRef } from "react"
+import pubSub from "@/helpers/pubSub"
 
 const costTypes = [
   COST_PART_CUSTOMS,
@@ -25,7 +30,7 @@ const EditFormContext = createContext()
 
 const ExtraInput = ({ datakey }) => {
   const form = Form.useFormInstance()
-  const { extraItems } = useContext(EditFormContext)
+  const { extraItems, extraDefaultValue } = useContext(EditFormContext)
   const add = () => {
     const oldValue = form.getFieldValue('extra')
     form.setFieldValue('extra', [
@@ -35,6 +40,10 @@ const ExtraInput = ({ datakey }) => {
   }
   const del = () => {
     const oldValue = form.getFieldValue('extra')
+    if(oldValue.length <= 1) {
+      pubSub.publish('Info.Toast', '削除するには少なくとも1つ必要です', 'error')
+      return
+    }
     form.setFieldValue('extra', oldValue.filter((_, i) => i != datakey))
   }
   return (
@@ -43,10 +52,11 @@ const ExtraInput = ({ datakey }) => {
         <AutoComplete
           className="w-32"
           options={extraItems}
+          allowClear
           filterOption="value"
-          onSelect={(_, { origin }) => {
-            console.log('select', origin)
-            form.setFieldValue(['extra', datakey, 'value'], origin['extra'])
+          onSelect={(name) => {
+            const def = extraDefaultValue.current[name] ?? ''
+            form.setFieldValue(['extra', datakey, 'value'], def)
           }}
         ></AutoComplete>
       </Form.Item>
@@ -70,6 +80,12 @@ const getPartName = (type) => {
     default:
       return 'その他'
   }
+}
+
+const defaultFormat = (book) => {
+  const defaultValue = { ...book }
+  defaultValue['date'] = dayjs(defaultValue['date'])
+  return defaultValue
 }
 
 
@@ -163,35 +179,6 @@ const useItemList = (selectId) => {
   return items
 }
 
-const useBankList = () => {
-  const [banks, setBanks] = useState([])
-  useEffect(() => {
-    request('/admin/bank_list').get().send()
-      .then(res => {
-        setBanks(res.map(item => ({
-          value: item.id,
-          label: item.name,
-          style: { width: 150 }
-        })))
-      })
-  }, [])
-  return banks
-}
-
-const useDepartmentList = () => {
-  const [departments, setDepartments] = useState([])
-  useEffect(() => {
-    request('/admin/department_list').get().send()
-      .then(res => {
-        setDepartments(res.map(item => ({
-          value: item.id,
-          label: item.name,
-          style: { width: 150 }
-        })))
-      })
-  }, [])
-  return departments
-}
 
 const Total = () => {
   return (
@@ -213,24 +200,66 @@ const Total = () => {
 }
 const EditForm = () => {
   const [form] = Form.useForm()
+  const {id, orderId} = useParams()
+  const extraDefaultValue = useRef({})
   const extraItems = useItemList(SELECT_ID_RB_EXTRA_ITEM)
   const detailItems = useItemList(SELECT_ID_RB_DETAIL_ITEM)
   const units = useItemList(SELECT_ID_RB_DETAIL_UNIT)
   const banks = useBankList()
+  const bankOptions = useMemo(() => {
+    return banks.map(item => ({
+      ...item,
+      style: { width: 150 }
+    }))
+  }, [banks])
   const departments = useDepartmentList()
+  const departmentOptions = useMemo(() => {
+    return departments.map(item => ({
+      ...item,
+      style: { width: 150 }
+    }))
+  }, [departments])
   const submit = useCallback(() => {
     console.log(form.getFieldsValue())
   }, [])
   useEffect(() => {
+    form.resetFields()
+    if(orderId) {
+      request('/admin/request_book/get_default_value').get({ id: orderId }).send().then((rep) => {
+        form.setFieldsValue(defaultFormat(rep['book']))
+        extraDefaultValue.current = rep['extra']
+      })
+    } else {
+      // todo getRequetBookDetail
+    }
+  }, [id, orderId])
+  useEffect(() => {
     form.setFieldsValue({
-      extra: [{}, {}],
+      extra: [{}],
       details: {
-        [COST_PART_CUSTOMS]: [{}, {}]
+        [COST_PART_CUSTOMS]: [{}]
       }
     })
   }, [])
+  const details = Form.useWatch('details', form)
+  const groupAddButtons = useMemo(() => {
+    const buttons = []
+    for(const part of COST_PARTS){
+      if(!details?.[part]) {
+        buttons.push(
+          <div
+            className="text-center w-32 leading-8 hover:bg-primary hover:text-white cursor-pointer"
+            onClick={() => {
+              form.setFieldValue(['details', part], [{}])
+            }}
+          >{getPartName(part)}</div>
+        )
+      }
+    }
+    return buttons
+  }, [details])
   return (
-    <EditFormContext.Provider value={{ detailItems, extraItems, units }}>
+    <EditFormContext.Provider value={{ detailItems, extraItems, units, extraDefaultValue }}>
       <Form
         form={form}
         className="flex h-screen"
@@ -240,27 +269,27 @@ const EditForm = () => {
 
             <Row className="px-16 mt-6">
               <Col span={8}>
-                <Form.Item label="請求番号" labelCol={{ span: 6 }} >
+                <Form.Item label="請求番号" name="no" labelCol={{ span: 6 }} >
                   <Input></Input>
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item label="請求日" labelCol={{ span: 6 }} >
+                <Form.Item label="請求日" name="date" labelCol={{ span: 6 }} >
+                  <DatePicker className="w-full" />
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item label="〒" name="zip_code" labelCol={{ span: 6 }} >
                   <Input></Input>
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item label="〒" labelCol={{ span: 6 }} >
-                  <Input></Input>
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item label="会社名" labelCol={{ span: 6 }} >
+                <Form.Item label="会社名" name="company_name" labelCol={{ span: 6 }} >
                   <Input></Input>
                 </Form.Item>
               </Col>
               <Col span={16}>
-                <Form.Item label="住所" labelCol={{ span: 3 }} >
+                <Form.Item label="住所" name="address" labelCol={{ span: 3 }} >
                   <Input></Input>
                 </Form.Item>
               </Col>
@@ -296,8 +325,13 @@ const EditForm = () => {
               </table>
             </div>
             <div className="ml-16 my-4">
-              <Popover>
-                <Button type="primary" className="bg-success">枠追加</Button>
+              <Popover
+                trigger="hover"
+                placement="rightTop"
+                rootClassName="[&_.ant-popover-inner]:!p-0"
+                content={groupAddButtons}
+              >
+                <Button type="primary" className="bg-success hover:!bg-success-400">枠追加</Button>
               </Popover>
             </div>
 
@@ -305,12 +339,10 @@ const EditForm = () => {
             
             <div className="border-t py-8 border-gray-300 px-16">
               <Form.Item label="銀行" name="back">
-                  <Radio.Group options={banks}>
-                </Radio.Group>
+                <Radio.Group options={bankOptions} />
               </Form.Item>
               <Form.Item label="地址" name="department">
-                  <Radio.Group options={departments} >
-                </Radio.Group>
+                <Radio.Group options={departmentOptions} />
               </Form.Item>
               <Form.Item label="社印" name="sign">
                 <Switch></Switch>
