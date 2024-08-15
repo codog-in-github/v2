@@ -1,6 +1,7 @@
 import { request } from "@/apis/requestBuilder"
 import { TOP_TAG_NAME } from "@/constant"
 import { useAsyncCallback } from "@/hooks"
+import Color from "color"
 import dayjs from "dayjs"
 import { useEffect, useState } from "react"
 
@@ -15,7 +16,7 @@ const ordersSort = (orders) => {
     newOrders.push({
       top: true,
       renderKey: `top-${item['order']['id']}`,
-      avatarColor: 'red',
+      avatarColor: Color(item['order']['company_color']).toString(),
       topName: TOP_TAG_NAME[item['node_id']],
       id: item['order']['id'],
       expiredAt: dayjs(item['top_finish_time']),
@@ -31,6 +32,7 @@ const ordersSort = (orders) => {
       isTempOrder: true,
       id: item['id'],
       renderKey: `tmp-${item['id']}`,
+      avatarColor: Color(item['company_color']).toString(),
       expiredAt: dayjs(item['created_at']).add(1, 'hour'),
       remark: item['remark'],
       companyName: item['company_name'],
@@ -38,7 +40,7 @@ const ordersSort = (orders) => {
   }
   for(const item of orders['no_send']) {
     newOrders.push({
-      avatarColor: 'red',
+      avatarColor: Color(item['order']['company_color']).toString(),
       id: item['order']['id'],
       renderKey: `no_send-${item['order']['id']}`,
       expiredAt: dayjs(item['created_at']).add(1, 'hour'),

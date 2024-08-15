@@ -209,7 +209,7 @@ const DetailRow = ({ partType, partName, props }) => {
         </Form.Item>
       </td>
       <td className="text-center">
-        <Form.Item noStyle name={[props.key, 'tax']}>
+        <Form.Item noStyle name={[props.key, 'is_tax']}>
           <SingleCheckbox onBlur={calcAmount} />
         </Form.Item>
       </td>
@@ -455,10 +455,10 @@ const EditForm = () => {
           <Total></Total>
           
           <div className="border-t py-8 border-gray-300 px-16">
-            <Form.Item label="銀行" name="bank">
+            <Form.Item label="銀行" name="bank_id">
               <Radio.Group options={bankOptions} />
             </Form.Item>
-            <Form.Item label="地址" name="address">
+            <Form.Item label="地址" name="department_id">
               <Radio.Group options={departmentOptions} />
             </Form.Item>
             <Form.Item label="社印" name="is_stamp">

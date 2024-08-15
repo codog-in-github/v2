@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import CompanyAvatar from '@/components/CompanyAvatar';
 import { useMemo } from 'react';
 import { themeColor } from '@/helpers/color';
+import Color from 'color';
 
 /**
  * 
@@ -67,21 +68,12 @@ function Timer({ expiredAt }) {
   )
 }
 
-const colors = [
-  '#426CF6',
-  '#45A73A',
-  '#FBD521',
-  '#FD7556'
-];
 function Card({
   orderInfo = {},
   onToDetail,
   className,
   ...props
 }) {
-  const avatarColor = useMemo(() => {
-    return colors[Math.floor(Math.random() * colors.length)]
-  }, [])
   return (
     <div
       className={classNames(
@@ -108,7 +100,7 @@ function Card({
         </div>
       ) : (
         <div className='flex flex-1'>
-          <CompanyAvatar bg={avatarColor} text={orderInfo.avatarText}></CompanyAvatar>
+          <CompanyAvatar bg={orderInfo.avatarColor} text={orderInfo.avatarText}></CompanyAvatar>
           <div className='ml-4'>
             <div className="font-semibold">{orderInfo.companyName}</div>
             <div className="mt-2 text-sm text-gray-500">{orderInfo.contactPerson} | {orderInfo.contactPhone}</div>
