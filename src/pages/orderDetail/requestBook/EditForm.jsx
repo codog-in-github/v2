@@ -1,6 +1,6 @@
 import {
   COST_PART_CUSTOMS, COST_PART_LAND, COST_PART_OTHER,
-  COST_PART_SEA, COST_PARTS, SELECT_ID_RB_DETAIL_ITEM, SELECT_ID_RB_DETAIL_UNIT, SELECT_ID_RB_EXTRA_ITEM
+  COST_PART_SEA, COST_PARTS, REQUEST_TYPE_NORMAL, SELECT_ID_RB_DETAIL_ITEM, SELECT_ID_RB_DETAIL_UNIT, SELECT_ID_RB_EXTRA_ITEM
 } from "@/constant"
 import {
   Switch, Radio, InputNumber, AutoComplete, Button, DatePicker,
@@ -18,6 +18,7 @@ import pubSub from "@/helpers/pubSub"
 import { useNavigate } from "react-router-dom"
 import FormValue from "@/components/FormValue"
 import { useState } from "react"
+import FileTabs from "@/components/FileTabs"
 
 const costTypes = [
   COST_PART_CUSTOMS,
@@ -82,7 +83,7 @@ const ExtraInput = ({ datakey }) => {
 }
 
 
-const formDataFormat = (book) => {
+const formDataFormat = (book, type = REQUEST_TYPE_NORMAL) => {
   const formData = { ...book }
   formData['date'] = dayjs(book['date'])
   formData['is_stamp'] = book['is_stamp'] === 1
@@ -100,7 +101,9 @@ const formDataFormat = (book) => {
     }
     formData['details'] = details
   } else {
-    formData['details'] = [{}]
+    formData['details'] = {
+      [type === REQUEST_TYPE_NORMAL ? COST_PART_CUSTOMS : COST_PART_OTHER]: [{}]
+    }
   }
   return formData
 }
@@ -227,7 +230,7 @@ const DetailRow = ({ partType, partName, props }) => {
 const detailPart = (type) => {
   let partName = getPartName(type)
   return (list) => {
-    if(!list.length) {
+    if(!list?.length) {
       return null
     }
     return list.map((props, i) => (
@@ -257,7 +260,10 @@ const Total = () => {
   const form = Form.useFormInstance()
   const detailsOrigin = Form.useWatch('details')
   const details = useMemo(() => {
-    return detailsOrigin?.flat().filter(item => item) ?? []
+    if(!detailsOrigin) {
+      return []
+    }
+    return Object.values(detailsOrigin)?.flat().filter(item => item) ?? []
   }, [detailsOrigin])
 
   useEffect(() => {
@@ -297,7 +303,9 @@ const Total = () => {
 }
 const EditForm = () => {
   const [form] = Form.useForm()
-  const { id, orderId } = useParams()
+  const { id, orderId, copyId, type } = useParams()
+  const bookType = ~~type
+  const [files, setFiles] = useState({})
   const navigate = useNavigate()
   const extraDefaultValue = useRef({})
   const extraItems = useItemList(SELECT_ID_RB_EXTRA_ITEM)
@@ -324,28 +332,30 @@ const EditForm = () => {
     pubSub.publish('Info.Toast', '保存成功！', 'success')
   })
 
+
   useEffect(() => {
-    form.resetFields()
-    if(orderId) {
-      form.setFieldsValue({
-        'order_id': orderId,
-        'type': 1
-      })
-      request('/admin/request_book/get_default_value').get({ id: orderId }).send().then((rep) => {
-        form.setFieldsValue(formDataFormat(rep['book']))
-        extraDefaultValue.current = rep['extra']
-      })
-    } else {
+    const bookId = id ?? copyId
+    form.setFieldsValue({
+      'order_id': orderId,
+      type: bookType
+    })
+    request('/admin/request_book/get_default_value').get({ id: orderId }).send().then((rep) => {
+      bookId || form.setFieldsValue(formDataFormat(rep['book']))
+      extraDefaultValue.current = rep['extra']
+      setFiles(rep['files'])
+    })
+  }, [orderId, id, copyId, form, bookType])
+
+  useEffect(() => {
+    const bookId = id ?? copyId
+    if(bookId) {
+      form.resetFields()
       request('/admin/request_book/detail').get({ id }).send()
         .then(rep => {
           form.setFieldsValue(formDataFormat(rep))
-          return request('/admin/request_book/get_default_value').get({ id: form.getFieldValue('order_id') }).send()
-        })
-        .then(rep => {
-          extraDefaultValue.current = rep['extra']
         })
     }
-  }, [form, id, orderId])
+  }, [form, copyId, id])
 
   const details = Form.useWatch('details', form)
 
@@ -441,16 +451,20 @@ const EditForm = () => {
               </tbody>
             </table>
           </div>
-          <div className="ml-16 my-4">
-            <Popover
-              trigger="hover"
-              placement="rightTop"
-              rootClassName="[&_.ant-popover-inner]:!p-0"
-              content={groupAddButtons}
-            >
-              <Button type="primary" className="bg-success hover:!bg-success-400">枠追加</Button>
-            </Popover>
-          </div>
+
+          { bookType === REQUEST_TYPE_NORMAL && (
+            <div className="ml-16 my-4">
+              <Popover
+                trigger="hover"
+                placement="rightTop"
+                rootClassName="[&_.ant-popover-inner]:!p-0"
+                content={groupAddButtons}
+              >
+                <Button type="primary" className="bg-success hover:!bg-success-400">枠追加</Button>
+              </Popover>
+            </div>
+          )}
+          
 
           <Total></Total>
           
@@ -479,7 +493,7 @@ const EditForm = () => {
           className="h-full w-[600px] shadow-lg shadow-gray-400 p-8"
         >
           <Label>コストチェック表</Label>
-          {/* todo files */}
+          <FileTabs files={files} />
         </div>
       </Form>
     </EditFormContext.Provider>

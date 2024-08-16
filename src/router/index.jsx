@@ -46,11 +46,15 @@ const router = createBrowserRouter([
     />,
     children: [
       {
-        path: "/rb/add/:orderId",
+        path: "/rb/add/:orderId/type/:type",
         element: <LazyPage load={() => import('@/pages/orderDetail/requestBook/EditForm.jsx')} />,
       },
       {
-        path: "/rb/edit/:id",
+        path: "/rb/edit/:id/order/:orderId/type/:type",
+        element: <LazyPage load={() => import('@/pages/orderDetail/requestBook/EditForm.jsx')} />,
+      },
+      {
+        path: "/rb/copy/:copyId/order/:orderId/type/:type",
         element: <LazyPage load={() => import('@/pages/orderDetail/requestBook/EditForm.jsx')} />,
       },
       {
@@ -58,6 +62,10 @@ const router = createBrowserRouter([
         children: [
           {
             path: "/orderDetail/:id",
+            element: <LazyPage load={() => import('@/pages/orderDetail/Index.jsx')} />,
+          },
+          {
+            path: "/orderDetail/copy/:copyId",
             element: <LazyPage load={() => import('@/pages/orderDetail/Index.jsx')} />,
           },
           {

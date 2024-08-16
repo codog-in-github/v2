@@ -141,3 +141,6 @@ export const USER_ROLE_BOOS = 2;
 export const USER_ROLE_USER = 3;
 export const USER_ROLE_ACC = 4;
 export const USER_ROLE_CUSTOMS = 5;
+
+export const REQUEST_TYPE_NORMAL = 1;
+export const REQUEST_TYPE_ADVANCE = 2;
