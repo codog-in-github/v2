@@ -136,11 +136,12 @@ export const TOP_TAG_NAME = {
   [ORDER_TAB_STATUS_REQUEST]: '請求書',
 }
 
-export const USER_ROLE_ADMIN = 1;
-export const USER_ROLE_BOOS = 2;
-export const USER_ROLE_USER = 3;
-export const USER_ROLE_ACC = 4;
-export const USER_ROLE_CUSTOMS = 5;
+export const USER_ROLE_ADMIN = -1; // 系统管理
+export const USER_ROLE_BOOS = 1; // 总
+export const USER_ROLE_MASTER = 2; // 所長
+export const USER_ROLE_NORMAL = 3; // 业务
+export const USER_ROLE_CUSTOMS = 4; // 报关员
+export const USER_ROLE_ACC = 5; // 总务
 
 export const REQUEST_TYPE_NORMAL = 1;
 export const REQUEST_TYPE_ADVANCE = 2;

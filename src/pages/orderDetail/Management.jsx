@@ -1,35 +1,10 @@
-import { request } from "@/apis/requestBuilder"
 import Label from "@/components/Label"
+import ListModal from "./requestBook/ListModal"
 import { BKG_TYPE_CUSTOM, BKG_TYPES } from "@/constant"
 import { Form, Button, Input, DatePicker, Select, AutoComplete } from "antd"
-import { useContext } from "react"
-import { useMemo, useEffect, useState, useRef } from "react"
+import { useContext, useMemo, useEffect, useState, useRef } from "react"
 import { DetailDataContext } from "./dataProvider"
-import ListModal from "./requestBook/ListModal"
-
-const useGateCompanyOptions = () => {
-  const [options, setOptions] = useState([])
-  const [loading, setLoading] = useState(false)
-  useEffect(() => {
-    setLoading(true)
-    request('/admin/order/get_custom_com')
-      .get()
-      .send()
-      .then((data) => {
-        setLoading(false)
-        const options = [
-          { label: <div className="font-bold">春海组 株式会社</div>, value: -1 }
-        ]
-        setOptions(
-          options.concat(data.map(item => ({
-            label: item.com_name,
-            value: item.id
-          })))
-        )
-      })
-  }, [])
-  return { options, loading }
-}
+import { useGateCompanyOptions } from '@/hooks'
 
 const BkgTypeSelect = ({ value, onChange, ...props }) => {
   const [inputValue, setInputValue] = useState('');

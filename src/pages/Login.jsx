@@ -7,7 +7,7 @@ import { Form } from 'antd/lib';
 import { useState } from 'react';
 import { useRef } from 'react';
 import { addAuthorization } from '@/apis/middleware';
-
+import md5 from 'crypto-js/md5';
 const login = async (data) => {
   const rep = await request('admin/login')
     .requestWithout(addAuthorization)
@@ -35,6 +35,7 @@ const Card = () => {
   }
   const onLoginBtnClickHandle = async () => {
     const data = await form.validateFields()
+    data['password'] = md5(data['password']).toString()
     setLoading(true)
     try {
       await login(data)

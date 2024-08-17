@@ -1,3 +1,4 @@
+import cryptoJs from 'crypto-js';
 import { camelCase, isArray, isObject } from 'lodash';
 
 /**
@@ -116,7 +117,6 @@ export const downloadBlob = (blob, fileName) => {
 export const fileNameParse = (contentDisposition) => {
   if(contentDisposition.includes('filename*=')) {
     const [, charset, fileName] = /filename\*=(.*)''(.*)/.exec(contentDisposition) ?? []
-    console.log('res', charset, fileName)
     if(charset === 'utf-8') {
       return decodeURIComponent(fileName)
     }

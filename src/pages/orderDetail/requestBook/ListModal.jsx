@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 import { REQUEST_TYPE_ADVANCE, REQUEST_TYPE_NORMAL } from "@/constant";
 
 const ListModal = ({ instance }) => {
-  const { requestBooks, form } = useContext(DetailDataContext)
+  const { requestBooks, form, delRequestBook, deletingRequestBook } = useContext(DetailDataContext)
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
   if(instance) {
@@ -36,7 +36,7 @@ const ListModal = ({ instance }) => {
               <div className="btn-link-group">
                 <span className="btn-link" onClick={() => navigate(`/rb/edit/${id}/order/${row['order_id']}/type/${row['type']}`)}>編集</span>
                 <span className="btn-link">预览</span>          
-                <span className="btn-link">删除</span>
+                <span className="btn-link" onClick={() => {delRequestBook(id)}}>删除</span>
               </div>
             ) },
           ]}

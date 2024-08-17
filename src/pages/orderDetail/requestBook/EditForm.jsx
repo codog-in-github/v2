@@ -1,12 +1,12 @@
 import {
   COST_PART_CUSTOMS, COST_PART_LAND, COST_PART_OTHER,
-  COST_PART_SEA, COST_PARTS, REQUEST_TYPE_NORMAL, SELECT_ID_RB_DETAIL_ITEM, SELECT_ID_RB_DETAIL_UNIT, SELECT_ID_RB_EXTRA_ITEM
+  COST_PART_SEA, COST_PARTS, FILE_TYPE_COST, FILE_TYPE_REQUEST, REQUEST_TYPE_ADVANCE, REQUEST_TYPE_NORMAL, SELECT_ID_RB_DETAIL_ITEM, SELECT_ID_RB_DETAIL_UNIT, SELECT_ID_RB_EXTRA_ITEM
 } from "@/constant"
 import {
   Switch, Radio, InputNumber, AutoComplete, Button, DatePicker,
   Col, Form, Input, Row, Popover
 } from "antd"
-import { useMemo, useEffect, useContext, createContext, useCallback, useRef } from "react"
+import { useMemo, useEffect, useContext, createContext, useRef } from "react"
 import { useAsyncCallback, useBankList, useDepartmentList, useOptions } from "@/hooks"
 import { request } from "@/apis/requestBuilder"
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons"
@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom"
 import FormValue from "@/components/FormValue"
 import { useState } from "react"
 import FileTabs from "@/components/FileTabs"
+import { Divider } from "antd"
 
 const costTypes = [
   COST_PART_CUSTOMS,
@@ -69,7 +70,7 @@ const ExtraInput = ({ datakey }) => {
           filterOption="value"
           onSelect={(name) => {
             const def = extraDefaultValue.current[name] ?? ''
-            form.setFieldValue(['extra', datakey, 'value'], def)
+            form.setFieldValue(['extras', datakey, 'value'], def)
           }}
         ></AutoComplete>
       </Form.Item>
@@ -90,19 +91,33 @@ const formDataFormat = (book, type = REQUEST_TYPE_NORMAL) => {
   if(!book['extras'] || book['extras'].length === 0) {
     formData['extras'] = [{}]
   } 
+  formData['counts'] = {}
+  if(book['counts'] && book['counts'].length > 0) {
+    const counts = {}
+    for(const row of book['counts']) {
+      if(!counts[row['type']]) {
+        counts[row['type']] = []
+      }
+      counts[row['type']].push(row)
+    }
+    formData['counts'] = counts
+  }
   if(book['details'] && book['details'].length > 0) {
     const details = {}
     for(const row of book['details']) {
       if(!details[row['type']]) {
-        details[row['type']] = [row]
-      } else {
-        details[row['type']].push(row)
+        details[row['type']] = []
       }
+      details[row['type']].push(row)
     }
     formData['details'] = details
   } else {
+    const autoAddType = type === REQUEST_TYPE_NORMAL ? COST_PART_CUSTOMS : COST_PART_OTHER
     formData['details'] = {
-      [type === REQUEST_TYPE_NORMAL ? COST_PART_CUSTOMS : COST_PART_OTHER]: [{}]
+      [autoAddType]: [{}]
+    }
+    formData['counts'] = {
+      [autoAddType]: [{}]
     }
   }
   return formData
@@ -110,7 +125,6 @@ const formDataFormat = (book, type = REQUEST_TYPE_NORMAL) => {
 
 const saveDataFormat = (formData) => {
   const saveData = {...formData}
-  console.log(saveData)
   saveData['date'] = dayjs(saveData['date']).format('YYYY-MM-DD')
   saveData['is_stamp'] = saveData['is_stamp'] ? 1 : 0
   const details = []
@@ -126,7 +140,23 @@ const saveDataFormat = (formData) => {
     }
   }
   saveData['details'] = details
-  saveData['counts'] = []
+  const counts = []
+  for(const group in saveData['counts']) {
+    if(!saveData['counts'][group]) {
+      continue
+    }
+    for(const i in saveData['counts'][group]) {
+      const count = {
+        ...saveData['counts'][group][i],
+        type: group
+      }
+      if(~~group !== COST_PART_SEA) {
+        count['item_name'] = formData['details'][group][i]['item_name']
+      }
+      counts.push(count)
+    }
+  }
+  saveData['counts'] = counts
   return saveData
 }
 
@@ -158,23 +188,30 @@ const DetailRow = ({ partType, partName, props }) => {
   const addRow = () => {
     const part = form.getFieldValue(['details', partType])
     form.setFieldValue(['details', partType, part.length], {})
+    if(partType !== COST_PART_SEA) {
+      form.setFieldValue(['counts', partType, part.length], {})
+    }
   }
 
 
   const removeRow = () => {
     const details = form.getFieldValue('details')
-    if(Object.keys(details).length <= 1 && details[partType]?.length <= 1) {
+    if(Object.values(details).flat().length <= 1) {
       pubSub.publish('Info.Toast', '削除する行がありません', 'error')
       return
     }
     const part = form.getFieldValue(['details', partType])
     form.setFieldValue(['details', partType], part.filter((_, i) => i !== props.key))
+    
+    const counts = form.getFieldValue('counts')
+    counts[partType] = counts[partType].filter((_, i) => i !== props.key)
+    form.setFieldValue('counts', {...counts})
   }
 
   return (
     <tr key={props.key}>
       <Form.Item noStyle name={[props.key, 'id']} />
-      <td  className="text-right">{partName}</td>
+      <td className="text-right">{partName}</td>
       <td>
         <Form.Item noStyle name={[props.key, 'item_name']}>
           <AutoComplete
@@ -227,6 +264,58 @@ const DetailRow = ({ partType, partName, props }) => {
   )
 }
 
+const CostTable = ({ value }) => {
+  const counts = value
+  const form = Form.useFormInstance()
+  if(!counts) return null
+  return costTypes.map((type) => {
+    if(!counts[type] || counts[type].length === 0) {
+      return null
+    }
+    return (
+      <>
+        <div className="flex items-center my-2">
+          <div className="flex-shrink-0 mr-8">{getPartName(type)}</div>
+          <div className="h-0 w-full flex border-t border-dashed border-gray-300" />
+        </div>
+        <div className="p-4 bg-gray-200">
+          <div className="flex gap-2 mb-2">
+            <div className="w-32">明细项目</div>
+            <div>金额</div>
+          </div>
+          {counts[type].map((item, i) => (
+            <div key={i} className="flex gap-2 my-2">
+              <Form.Item noStyle
+                name={[type === COST_PART_SEA ? 'counts': 'details', type, i, 'item_name']}
+              >
+                <Input readOnly className="w-32 flex-shrink-0"></Input>
+              </Form.Item>
+              <Form.Item noStyle name={['counts', type, i, 'id']} />
+              <Form.Item noStyle name={['counts', type, i, 'item_amount']}>
+                <InputNumber className="w-full" min={0}></InputNumber>
+              </Form.Item>
+            </div>
+          ))}
+          <div className="my-2">仕入先</div>
+          <Form.Item name={['counts', type, 0, 'purchase']} noStyle>
+            <Input
+              className="w-full"
+              onBlur={(e) => {
+                const val = e.target.value
+                const group = form.getFieldValue(['counts', type])
+                for(const item of group) {
+                  item['purchase'] = val
+                }
+                form.setFieldValue(['counts', type], group)
+              }}
+            ></Input>
+          </Form.Item>
+        </div>
+      </>
+    )
+  })
+}
+
 const detailPart = (type) => {
   let partName = getPartName(type)
   return (list) => {
@@ -263,7 +352,7 @@ const Total = () => {
     if(!detailsOrigin) {
       return []
     }
-    return Object.values(detailsOrigin)?.flat().filter(item => item) ?? []
+    return Object.values(detailsOrigin).flat().filter(item => item) ?? []
   }, [detailsOrigin])
 
   useEffect(() => {
@@ -315,21 +404,22 @@ const EditForm = () => {
   const bankOptions = useMemo(() => {
     return banks.map(item => ({
       ...item,
-      style: { width: 150 }
+      style: { width: 180 }
     }))
   }, [banks])
   const departments = useDepartmentList()
   const departmentOptions = useMemo(() => {
     return departments.map(item => ({
       ...item,
-      style: { width: 150 }
+      style: { width: 180 }
     }))
   }, [departments])
 
   const [submit, submiting] = useAsyncCallback(async () => {
     const data = saveDataFormat(form.getFieldsValue())
-    await request('/admin/request_book/save').data(data).send()
+    const rep = await request('/admin/request_book/save').data(data).send()
     pubSub.publish('Info.Toast', '保存成功！', 'success')
+    navigate(`/rb/edit/${rep['id']}/order/${rep['order_id']}/type/${rep['type']}`, { replace: true })
   })
 
 
@@ -340,7 +430,7 @@ const EditForm = () => {
       type: bookType
     })
     request('/admin/request_book/get_default_value').get({ id: orderId }).send().then((rep) => {
-      bookId || form.setFieldsValue(formDataFormat(rep['book']))
+      bookId || form.setFieldsValue(formDataFormat(rep['book'], bookType))
       extraDefaultValue.current = rep['extra']
       setFiles(rep['files'])
     })
@@ -352,33 +442,38 @@ const EditForm = () => {
       form.resetFields()
       request('/admin/request_book/detail').get({ id }).send()
         .then(rep => {
-          form.setFieldsValue(formDataFormat(rep))
+          form.setFieldsValue(formDataFormat(rep ,bookType))
         })
     }
-  }, [form, copyId, id])
+  }, [form, copyId, id, bookType])
 
   const details = Form.useWatch('details', form)
 
   const groupAddButtons = useMemo(() => {
     const buttons = []
     for(const part of COST_PARTS){
-      if(!details?.[part]) {
-        buttons.push(
-          <div
-            className="text-center w-32 leading-8 hover:bg-primary hover:text-white cursor-pointer"
-            onClick={() => {
-              form.setFieldValue(['details', part], [{}])
-            }}
-          >{getPartName(part)}</div>
-        )
+      if(details?.[part]?.length > 0) {
+        continue
       }
+      buttons.push(
+        <div
+          className="text-center w-32 leading-8 hover:bg-primary hover:text-white cursor-pointer"
+          onClick={() => {
+            form.setFieldValue(['details', part], [{}])
+            const countsDefaultRow = {}
+            if(part === COST_PART_SEA) {
+              countsDefaultRow['item_name'] = '合计'
+            }
+            form.setFieldValue(['counts', part], [countsDefaultRow])
+          }}
+        >{getPartName(part)}</div>
+      )
     }
     return buttons
   }, [details, form])
 
   const [doExport, exporting] = useAsyncCallback(async () => {
-    const rep = await request('/admin/request_book/export').data({ id }).download().send()
-    console.log(rep)
+    await request('/admin/request_book/export').data({ id }).download().send()
   })
   
   return (
@@ -392,7 +487,7 @@ const EditForm = () => {
         <Form.Item noStyle name="type" />
 
         <div className="h-full flex-1 pt-4 overflow-auto pb-4">
-          <div className="text-center text-xl font-bold">請求書</div>
+          <div className="text-center text-xl font-bold">{ bookType === REQUEST_TYPE_ADVANCE && '立替' }請求書</div>
 
           <Row className="px-16 mt-6">
             <Col span={8}>
@@ -464,10 +559,9 @@ const EditForm = () => {
               </Popover>
             </div>
           )}
-          
 
           <Total></Total>
-          
+
           <div className="border-t py-8 border-gray-300 px-16">
             <Form.Item label="銀行" name="bank_id">
               <Radio.Group options={bankOptions} />
@@ -481,11 +575,11 @@ const EditForm = () => {
           </div>
 
           <div className="flex gap-2 justify-end px-16">
-            <Button className="w-32" type="primary">追加請求書</Button>
+            <Button className="w-32" type="primary" onClick={() => navigate(`/rb/add/${orderId}/type/${type}`, { replace: true })}>追加請求書</Button>
             <Button className="w-32" type="primary">参照入力</Button>
-            <Button className="w-32" type="primary" loading={exporting} onClick={doExport}>出力</Button>
+            <Button className="w-32" type="primary" disabled={!id} loading={exporting} onClick={doExport}>出力</Button>
             <Button className="w-32" loading={submiting} type="primary" onClick={submit}>保存</Button>
-            <Button className="w-32" onClick={() => navigate(`/orderDetail/${form.getFieldValue('order_id')}`)}>戻る</Button>
+            <Button className="w-32" onClick={() => navigate(-1)}>戻る</Button>
           </div>
       
         </div>
@@ -493,7 +587,11 @@ const EditForm = () => {
           className="h-full w-[600px] shadow-lg shadow-gray-400 p-8"
         >
           <Label>コストチェック表</Label>
-          <FileTabs files={files} />
+
+          <FileTabs tabs={[FILE_TYPE_COST]} files={files} />
+          <Form.Item name='counts' noStyle>
+            <CostTable></CostTable>
+          </Form.Item>
         </div>
       </Form>
     </EditFormContext.Provider>

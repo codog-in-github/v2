@@ -184,3 +184,30 @@ export const useBankList = () => {
   }, [])
   return banks
 }
+
+export const useGateCompanyOptions = (showSelf = true) => {
+  const [options, setOptions] = useState([])
+  const [loading, setLoading] = useState(false)
+  useEffect(() => {
+    setLoading(true)
+    request('/admin/order/get_custom_com')
+      .get()
+      .send()
+      .then((data) => {
+        setLoading(false)
+        const options = []
+        if(showSelf) {
+          options.push(
+            { label: createElement('div', { className: 'font-bold' }, '春海组 株式会社'), value: -1 }
+          )
+        }
+        setOptions(
+          options.concat(data.map(item => ({
+            label: item.com_name,
+            value: item.id
+          })))
+        )
+      })
+  }, [showSelf])
+  return { options, loading }
+}

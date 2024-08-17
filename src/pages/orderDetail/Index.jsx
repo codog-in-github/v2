@@ -21,6 +21,9 @@ const OrderDetail = () => {
     <DetailDataContext.Provider value={detailHook}>
       <Form
         form={form}
+        style={{
+          zoom: 0.95
+        }}
         layout="vertical"
         className="
           [&_.ant-form-item-label]:!pb-0

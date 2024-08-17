@@ -184,9 +184,10 @@ const CarList = ({
             </div>
             <div className="flex gap-2 items-end">
               <Form.Item className="w-32" label="2軸3軸" name={[props.name, 'carType']}>
-                <Select defaultValue='2軸'>
-                  <Select.Option value="2軸">2軸</Select.Option>
-                  <Select.Option value="3軸">3軸</Select.Option>
+                <Select options={[
+                  { label: '2軸', value: 1 },
+                  { label: '3軸', value: 2 }
+                ]}>
                 </Select>
               </Form.Item>
               <Form.Item className="w-32" label="日付" name={[props.name, 'date']}>
@@ -243,10 +244,10 @@ const CarList = ({
                     <Input />
                   </Form.Item>
                   <Form.Item noStyle name={[props.name, 'tareType']}>
-                    <Select className="!w-auto" defaultValue="T" value={1} >
-                      <Select.Option value={1}>T</Select.Option>
-                      <Select.Option value={2}>KG</Select.Option>
-                    </Select>
+                    <Select className="w-4" options={[
+                      { label: 'T', value: 1 },
+                      { label: 'KG', value: 2 }
+                    ]} />
                   </Form.Item>
                 </Space.Compact>
               </Form.Item>
@@ -270,21 +271,21 @@ const Goods = ({ className }) => {
   const onAddContainerHandle = useCallback(() => {
     const oldValue = form.getFieldValue('containers')
     form.setFieldValue('containers', [...oldValue, newConatainer()])
-  }, [])
+  }, [form])
   const onAddCarHandle = useCallback(() => {
     const oldValue = form.getFieldValue('cars')
     form.setFieldValue('cars', [...oldValue, newCar()])
-  }, [])
+  }, [form])
   const onRemoveContainerHandle = useCallback((key) => {
     const oldValue = form.getFieldValue('containers')
     oldValue.splice(key, 1)
     form.setFieldValue('containers', [...oldValue])
-  }, [])
+  }, [form])
   const onRemoveCarHandle = useCallback((key) => {
     const oldValue = form.getFieldValue('cars')
     oldValue.splice(key, 1)
     form.setFieldValue('cars', [...oldValue])
-  }, [])
+  }, [form])
   // const [carCompanys] = useOptions(1)
   return (
     <div className={className}>

@@ -173,7 +173,7 @@ const formDataGenerator = (rep) => {
      * $table->integer('order_id')->comment('订单id');
      * $table->integer('container_id')->comment('集装箱id');
      * $table->string('van_place')->default('')->comment('van_place');
-     * $table->tinyInteger('van_type')->default(1)->comment('van类型');
+     * $table->string('van_type')->default('')->comment('van类型');
      * $table->tinyInteger('bearing_type')->comment(1)->comment('轴承类型1 二轴 2三轴');
      * $table->dateTime('deliver_time')->nullable()->comment('交付日期');
      * $table->string('trans_com')->default('')->comment('运输公司');
@@ -193,7 +193,7 @@ const formDataGenerator = (rep) => {
           containerId: item['container_id'],
           vanPlace: item['van_place'],
           vanType: item['van_type'],
-          carType: item['bearing_type'],
+          carType: item['bearing_type'] || void 0,
           date: item['deliver_time'] ? dayjs(item['deliver_time']) : null,
           time: item['deliver_time'] ? dayjs(item['deliver_time']) : null,
           transCom: item['trans_com'],
@@ -203,7 +203,7 @@ const formDataGenerator = (rep) => {
           container: item['container'],
           seal: item['seal'],
           tare: item['tare'],
-          tareType: item['tare_type'],
+          tareType: item['tare_type'] || void 0,
         }
         result.cars.push(car)
       }
@@ -300,13 +300,14 @@ export const apiSaveDataGenerator = (formData) => {
   for(const item of formData.cars) {
     const date = item.date?.format('YYYY-MM-DD') ?? ''
     const time = item.time?.format(' HH:mm:ss') ?? ''
+    const deliverTime = date + time
     const detail = {
       'id' : item.id ?? '',
       'container_id' : item.containerId ?? '',
       'van_place': item.vanPlace ?? '',
       'van_type': item.vanType ?? '',
-      'bearing_type': item.carType ?? '',
-      'deliver_time': date + time,
+      'bearing_type': item.carType ?? 0,
+      'deliver_time': deliverTime || null,
       'trans_com': item.transCom ?? '',
       'driver': item.driver ?? '',
       'tel': item.tel ?? '',
@@ -314,7 +315,7 @@ export const apiSaveDataGenerator = (formData) => {
       'container': item.container ?? '',
       'seal': item.seal ?? '',
       'tare': item.tare ?? '',
-      'tare_type': item.tareType ?? '',
+      'tare_type': item.tareType ?? 0,
     }
     details.push(detail)
   }
@@ -486,6 +487,12 @@ export const useDetailData = () => {
     setTimeout(scrollBottom, 20)
   })
 
+  const [delRequestBook, deletingRequestBook] = useAsyncCallback(async (id) => {
+    await request('admin/request_book/delete').data({ id }).send()
+    pubSub.publish('Info.Toast', '删除成功', 'success')
+    setRequestBooks(requestBooks.filter(item => item.id !== id))
+  })
+
   const [changeNodeStatus, changingNodeStatus] = useAsyncCallback(async (id, enable) => {
     if(isTempOrder)
       return
@@ -522,6 +529,8 @@ export const useDetailData = () => {
     delOrder,
     deletingOrder,
     requestBooks,
+    delRequestBook,
+    deletingRequestBook,
   }
 }
 

@@ -53,13 +53,17 @@ const useSelectedFiles = (allFiles) => {
   }
   return { files, isSelected, clear, select, inSelected }
 }
-export const Files = ({ className, files, onDeleteFiles, onDownloadFiles, saveOrderFile, downloading }) => {
-  const [activeTabKey, setActiveTabKey] = useState('1')
+export const FileTabs = ({ tabs: enabelTabs = tabs.map(item => ~~ item.key), className, files, onDeleteFiles, onDownloadFiles, saveOrderFile, downloading }) => {
+  const [activeTabKey, setActiveTabKey] = useState(enabelTabs[0].toString())
   const orderId = useParams().id
   const { upload, uploading, total, loaded } = useFileUpload(orderId)
   const {
     files: selectedFiles, isSelected, clear, select, inSelected
   } = useSelectedFiles(files)
+
+  useEffect(() => {
+    setActiveTabKey(enabelTabs[0].toString())
+  }, [enabelTabs])
   const upClickHandle = () => {
     chooseFile({
       onChoose: async (file) => {
@@ -90,8 +94,11 @@ export const Files = ({ className, files, onDeleteFiles, onDownloadFiles, saveOr
   const tabItems = useMemo(() => {
     const tabItems = []
     for(const tabItem of tabs) {
+      if(!enabelTabs.includes(~~tabItem.key)){
+        continue
+      }
       const key = tabItem.key
-      const _files = files[key] ?? []
+      const _files = files?.[key] ?? []
       tabItems.push({
         ...tabItem,
         children: (
@@ -112,7 +119,7 @@ export const Files = ({ className, files, onDeleteFiles, onDownloadFiles, saveOr
       
     }
     return tabItems
-  }, [files, inSelected, isSelected, select])
+  }, [files, inSelected, isSelected, select, enabelTabs])
   return (
     <div className={className}>
       <Tabs items={tabItems} onChange={setActiveTabKey}></Tabs>
@@ -120,4 +127,4 @@ export const Files = ({ className, files, onDeleteFiles, onDownloadFiles, saveOr
   )
 }
 
-export default Files
+export default FileTabs
