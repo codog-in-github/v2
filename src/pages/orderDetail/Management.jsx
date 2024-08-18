@@ -1,10 +1,14 @@
 import Label from "@/components/Label"
 import ListModal from "./requestBook/ListModal"
 import { BKG_TYPE_CUSTOM, BKG_TYPES } from "@/constant"
-import { Form, Button, Input, DatePicker, Select, AutoComplete } from "antd"
+import { Form, Button, Input, DatePicker, Select, AutoComplete, Modal } from "antd"
 import { useContext, useMemo, useEffect, useState, useRef } from "react"
 import { DetailDataContext } from "./dataProvider"
-import { useGateCompanyOptions } from '@/hooks'
+import { useAsyncCallback, useGateCompanyOptions } from '@/hooks'
+import { Space } from "antd"
+import { request } from "@/apis/requestBuilder"
+import pubSub from "@/helpers/pubSub"
+import { useNavigate } from "react-router-dom"
 
 const BkgTypeSelect = ({ value, onChange, ...props }) => {
   const [inputValue, setInputValue] = useState('');
@@ -55,10 +59,66 @@ const BkgTypeSelect = ({ value, onChange, ...props }) => {
   )
 }
 
+const CopyModal = ({
+  instance
+}) => {
+  const navigate = useNavigate()
+  const [open, setOpen] = useState(false)
+  const [form] = Form.useForm()
+  if(instance) {
+    instance.current = {
+      open: () => {
+        form.resetFields()
+        setOpen(true)
+      },
+      close: () => setOpen(false)
+    }
+  }
+  const [submit, submiting] = useAsyncCallback(async () => {
+    const data = await form.validateFields()
+    const rep = await request('/admin/order/query_id').data(data).send()
+    if(!rep){
+      pubSub.publish('Info.Toast', '該当するデータがありません', 'error')
+      return
+    }
+    navigate(`/orderDetail/copy/${rep.id}`, { replace: true })
+    setOpen(false)
+  })
+  return (
+    <Modal
+      title="類似事件"
+      open={open}
+      onOk={submit}
+      okButtonProps={{
+        loading: submiting,
+      }}
+      onCancel={() => setOpen(false)}>
+      <Form
+        form={form}
+        className="py-4"
+        defaultValue={{ field: 'order_no', value: ''}}
+      >
+        <Space.Compact className="w-full">
+          <Form.Item noStyle name="field">
+            <Select className="w-64" options={[
+              { label: '社内管理番号', value: 'order_no' },
+              { label: 'BKG NO.', value: 'bkg_no' },
+            ]}></Select>
+          </Form.Item>
+          <Form.Item noStyle name="value" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+        </Space.Compact>
+      </Form>
+    </Modal>
+  )
+}
+
 const Management = ({ className }) => {
   const { options, loading } = useGateCompanyOptions()
-  const form = Form.useFormInstance()
-  const { saveOrder, savingOrder, delOrder, deletingOrder } = useContext(DetailDataContext)
+  const { form, saveOrder, savingOrder, delOrder, deletingOrder, isCopy } = useContext(DetailDataContext)
+  const navigate = useNavigate()
+  const copyModalInstance = useRef(null)
   const setDefaultNumber = () => {
     const bkgNo = form.getFieldValue('bkgNo')
     if(bkgNo) {
@@ -109,19 +169,21 @@ const Management = ({ className }) => {
           danger
           onClick={delOrder}
           loading={deletingOrder}
+          disabled={isCopy}
         >削除</Button>
         <Button
           type="primary"
           className="!bg-gray-400 hover:!bg-gray-300"
           onClick={() => {
-            window.history.back()
+            navigate(-1)
           }}
         >戻る</Button>
-        <Button type="primary" onClick={() => {}}>類似事件</Button>
-        <Button type="primary" onClick={() => {}}>各種書類作成</Button>
-        <Button type="primary" onClick={() => { requestBookModalIntance.current.open() }}>請求書</Button>
+        <Button type="primary"  onClick={() => { copyModalInstance.current.open() }}>類似事件</Button>
+        <Button type="primary" disabled={isCopy} onClick={() => {}}>各種書類作成</Button>
+        <Button type="primary" disabled={isCopy} onClick={() => { requestBookModalIntance.current.open() }}>請求書</Button>
       </div>
       <ListModal instance={requestBookModalIntance}></ListModal>
+      <CopyModal instance={copyModalInstance}></CopyModal>
     </div>
   )
 }

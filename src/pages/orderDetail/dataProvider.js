@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback } from "react"
 import { useParams } from "react-router-dom"
 import pubSub from "@/helpers/pubSub"
 import { createContext } from "react"
+import { useNavigate } from "react-router-dom"
 
 export const DetailDataContext = createContext()
 
@@ -38,7 +39,7 @@ const orderNodesGenerator = ({ nodes = []}) => {
 }
 
 
-const formDataGenerator = (rep) => {
+const formDataGenerator = (isCopy) => (rep) => {
   const result = {}
   const setIfExist = (localKey, remoteKey, transform = (v) => v) => {
     if(rep[remoteKey]) {
@@ -60,7 +61,12 @@ const formDataGenerator = (rep) => {
    * $table->string('custom_com_id')->default('')->comment('报关公司id');
    */
   setIfExist('id', 'id')
-  setIfExist('orderDate', 'bkg_date', dayjs)
+  if(isCopy) {
+    result.orderDate = dayjs(new Date())
+  } else {
+    setIfExist('orderDate', 'bkg_date', dayjs)
+    setIfExist('orderNo', 'order_no')
+  }
   setIfExist('bkgNo', 'bkg_no')
   setIfExist('blNo', 'bl_no')
   if(rep['bkg_type']) {
@@ -69,7 +75,6 @@ const formDataGenerator = (rep) => {
       text:  rep['bkg_type_text'] ?? ''
     }
   }
-  setIfExist('orderNo', 'order_no')
   setIfExist('gateCompany', 'custom_com_id')
 
   /**
@@ -217,15 +222,19 @@ const formDataGenerator = (rep) => {
   return result
 }
 
-export const apiSaveDataGenerator = (formData) => {
+export const apiSaveDataGenerator = (formData, isCopy = false) => {
   const result = {}
   const setValue = (localKey, remoteKey, transform = (v) => v) => {
     result[remoteKey] = transform(formData[localKey])
   }
+  if(isCopy) {
+    result['origin_order_id'] = formData['id']
+  } else {
+    setValue('id', 'id')
+  }
   /**
    * * Management 管理情報
    */
-  setValue('id', 'id')
   setValue('orderDate', 'bkg_date', (dayjs) => dayjs.format('YYYY-MM-DD'))
   setValue('bkgNo', 'bkg_no')
   setValue('blNo', 'bl_no')
@@ -289,6 +298,9 @@ export const apiSaveDataGenerator = (formData) => {
       'container_type' : item.containerType ?? '',
       'quantity' : item.quantity ?? '',
     }
+    if(isCopy) {
+      delete container['id']
+    }
     result['containers'].push(container)
   }
 
@@ -316,6 +328,9 @@ export const apiSaveDataGenerator = (formData) => {
       'seal': item.seal ?? '',
       'tare': item.tare ?? '',
       'tare_type': item.tareType ?? 0,
+    }
+    if(isCopy) {
+      delete detail['id']
     }
     details.push(detail)
   }
@@ -354,7 +369,8 @@ const requestBookGenerator = (rep) => {
   return []
 }
 export const useDetailData = () => {
-  const { id } = useParams()
+  const navigate = useNavigate()
+  const { id, copyId } = useParams()
   const [form] = Form.useForm()
   const [nodes, setNodes] = useState([])
   const [requestBooks, setRequestBooks] = useState([])
@@ -362,6 +378,7 @@ export const useDetailData = () => {
   const [messages, setMessages] = useState([])
   const [files, setFiles] = useState({})
 
+  const isCopy = Boolean(copyId)
   const isTempOrder = nodes.length === 0
 
   const onDeleteFiles = useCallback((deleteFiles, success, fail) => {
@@ -398,7 +415,7 @@ export const useDetailData = () => {
         'id': form.getFieldValue('id')
       })
     pubSub.publish('Info.Toast', '删除成功', 'success')
-    window.history.back()
+    navigate(-1)
   })
 
   const [saveOrder, savingOrder] = useAsyncCallback(async () => {
@@ -414,10 +431,10 @@ export const useDetailData = () => {
       return
     }
     await request('/admin/order/edit_order')
-      .data(apiSaveDataGenerator(formData))
+      .data(apiSaveDataGenerator(formData, isCopy))
       .send()
     pubSub.publish('Info.Toast', '保存成功', 'success')
-  }, [form, id])
+  })
   const saveOrderFile = ({ fileUrl, type }) => {
     const _files = {
       ...files
@@ -438,10 +455,10 @@ export const useDetailData = () => {
   useEffect(() => {
     setLoading(true)
     request('/admin/order/detail')
-      .get({ id })
+      .get({ id: id ?? copyId })
       .send()
       .then(touch(pipe(
-        formDataGenerator,
+        formDataGenerator(isCopy),
         form.setFieldsValue.bind(form)
       )))
       .then(touch(pipe(
@@ -462,7 +479,7 @@ export const useDetailData = () => {
         setRequestBooks,
       )))
       .finally(() => setLoading(false))
-  }, [form, id])
+  }, [form, id, copyId])
 
   const [refreshNodes] = useAsyncCallback(() => 
     request('/admin/order/detail')
@@ -531,6 +548,7 @@ export const useDetailData = () => {
     requestBooks,
     delRequestBook,
     deletingRequestBook,
+    isCopy
   }
 }
 

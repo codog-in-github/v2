@@ -9,7 +9,7 @@ import { useContext } from "react";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { DetailDataContext } from "./dataProvider";
-import { Popconfirm } from "antd";
+
 const tabs = [
   {
     key: '1',
@@ -59,7 +59,7 @@ const useSelectedFiles = (allFiles) => {
   return { files, isSelected, clear, select, inSelected }
 }
 export const Files = ({ className }) => {
-  const { files, onDeleteFiles, onDownloadFiles, saveOrderFile, downloading } = useContext(DetailDataContext)
+  const { isCopy, files, onDeleteFiles, onDownloadFiles, saveOrderFile, downloading } = useContext(DetailDataContext)
   const [activeTabKey, setActiveTabKey] = useState('1')
   const orderId = useParams().id
   const { upload, uploading, total, loaded } = useFileUpload(orderId)
@@ -124,9 +124,9 @@ export const Files = ({ className }) => {
       <div className="flex">
         <Label className="mr-auto">資料状況</Label>
         <div className="flex gap-2 pt-1 pr-2">
-          <Button className="w-20" onClick={deleteHandler} loading={deleteding}>削除</Button>
-          <Button className="w-20" onClick={downloadHandler} loading={downloading}>DOW</Button>
-          <Button className="w-20" type="primary" onClick={upClickHandle} disabled={uploading}>
+          <Button className="w-20" disabled={isCopy} onClick={deleteHandler} loading={deleteding}>削除</Button>
+          <Button className="w-20" disabled={isCopy} onClick={downloadHandler} loading={downloading}>DOW</Button>
+          <Button className="w-20" disabled={isCopy || uploading} type="primary" onClick={upClickHandle}>
             { uploading && (
               <Progress className="mr-2" type="circle" percent={(loaded / total) * 100} size={20}></Progress>
             ) }
@@ -134,7 +134,7 @@ export const Files = ({ className }) => {
           </Button>
         </div>
       </div>
-      <Tabs items={tabItems} onChange={setActiveTabKey}></Tabs>
+      {!isCopy && <Tabs items={tabItems} onChange={setActiveTabKey}></Tabs>}
     </div>
   )
 }

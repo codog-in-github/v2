@@ -13,8 +13,6 @@ const OrderDetail = () => {
   const detailHook = useDetailData()
   const {
     form,
-    messages,
-    sendMessage,
     loading,
   } = detailHook
   return (
@@ -44,11 +42,7 @@ const OrderDetail = () => {
         <Goods className="row-span-2 bg-white flex flex-col overflow-hidden" />
         <ProcessStatus className="row-span-4 bg-white" />
         <Ship className="row-span-2 bg-white" />
-        <Chat
-          className="row-span-2 bg-white flex flex-col"
-          messages={messages}
-          onSend={sendMessage}
-        />
+        <Chat className="row-span-2 bg-white flex flex-col" />
         <Files className="bg-white" />
       </Form>
       <Spin spinning={loading}  fullscreen />

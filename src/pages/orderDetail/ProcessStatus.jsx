@@ -128,7 +128,7 @@ const ProcessBarButtons = ({ nodeId, nodeType, step, mail, sended }) => {
 }
 
 const ProcessStatus = ({className}) => {
-  const { nodes, refreshNodes } = useContext(DetailDataContext)
+  const { nodes, refreshNodes, isCopy } = useContext(DetailDataContext)
   const detailRef = useRef(null)
   // const multiSendOptions = nodes
   //   .filter(item => item.canDo && !item.isEnd)
@@ -147,7 +147,7 @@ const ProcessStatus = ({className}) => {
         </Space.Compact>
       </div>
       <div lang="p-2" className="flex flex-col gap-2 p-2">
-        {nodes.map((item, index) => (
+        {!isCopy && nodes.map((item, index) => (
           <ProcessBar {...item} mail={mail} key={index} onClickDetail={(id) => detailRef.current.open(id)}>
             <ProcessBarButtons {...item} mail={mail} />
           </ProcessBar>

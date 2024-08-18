@@ -28,6 +28,7 @@ const ListModal = ({ instance }) => {
       <div className="p-2">
         <Table
           dataSource={requestBooks}
+          loading={deletingRequestBook}
           pagination={false}
           columns={[
             { dataIndex: 'name', title: '履歴請求書' },

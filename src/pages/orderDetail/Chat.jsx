@@ -1,8 +1,9 @@
 import Label from "@/components/Label"
 import { Button, Input, Select, Space } from "antd"
 import { useState } from "react"
-import { useAtUserOptions } from "./dataProvider"
+import { DetailDataContext, useAtUserOptions } from "./dataProvider"
 import classNames from "classnames"
+import { useContext } from "react"
 
 const At = ({ children }) => {
   return (
@@ -27,20 +28,22 @@ const Message = ({ from, at, content, time }) => {
     </div>
   )
 }
-const MessageBoard = ({ messages }) => {
+const MessageBoard = ({ messages, disabled }) => {
   const msgEle = []
-  for(let i = 0; i < messages.length; i++){
-    if(i > 0) {
+  if(!disabled) {
+    for(let i = 0; i < messages.length; i++){
+      if(i > 0) {
+        msgEle.push(
+          <div
+            key={`${messages[i].id}-dash`}
+            className="h-4 border-gray-400 border-l border-dashed ml-[57px]"
+          />
+        )
+      }
       msgEle.push(
-        <div
-          key={`${messages[i].id}-dash`}
-          className="h-4 border-gray-400 border-l border-dashed ml-[57px]"
-        />
+        <Message key={messages[i].id} {...messages[i]}></Message>
       )
     }
-    msgEle.push(
-      <Message key={messages[i].id} {...messages[i]}></Message>
-    )
   }
   return (
     <div id="message-board" className="bg-gray-200 p-2 flex-1 overflow-auto">
@@ -48,7 +51,7 @@ const MessageBoard = ({ messages }) => {
     </div>
   )
 }
-const MessageInput = ({ onSend, inSending = false }) => {
+const MessageInput = ({ onSend, disabled, inSending = false }) => {
   const [at, setAt] = useState('')
   const [msg, setMsg] = useState('')
   const {
@@ -72,20 +75,25 @@ const MessageInput = ({ onSend, inSending = false }) => {
         onChange={setAt}
         loading={loading}
       />
-      <Input value={msg} onChange={e => setMsg(e.target.value)}></Input>
-      <Button loading={inSending} className="h-full" onClick={sendBtnClickHandle}>发送</Button>
+      <Input disabled={disabled} value={msg} onChange={e => setMsg(e.target.value)}></Input>
+      <Button disabled={disabled} loading={inSending} className="h-full" onClick={sendBtnClickHandle}>发送</Button>
     </Space.Compact>
   )
 }
-const Chat = ({ className, messages, sending, onSend }) => {
+const Chat = ({ className, sending }) => {
+  const {
+    isCopy,
+    messages,
+    sendMessage,
+  } = useContext(DetailDataContext)
   return (
     <div className={classNames(
       className, 'h-full overflow-hidden'
     )}>
       <Label className="flex-shrink-0">社内伝達</Label>
       <div className="p-2 flex-1 flex flex-col h-full">
-        <MessageBoard messages={messages} />
-        <MessageInput onSend={onSend}  inSending={sending} />
+        <MessageBoard disabled={isCopy} messages={messages} />
+        <MessageInput disabled={isCopy} onSend={sendMessage}  inSending={sending} />
       </div>
     </div>
   )
