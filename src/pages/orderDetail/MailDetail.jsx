@@ -3,10 +3,49 @@ import { useAsyncCallback } from "@/hooks"
 import { LoadingOutlined } from "@ant-design/icons"
 import { Modal } from "antd"
 import { useEffect, useState } from "react"
+import classNames from "classnames"
+import { basename } from "@/helpers"
 
-const MailRecord = ({ record }) => {
+const TimeLine = ({ items, children }) => {
   return (
-    record.content
+    <div>
+      {items.map((item, i) => {
+        return (
+          <div key={item.id} className="flex">
+            <div className="w-16 flex-shrink-0">
+              <div>
+                <span
+                  className={classNames('mr-4',{'text-primary-500': i === 0})}
+                >●</span>
+                <span>送信</span>
+              </div>
+            </div>
+            <div className="w-full flex-1">
+              <div className="mb-2">
+                <span className="inline-block w-16">{item.operator}</span>
+                <span className="text-gray-500">{item.operate_at}</span>
+              </div>
+              {children(item)}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+const MailRecord = ({ record }) => {
+  const data = JSON.parse(record.content)
+  return (
+    <>
+      <div className="mb-2">收件人：{data.to?.join(',')}</div>
+      {
+        data.files && data.files.length > 0 && (
+          <div className="bg-gray-200 py-2 px-4 text-gray-800">
+            {data.files.map(basename)}
+          </div>
+        )
+      }
+    </>
   )
 }
 
@@ -43,9 +82,15 @@ const MailDetail = ({
       onCancel={() => setOpen(false)}
     >
       <div className="flex flex-col gap-4">
-        {loading ? <div className="text-center"><LoadingOutlined /></div>: contents.map(rec => (
-           <MailRecord key={rec.id} record={rec} />
-        ))}
+        {loading ? (
+          <div className="text-center"><LoadingOutlined /></div>
+        ) : (
+          <TimeLine items={contents}>
+            {rec => (
+              <MailRecord record={rec} />
+            )}
+          </TimeLine>
+        )}
       </div>
     </Modal>
   )

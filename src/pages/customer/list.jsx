@@ -142,8 +142,8 @@ const useCustomerList = () => {
       avatar: item['short_name'],
       person: item['header'],
       mobile: item['mobile'],
-      all: 123,
-      do: 4,
+      all: item['order_total_count'],
+      do: item['order_indo_count'],
     }))
     setCustomers(customers)
   })

@@ -124,3 +124,7 @@ export const fileNameParse = (contentDisposition) => {
   }
   return contentDisposition.split('filename=')[1]
 }
+
+export const basename = (path) => {
+  return path.split('/').pop()
+}

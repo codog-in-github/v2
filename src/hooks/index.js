@@ -203,7 +203,7 @@ export const useGateCompanyOptions = (showSelf = true) => {
         }
         setOptions(
           options.concat(data.map(item => ({
-            label: item.com_name,
+            label: item.name,
             value: item.id
           })))
         )

@@ -8,6 +8,8 @@ import {
   ORDER_NODE_TYPE_ACL, ORDER_NODE_TYPE_BL_COPY, ORDER_NODE_TYPE_CUSTOMER_DOCUMENTS, ORDER_NODE_TYPE_SUR,
   SUR_STEP_WAIT_PAY, MAIL_TO_ACC, SUR_STEP_WAIT_CUSTOMER_CONFIRMED,
   SUR_STEP_SENDED,
+  FILE_TYPE_OPERATIONS,
+  FILE_TYPE_CUSTOMS,
 } from "@/constant"
 import Mail from "./Mail"
 import { useRef } from "react"
@@ -98,14 +100,18 @@ const ProcessBarButtons = ({ nodeId, nodeType, step, mail, sended }) => {
   const mailData = {
     nodeType,
     nodeId,
+    step,
     to: getMailTo(nodeType, step),
+    file: [FILE_TYPE_OPERATIONS],
     title: `${EXPORT_NODE_NAMES[nodeType]} - 送信`
   }
   switch (nodeType) {
     case ORDER_NODE_TYPE_ACL:
       return (
         <>
-          <Button type="primary" onClick={() => mail.current.open(mailData)}>{ sended && '再' }送信</Button>
+          <Button type="primary" onClick={() => mail.current.open(mailData)}>
+            <span>{ sended && '再' }送信</span>
+          </Button>
           { sended && <Button type="primary">確認</Button> }
         </>
       )
@@ -118,11 +124,14 @@ const ProcessBarButtons = ({ nodeId, nodeType, step, mail, sended }) => {
           { step === SUR_STEP_SENDED && <Button type="primary" onClick={() => mail.current.open(mailData)}>送信</Button>}
         </>
       )
+    case ORDER_NODE_TYPE_CUSTOMER_DOCUMENTS:
+      mailData.file = [FILE_TYPE_CUSTOMS]
+      return (
+        <Button type="primary" onClick={() => mail.current.open(mailData)}>送信</Button>
+      )
     default:
       return (
-        <>
-          <Button type="primary" onClick={() => mail.current.open(mailData)}>送信</Button>
-        </>
+        <Button type="primary" onClick={() => mail.current.open(mailData)}>送信</Button>
       )
   }
 }
