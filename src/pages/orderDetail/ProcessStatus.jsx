@@ -10,12 +10,19 @@ import {
   SUR_STEP_SENDED,
   FILE_TYPE_OPERATIONS,
   FILE_TYPE_CUSTOMS,
+  ORDER_NODE_TYPE_PO,
+  MAIL_TO_CAR,
+  MAIL_TYPE_REDO,
+  MAIL_TYPE_NORMAL,
 } from "@/constant"
 import Mail from "./Mail"
 import { useRef } from "react"
 import * as Icon from '@/components/Icon'
 import { LoadingOutlined } from "@ant-design/icons"
 import MailDetail from "./MailDetail"
+import { useAsyncCallback } from "@/hooks"
+import { request } from "@/apis/requestBuilder"
+import pubSub from "@/helpers/pubSub"
 const Light = ({ children, loading, active, className, onToggle = () => {} }) => {
   const activeClassNames = ['!bg-[#ffe3dd]', '!text-[#fd7556]', '!border-[#fd7556]']
   return (
@@ -47,26 +54,37 @@ const ProcessBar = ({
   children,
   sendTime,
   sender,
+  redo,
   mail,
   onClickDetail
 }) => {
-  const mailData = {
-    nodeType,
-    nodeId,
-    title: `${EXPORT_NODE_NAMES[nodeType]} - 改单申请`,
-    to: MAIL_TO_SHIP
-  }
   const { changeNodeStatus, changingNodeStatus } = useContext(DetailDataContext)
   let context = children
   if(!canDo) {
     context = null
   } else if(isEnd) {
+    const mailData = {
+      nodeType,
+      nodeId,
+      type: MAIL_TYPE_REDO,
+      file: [FILE_TYPE_OPERATIONS],
+      title: `${EXPORT_NODE_NAMES[nodeType]} - BL訂正`,
+      to: MAIL_TO_SHIP
+    }
     context = (
       <>
         <div>{sendTime}  {sender}</div>
         { [ORDER_NODE_TYPE_SUR, ORDER_NODE_TYPE_BL_COPY].includes(nodeType) && (
-          <Button  type="primary" onClick={() => mail.current.open(mailData)}>改单申请</Button>
+          <Button  type="primary" onClick={() => mail.current.open(mailData)}>BL訂正</Button>
         ) }
+        <Button onClick={() => onClickDetail(nodeId)}>詳細</Button>
+      </>
+    )
+  } else if(redo) {
+    context = (
+      <>
+        <div>{sendTime}  {sender}</div>
+        { children }
         <Button onClick={() => onClickDetail(nodeId)}>詳細</Button>
       </>
     )
@@ -92,38 +110,65 @@ const getMailTo = (nodeType, step) => {
       if(step === SUR_STEP_PAYED) 
         return MAIL_TO_SHIP
       return MAIL_TO_CUSTOMER
+    case ORDER_NODE_TYPE_PO:
+      return MAIL_TO_CAR
     default:
       return MAIL_TO_CUSTOMER
   }
 }
-const ProcessBarButtons = ({ nodeId, nodeType, step, mail, sended }) => {
+const ProcessBarButtons = ({ nodeId, nodeType, step, mail, sended, redo }) => {
+  const { refreshNodes } = useContext(DetailDataContext)
   const mailData = {
     nodeType,
     nodeId,
     step,
+    type: MAIL_TYPE_NORMAL,
     to: getMailTo(nodeType, step),
     file: [FILE_TYPE_OPERATIONS],
     title: `${EXPORT_NODE_NAMES[nodeType]} - 送信`
   }
+  const [confirmNode, inConfirm] = useAsyncCallback(async () => {
+    await request('/admin/order/node_confirm').get({ id: nodeId, is_confirm: 1 }).send()
+    refreshNodes()
+    pubSub.publish('Info.Toast', '确认成功', 'success')
+  })
   switch (nodeType) {
+    case ORDER_NODE_TYPE_BL_COPY:
+      mailData.title = `${EXPORT_NODE_NAMES[nodeType]} - 再送`
+      return (
+        <Button type="primary" onClick={() => mail.current.open(mailData)}>
+          <span>{ sended ? '再送': '送信'}</span>
+        </Button>
+      )
     case ORDER_NODE_TYPE_ACL:
       return (
         <>
           <Button type="primary" onClick={() => mail.current.open(mailData)}>
-            <span>{ sended && '再' }送信</span>
+            <span>{ sended ? '再送': '送信'}</span>
           </Button>
-          { sended && <Button type="primary">確認</Button> }
+          { sended && <Button type="primary" onClick={confirmNode} loading={inConfirm}>確認</Button> }
         </>
       )
     case ORDER_NODE_TYPE_SUR:
-      return (
-        <>
-          { step === SUR_STEP_WAIT_CUSTOMER_CONFIRMED && <Button type="primary" onClick={() => mail.current.open(mailData)}>支払依頼</Button>}
-          { step === SUR_STEP_WAIT_PAY && <Button>SUR依頼</Button>}
-          { step === SUR_STEP_PAYED && <Button type="primary" onClick={() => mail.current.open(mailData)}>SUR依頼</Button>}
-          { step === SUR_STEP_SENDED && <Button type="primary" onClick={() => mail.current.open(mailData)}>送信</Button>}
-        </>
-      )
+      switch (step) {
+        case SUR_STEP_WAIT_CUSTOMER_CONFIRMED:
+          mailData.to = MAIL_TO_ACC
+          mailData.title = `${EXPORT_NODE_NAMES[nodeType]} - 支払依頼`
+          return (
+            <Button type="primary" onClick={() => mail.current.open(mailData)}>支払依頼</Button>
+          )
+          case SUR_STEP_WAIT_PAY:
+          case SUR_STEP_PAYED:
+            return (
+              <Button type="primary" disabled={step === SUR_STEP_WAIT_PAY} onClick={() => mail.current.open(mailData)}>送信</Button>
+            )
+          case SUR_STEP_SENDED:
+            return (
+              <Button type="primary" onClick={() => mail.current.open(mailData)}>送信</Button>
+            )
+          default:
+            return null
+      }
     case ORDER_NODE_TYPE_CUSTOMER_DOCUMENTS:
       mailData.file = [FILE_TYPE_CUSTOMS]
       return (

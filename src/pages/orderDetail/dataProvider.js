@@ -29,10 +29,12 @@ const orderNodesGenerator = ({ nodes = []}) => {
       nodeId: item['id'],
       nodeType: item['node_id'],
       canDo: item['is_enable'] === 1,
-      sended: item['mail_status'] === 1,
+      sended: item['mail_times'] > 0,
       isEnd:  item['is_confirm'] === 1,
       sendTime: item['mail_at'],
-      sender: item['sender']
+      sender: item['sender'],
+      step: item['step'],
+      redo: item['mail_times'] > item['step'],
     })
   }
   return data

@@ -103,6 +103,9 @@ export const FILE_TYPE_OPERATIONS = 2
 export const FILE_TYPE_REQUEST = 3
 export const FILE_TYPE_COST = 4
 
+export const MAIL_TYPE_NORMAL = 1;
+export const MAIL_TYPE_REDO = 2;
+
 export const MAIL_TO_CUSTOMER = 1;
 export const MAIL_TO_CAR = 2;
 export const MAIL_TO_SHIP = 3;
@@ -110,11 +113,22 @@ export const MAIL_TO_CUSTOMS_COMPANY = 4;
 export const MAIL_TO_ACC = 5;
 export const MAIL_TO_CUSTOMS_DECLARANT = 6;
 
+/**
+ *  业务员准备向财务申请付款给船公司（附账单
+ */
 export const SUR_STEP_WAIT_CUSTOMER_CONFIRMED = 0
+/**
+ *  财务准备打钱给船公司并且邮件付款凭证给船公司
+ */
 export const SUR_STEP_WAIT_PAY = 1
+/**
+ *  财务付款完成，业务员等待船公司电放单
+ */
 export const SUR_STEP_PAYED = 2
+/**
+ *  收到船公司的电放单后，业务员邮件给客户电放单
+ */
 export const SUR_STEP_SENDED = 3
-export const SUR_REQUEST_CHANGE = -1
 
 export const ORDER_TAB_STATUS_TOP = 1
 export const ORDER_TAB_STATUS_PO = 2
