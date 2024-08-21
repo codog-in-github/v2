@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { DetailDataContext } from "../dataProvider";
 import dayjs from "dayjs";
 import { REQUEST_TYPE_ADVANCE, REQUEST_TYPE_NORMAL } from "@/constant";
+import { request } from "@/apis/requestBuilder";
+import { useAsyncCallback } from "@/hooks";
 
 const ListModal = ({ instance }) => {
   const { requestBooks, form, delRequestBook, deletingRequestBook } = useContext(DetailDataContext)
@@ -17,6 +19,9 @@ const ListModal = ({ instance }) => {
       }
     }
   }
+  const [doExport, exporting] = useAsyncCallback(async (id) => {
+    await request('/admin/request_book/export').data({ id }).download().send()
+  })
   return (
     <Modal
       title="请求书"
@@ -28,16 +33,26 @@ const ListModal = ({ instance }) => {
       <div className="p-2">
         <Table
           dataSource={requestBooks}
-          loading={deletingRequestBook}
+          loading={deletingRequestBook || exporting}
           pagination={false}
           columns={[
             { dataIndex: 'name', title: '履歴請求書' },
             { dataIndex: 'created_at', title: '时间' , render: value => dayjs(value).format('YYYY-MM-DD HH:mm:ss')  },
             { title: '操作',  dataIndex:'id', render: (id, row) =>  (
               <div className="btn-link-group">
-                <span className="btn-link" onClick={() => navigate(`/rb/edit/${id}/order/${row['order_id']}/type/${row['type']}`)}>編集</span>
-                <span className="btn-link">预览</span>          
-                <span className="btn-link" onClick={() => {delRequestBook(id)}}>删除</span>
+                {row['is_send'] ? (
+                  <>
+                    <span className="btn-link" onClick={() => navigate(`/rb/edit/${id}/order/${row['order_id']}/type/${row['type']}`)}>预览</span>
+                    <span className="btn-link" onClick={() => doExport(id)}>导出</span>
+                  </>
+                ): (
+                  <>
+                    <span className="btn-link" onClick={() => navigate(`/rb/edit/${id}/order/${row['order_id']}/type/${row['type']}`)}>編集</span>
+                    <span className="btn-link">预览</span>
+                    <span className="btn-link" onClick={() => {delRequestBook(id)}}>删除</span>
+                  </>
+                )}
+                
               </div>
             ) },
           ]}

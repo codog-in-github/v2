@@ -19,7 +19,6 @@ import { useNavigate } from "react-router-dom"
 import FormValue from "@/components/FormValue"
 import { useState } from "react"
 import FileTabs from "@/components/FileTabs"
-import { Divider } from "antd"
 
 const costTypes = [
   COST_PART_CUSTOMS,
@@ -392,6 +391,7 @@ const Total = () => {
 }
 const EditForm = () => {
   const [form] = Form.useForm()
+  const [disabled, setDisabled] = useState(false)
   const { id, orderId, copyId, type } = useParams()
   const bookType = ~~type
   const [files, setFiles] = useState({})
@@ -443,6 +443,7 @@ const EditForm = () => {
       request('/admin/request_book/detail').get({ id }).send()
         .then(rep => {
           form.setFieldsValue(formDataFormat(rep ,bookType))
+          setDisabled(id && rep['is_send'])
         })
     }
   }, [form, copyId, id, bookType])
@@ -479,6 +480,7 @@ const EditForm = () => {
   return (
     <EditFormContext.Provider value={{ detailItems, extraItems, units, extraDefaultValue }}>
       <Form
+        disabled={disabled}
         form={form}
         className="flex h-screen"
       >
@@ -575,11 +577,11 @@ const EditForm = () => {
           </div>
 
           <div className="flex gap-2 justify-end px-16">
-            <Button className="w-32" type="primary" onClick={() => navigate(`/rb/add/${orderId}/type/${type}`, { replace: true })}>追加請求書</Button>
+            <Button className="w-32" disabled={!id} type="primary" onClick={() => navigate(`/rb/add/${orderId}/type/${type}`, { replace: true })}>追加請求書</Button>
             <Button className="w-32" type="primary">参照入力</Button>
-            <Button className="w-32" type="primary" disabled={!id} loading={exporting} onClick={doExport}>出力</Button>
+            <Button className="w-32" type="primary" disabled={disabled || !id} loading={exporting} onClick={doExport}>出力</Button>
             <Button className="w-32" loading={submiting} type="primary" onClick={submit}>保存</Button>
-            <Button className="w-32" onClick={() => navigate(-1)}>戻る</Button>
+            <Button className="w-32" disabled={false} onClick={() => navigate(-1)}>戻る</Button>
           </div>
       
         </div>

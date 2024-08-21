@@ -4,6 +4,7 @@ import { useState } from "react"
 import { DetailDataContext, useAtUserOptions } from "./dataProvider"
 import classNames from "classnames"
 import { useContext } from "react"
+import MessageParse from "@/components/MessageParse"
 
 const At = ({ children }) => {
   return (
@@ -21,7 +22,7 @@ const Message = ({ from, at, content, time }) => {
         <div className="w-1 h-1 bg-primary rounded-full" />
       </div>
       <div className="flex-1">
-        {content}
+        <MessageParse message={content}></MessageParse>
         {at && <At>{at}</At>}
       </div>
       <div>{time}</div>

@@ -14,6 +14,9 @@ import {
   MAIL_TO_CAR,
   MAIL_TYPE_REDO,
   MAIL_TYPE_NORMAL,
+  ORDER_NODE_TYPE_FM,
+  ORDER_NODE_TYPE_REQUEST,
+  FILE_TYPE_REQUEST,
 } from "@/constant"
 import Mail from "./Mail"
 import { useRef } from "react"
@@ -107,8 +110,6 @@ const getMailTo = (nodeType, step) => {
     case ORDER_NODE_TYPE_SUR:
       if(step === SUR_STEP_WAIT_PAY)
         return MAIL_TO_ACC
-      if(step === SUR_STEP_PAYED) 
-        return MAIL_TO_SHIP
       return MAIL_TO_CUSTOMER
     case ORDER_NODE_TYPE_PO:
       return MAIL_TO_CAR
@@ -162,15 +163,18 @@ const ProcessBarButtons = ({ nodeId, nodeType, step, mail, sended, redo }) => {
             return (
               <Button type="primary" disabled={step === SUR_STEP_WAIT_PAY} onClick={() => mail.current.open(mailData)}>送信</Button>
             )
-          case SUR_STEP_SENDED:
-            return (
-              <Button type="primary" onClick={() => mail.current.open(mailData)}>送信</Button>
-            )
           default:
             return null
       }
     case ORDER_NODE_TYPE_CUSTOMER_DOCUMENTS:
       mailData.file = [FILE_TYPE_CUSTOMS]
+      return (
+        <Button type="primary" onClick={() => mail.current.open(mailData)}>送信</Button>
+      )
+    case ORDER_NODE_TYPE_FM:
+      return null
+    case ORDER_NODE_TYPE_REQUEST:
+      mailData.file = [FILE_TYPE_REQUEST]
       return (
         <Button type="primary" onClick={() => mail.current.open(mailData)}>送信</Button>
       )

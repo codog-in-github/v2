@@ -4,6 +4,7 @@ import { Switch } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import ScrollView from "@/components/ScrollView";
+import MessageParse from "@/components/MessageParse";
 
 function At ({ children }) {
   return (
@@ -23,7 +24,7 @@ function Message({ id, from, at, datetime, content, isReaded, orderId, isAtMe })
           {datetime}
         </div>
         <div className="mt-2">
-          {from}：{at && <At>{at}</At>} {content}
+          {from}：{at && <At>{at}</At>} <MessageParse message={content}></MessageParse>
         </div>
       </div>
       {

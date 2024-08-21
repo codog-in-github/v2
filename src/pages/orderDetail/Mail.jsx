@@ -164,6 +164,11 @@ const Mail = ({ mail, onSuccess }) => {
           <Input></Input>
         </Form.Item>
       )}
+      {mailToType === MAIL_TO_ACC && (
+        <Form.Item label="金额" name="total">
+          <Input></Input>
+        </Form.Item>
+      )}
       {fileType && (
         <Form.Item noStyle name='files'>
           <FileSelect files={files} fileType={fileType} vertical={simpleMode}></FileSelect>

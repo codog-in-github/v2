@@ -115,6 +115,7 @@ export const downloadBlob = (blob, fileName) => {
 }
 
 export const fileNameParse = (contentDisposition) => {
+  if(!contentDisposition) return ''
   if(contentDisposition.includes('filename*=')) {
     const [, charset, fileName] = /filename\*=(.*)''(.*)/.exec(contentDisposition) ?? []
     if(charset === 'utf-8') {
