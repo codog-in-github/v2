@@ -8,7 +8,6 @@ import dayjs from "dayjs";
 import pubSub from "@/helpers/pubSub";
 import { useParams } from "react-router-dom";
 import SkeletonList from "@/components/SkeletonList";
-import { RequestBook } from "@/components/Icon";
 
 const useTabOrderList = (type) => {
   const [list, setList] = useState([]);
@@ -59,7 +58,7 @@ function Card({
   );
 }
 
-function RequestBook() {
+function RequestBookPage() {
   const { tab } = useParams()
   const { list, reload, loading } = useTabOrderList(tab)
   const order = useRef(null)
@@ -142,4 +141,4 @@ function RequestBook() {
   );
 }
 
-export default RequestBook;
+export default RequestBookPage;
