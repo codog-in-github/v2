@@ -195,14 +195,18 @@ const formDataGenerator = (isCopy) => (rep) => {
     result.cars = []
     if(rep['details'] && rep['details'].length) {
       for(const item of rep['details']) {
+        let time = null;
+        if(item['deliver_time_range']) {
+          time = item['deliver_time_range'].split('-').map((item) => dayjs(`0000-00-00 ${item}`))
+        }
         const car = {
           id: item['id'],
           containerId: item['container_id'],
           vanPlace: item['van_place'],
           vanType: item['van_type'],
           carType: item['bearing_type'] || void 0,
-          date: item['deliver_time'] ? dayjs(item['deliver_time']) : null,
-          time: item['deliver_time'] ? dayjs(item['deliver_time']) : null,
+          date: item['deliver_date'] ? dayjs(item['deliver_date']) : null,
+          time,
           transCom: item['trans_com'],
           driver: item['driver'],
           tel: item['tel'],
@@ -312,16 +316,14 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
   const details = []
   result['details'] = details
   for(const item of formData.cars) {
-    const date = item.date?.format('YYYY-MM-DD') ?? ''
-    const time = item.time?.format(' HH:mm:ss') ?? ''
-    const deliverTime = date + time
     const detail = {
       'id' : item.id ?? '',
       'container_id' : item.containerId ?? '',
       'van_place': item.vanPlace ?? '',
       'van_type': item.vanType ?? '',
       'bearing_type': item.carType ?? 0,
-      'deliver_time': deliverTime || null,
+      'deliver_date': item.date?.format('YYYY-MM-DD') ?? '',
+      'deliver_time_range': item.time?.map(item => item.format('HH:mm')).join('-') ?? '',
       'trans_com': item.transCom ?? '',
       'driver': item.driver ?? '',
       'tel': item.tel ?? '',

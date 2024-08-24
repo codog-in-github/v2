@@ -10,15 +10,6 @@ import pubSub from "@/helpers/pubSub";
 import { request } from "@/apis/requestBuilder";
 import store from "@/store";
 import { setUserInfo } from "@/store/slices/user"
-// 还没写的页面 占个位先
-const placeholderUrls = [
-  "/drive",
-  "/customs",
-  "/permission",
-  "/invoice",
-  "/blCopy",
-  "/sur",
-];
 
 const routeGuarder = async (routeState, next) => {
   const rep = await request('/admin/user/me').get().send()
@@ -84,6 +75,10 @@ const router = createBrowserRouter([
                 element: <LazyPage load={() => import('@/pages/tabs/OrderList')} />,
               },
               {
+                path: "/rbl",
+                element: <LazyPage load={() => import('@/pages/tabs/RequestBookList')} />,
+              },
+              {
                 path: "/customer-list",
                 element: <LazyPage load={() => import('@/pages/customer/list')} />,
               },
@@ -102,11 +97,7 @@ const router = createBrowserRouter([
               {
                 path: "/petition",
                 element: <LazyPage load={() => import('@/pages/petition/list')} />,
-              },
-              ...placeholderUrls.map((url) => ({
-                path: url,
-                element: <></>,
-              })),
+              }
             ],
           },
         ],

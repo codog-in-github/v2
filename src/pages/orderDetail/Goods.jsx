@@ -8,6 +8,10 @@ import { newCar, newConatainer } from "./dataProvider"
 import { useCallback } from "react"
 import { Space } from "antd"
 import { useOptions } from "@/hooks"
+import { SELECT_ID_CONTAINER_TYPE } from "@/constant"
+import { createContext } from "react"
+import { useContext } from "react"
+import { AutoComplete } from "antd"
 
 const usePage = (list) => {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -86,6 +90,7 @@ const ContainerList = ({
   const {
     page, onWheelHandle, movePage, movePageForce
   } = usePage(list)
+  const { containerTypes } = useContext(GoodsContext)
   return (
     <div className="flex overflow-hidden">
       <div className="flex-1 h-16" onWheel={onWheelHandle}>
@@ -103,7 +108,7 @@ const ContainerList = ({
                   <Input addonBefore="COM" />
                 </Form.Item>
                 <Form.Item className="flex-1" label="Container type" name={[props.name, 'containerType']}>
-                  <Input />
+                  <AutoComplete options={containerTypes} />
                 </Form.Item>
                 <Form.Item className="flex-1" label="QUANTITY" name={[props.name, 'quantity']}>
                   <Input />
@@ -193,8 +198,8 @@ const CarList = ({
               <Form.Item className="w-32" label="日付" name={[props.name, 'date']}>
                 <DatePicker />
               </Form.Item>
-              <Form.Item className="w-32" label="時間" name={[props.name, 'time']}>
-                <TimePicker />
+              <Form.Item className="w-36" label="時間" name={[props.name, 'time']}>
+                <TimePicker.RangePicker format="HH:mm" />
               </Form.Item>
               {list.length > 1 && <Button
                 className="ml-auto"
@@ -265,9 +270,10 @@ const CarList = ({
     </div>
   )
 }
-
+const GoodsContext = createContext()
 const Goods = ({ className }) => {
   const form = Form.useFormInstance()
+  const [containerTypes] = useOptions(SELECT_ID_CONTAINER_TYPE)
   const onAddContainerHandle = useCallback(() => {
     const oldValue = form.getFieldValue('containers')
     form.setFieldValue('containers', [...oldValue, newConatainer()])
@@ -288,29 +294,31 @@ const Goods = ({ className }) => {
   }, [form])
   // const [carCompanys] = useOptions(1)
   return (
-    <div className={className}>
-      <Label className="flex-shrink-0">貨物情報</Label>
-      <div className="mx-2 flex-1 overflow-hidden">
-        <Form.List name="containers">
-          {(list) => (
-            <ContainerList
-              onAddContainer={onAddContainerHandle}
-              onRemoveContainer={onRemoveContainerHandle}
-              list={list}
-            />
-          )}
-        </Form.List>
-        <Form.List name="cars">
-          {(list) => (
-            <CarList
-              list={list}
-              onAddCar={onAddCarHandle}
-              onRemoveCar={onRemoveCarHandle}
-            />
-          )}
-        </Form.List>
+    <GoodsContext.Provider value={{ containerTypes }}>
+      <div className={className}>
+        <Label className="flex-shrink-0">貨物情報</Label>
+        <div className="mx-2 flex-1 overflow-hidden">
+          <Form.List name="containers">
+            {(list) => (
+              <ContainerList
+                onAddContainer={onAddContainerHandle}
+                onRemoveContainer={onRemoveContainerHandle}
+                list={list}
+              />
+            )}
+          </Form.List>
+          <Form.List name="cars">
+            {(list) => (
+              <CarList
+                list={list}
+                onAddCar={onAddCarHandle}
+                onRemoveCar={onRemoveCarHandle}
+              />
+            )}
+          </Form.List>
+        </div>
       </div>
-    </div>
+    </GoodsContext.Provider>
   )
 }
 

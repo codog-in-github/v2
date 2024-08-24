@@ -61,7 +61,7 @@ const NavTopbar = ({ className }) => {
           <Icon.Sur className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>SUR</span>
           </NavButton>
-        <NavButton to="/tab/9">
+        <NavButton to="/rbl">
           <Icon.RequestBook className="w-4 h-4 inline relative bottom-[2px]" />
           <span className='ml-2'>請求書</span>
         </NavButton>

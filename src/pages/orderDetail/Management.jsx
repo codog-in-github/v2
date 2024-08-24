@@ -9,6 +9,7 @@ import { Space } from "antd"
 import { request } from "@/apis/requestBuilder"
 import pubSub from "@/helpers/pubSub"
 import { useNavigate } from "react-router-dom"
+import BookSelectModal from "./otherBooks/BookSelectModal"
 
 const BkgTypeSelect = ({ value, onChange, ...props }) => {
   const [inputValue, setInputValue] = useState('');
@@ -125,7 +126,9 @@ const Management = ({ className }) => {
       form.setFieldValue('blNo', bkgNo)
     }
   }
-  const requestBookModalIntance = useRef(null)
+  const requestBookModalInstance = useRef(null)
+  const bookSelectModalInstance = useRef(null)
+
   return (
     <div className={className}>
       <div className="mr-auto">
@@ -179,11 +182,12 @@ const Management = ({ className }) => {
           }}
         >戻る</Button>
         <Button type="primary"  onClick={() => { copyModalInstance.current.open() }}>類似事件</Button>
-        <Button type="primary" disabled={isCopy} onClick={() => {}}>各種書類作成</Button>
-        <Button type="primary" disabled={isCopy} onClick={() => { requestBookModalIntance.current.open() }}>請求書</Button>
+        <Button type="primary" disabled={isCopy} onClick={() => { bookSelectModalInstance.current.open() }}>各種書類作成</Button>
+        <Button type="primary" disabled={isCopy} onClick={() => { requestBookModalInstance.current.open() }}>請求書</Button>
       </div>
-      <ListModal instance={requestBookModalIntance}></ListModal>
+      <ListModal instance={requestBookModalInstance}></ListModal>
       <CopyModal instance={copyModalInstance}></CopyModal>
+      <BookSelectModal instance={bookSelectModalInstance} />
     </div>
   )
 }
