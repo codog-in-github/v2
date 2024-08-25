@@ -9,6 +9,7 @@ import SkeletonList from "@/components/SkeletonList";
 import { ACC_JOB_TYPE_BL, ACC_JOB_TYPE_SEA } from "@/constant";
 import Card from "./Card";
 import dayjs from "dayjs";
+import CompModal from "./CompModal";
 const useTodo = () => {
   const [list, setList] = useState({});
   const [reload, loading] = useAsyncCallback(async () => {
@@ -75,15 +76,13 @@ const ListGroup = ({ title, color, list, onContextMenu, loading }) => {
 function TodoList() {
   const { list, reload, loading } = useTodo()
   const job = useRef(null)
+  const modalInstall = useRef(null)
   const [pay, paying] = useAsyncCallback(async () => {
-    await request('/admin/acc/done').data({
-      'id': job.current['id']
-    }).send()
-    pubSub.publish('Info.Toast', '已付款', 'success')
-    reload()
+    modalInstall.current.open(job.current['id'])
+    hidden()
   })
 
-  const [menu, open] = useContextMenu(
+  const [menu, open, hidden] = useContextMenu(
     <div
       className="
         fixed w-32 z-50 border cursor-OrderListinter
@@ -128,6 +127,7 @@ function TodoList() {
         )
       )) }
       {menu}
+      <CompModal instance={modalInstall} onSuccess={reload}></CompModal>
     </div>
   );
 }

@@ -83,7 +83,13 @@ class Request {
       if(!(formData instanceof FormData)) {
         const _formData = new FormData()
         for(const key in formData) {
-          _formData.append(key, formData[key])
+          if(formData[key] instanceof FileList) {
+            for(const file of formData[key]) {
+              _formData.append(`${key}[]`, file)
+            }
+          } else {
+            _formData.append(key, formData[key])
+          }
         }
         formData = _formData
       }
