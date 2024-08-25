@@ -4,25 +4,56 @@ import { useEffect, useState, useRef } from "react";
 import { useAsyncCallback, useContextMenu } from "@/hooks";
 import { useNavigate } from "react-router-dom";
 import { LoadingOutlined } from "@ant-design/icons";
-import dayjs from "dayjs";
 import pubSub from "@/helpers/pubSub";
-import { useParams } from "react-router-dom";
 import SkeletonList from "@/components/SkeletonList";
+import { ORDER_NODE_TYPE_REQUEST, ORDER_TAB_STATUS_REQUEST } from "@/constant";
 
-const useTabOrderList = (type) => {
-  const [list, setList] = useState([]);
+const useReqList = () => {
+  const [list, setList] = useState({});
   const [reload, loading] = useAsyncCallback(async () => {
-    const res = await request('/admin/order/tab_order_list').get({
-      'node_status': type
-    }).send()
+    const res = await request('/admin/order/req_list').get().send()
     setList(res)
   })
-  useEffect(() => { reload() }, [type])
+  useEffect(() => { reload() }, [])
   return { list, reload, loading }
 }
-const colors = ['danger', 'warning', 'success']
+
+const groups = [
+  { color: 'danger', title: '作成待', key: 'undo' },
+  { color: 'success', title: '発送待', key: 'unsend' },
+  { color: 'success', title: '入金待', key: 'unentry' },
+]
+
+const ListGroup = ({ title, color, list, onContextMenu, loading }) => {
+  const navigate = useNavigate()
+  return (
+
+    <div className="bg-white  m-2 rounded-lg shadow p-4">
+      <div>{title}</div>
+      <div className="grid grid-cols-4 lg:grid-cols-5 gap-8 flex-wrap mt-4">
+        <SkeletonList
+          list={list}
+          loading={loading}
+          skeletonCount={8}
+          skeletonClassName="w-full h-32"
+        >
+          {item => (
+            <Card
+              key={item['id']}
+              onContextMenu={e => onContextMenu(e, item)}
+              onClick={() => navigate(`/orderDetail/${item['id']}`)}
+              color={color}
+              orderInfo={item}
+            />
+          )}
+        </SkeletonList>
+      </div>
+    </div>
+  )
+}
 function Card({
   orderInfo = {},
+  color,
   ...props
 }) {
   const grayscale = {};
@@ -33,15 +64,15 @@ function Card({
     <div
       className="border-2 border-t-[6px] rounded h-32 cursor-pointer overflow-hidden"
       style={{
-        borderColor: themeColor(colors[orderInfo.color], 60),
+        borderColor: themeColor(color, 60),
         ...grayscale
       }}
       {...props}
     >
-      <div className="flex p-2 overflow-hidden" style={{background: themeColor(colors[orderInfo.color], 95)}}>
+      <div className="flex p-2 overflow-hidden" style={{ background: themeColor(color, 95) }}>
         <div
           className="rounded-full w-8 h-8 leading-8 text-center text-white flex-shrink-0"
-          style={{ backgroundColor: themeColor(colors[orderInfo.color], 60) }}
+          style={{ backgroundColor: themeColor(color, 60) }}
         >
           {orderInfo['company_name']?.[0]}
         </div>
@@ -59,20 +90,18 @@ function Card({
 }
 
 function RequestBookPage() {
-  const { tab } = useParams()
-  const { list, reload, loading } = useTabOrderList(tab)
+  const { list, reload, loading } = useReqList()
   const order = useRef(null)
-  const navigate = useNavigate()
   const [topNode, topNodeLoading] = useAsyncCallback(async () => {
     await request('/admin/order/change_top').data({
-      'id': order.current['order_id'],
-      'node_status': tab,
+      'id': order.current['id'],
+      'node_status': ORDER_TAB_STATUS_REQUEST,
       'is_top': 1
     }).send()
     pubSub.publish('Info.Toast', '已置顶任务', 'success')
     reload()
-  }) 
-  
+  })
+
   const [menu, open] = useContextMenu(
     <div
       className="
@@ -85,7 +114,7 @@ function RequestBookPage() {
       <div
         type='primary'
         className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
-        onClick={() => {}}
+        onClick={() => { }}
       >指派任务</div>
       <div
         type='primary'
@@ -111,31 +140,18 @@ function RequestBookPage() {
   }
   return (
     <div className="flex-1">
-      <div className="bg-white  m-2 rounded-lg shadow p-4">
-        <div>未完成</div>
-        <div className="grid grid-cols-4 lg:grid-cols-5 gap-8 flex-wrap mt-4">
-          <SkeletonList
-            list={list}
+      { groups.map(item => (
+        list[item.key] && (
+          <ListGroup
+            key={item.key}
+            list={list[item.key]}
+            title={item.title}
+            color={item.color}
             loading={loading}
-            skeletonCount={8}
-            skeletonClassName="w-full h-32"
-          >
-            {item => (
-              <Card
-                key={item['id']}
-                onContextMenu={e => contextMenuHandle(e, item)}
-                onClick={() => navigate(`/orderDetail/${item['id']}`)}
-                orderInfo={item}
-              />
-            )}
-          </SkeletonList>
-        </div>
-      </div>
-      <div className="bg-white  m-2 rounded-lg shadow p-4">
-        <div>直近完了</div>
-        <div className="flex gap-8 flex-wrap mt-4">
-        </div>
-      </div>
+            onContextMenu={contextMenuHandle}
+          ></ListGroup>
+        )
+      )) }
       {menu}
     </div>
   );
