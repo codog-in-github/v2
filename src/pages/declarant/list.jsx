@@ -26,7 +26,7 @@ const getList = async (filters) => {
       data
     }
     for(const order of rep[date]) {
-      if(order.customs_stauts < CUSTOMS_STATUS_END) {
+      if(order.customs_status < CUSTOMS_STATUS_END) {
         group.can++
       }
       data.push({

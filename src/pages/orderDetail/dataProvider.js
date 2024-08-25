@@ -205,7 +205,7 @@ const formDataGenerator = (isCopy) => (rep) => {
           vanPlace: item['van_place'],
           vanType: item['van_type'],
           carType: item['bearing_type'] || void 0,
-          date: item['deliver_date'] ? dayjs(item['deliver_date']) : null,
+          date: item['deliver_date'] !== '0000-00-00' ? dayjs(item['deliver_date']) : null,
           time,
           transCom: item['trans_com'],
           driver: item['driver'],
