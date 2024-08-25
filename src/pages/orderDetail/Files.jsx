@@ -115,7 +115,6 @@ export const Files = ({ className }) => {
           }</div>
         )
       }) 
-      
     }
     return tabItems
   }, [files, inSelected, isSelected, select])

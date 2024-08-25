@@ -359,7 +359,7 @@ const messagesGenerator = (rep) => {
 }
 
 const filesGenerator = (rep) => {
-  const keys = [0, 1, 2, 3]
+  const keys = [1, 2, 3, 4]
   const files = {}
   for(const key of keys) {
     files[key] = rep['files'][key] ?? []
