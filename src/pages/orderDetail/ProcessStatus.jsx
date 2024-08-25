@@ -130,7 +130,7 @@ const ProcessBarButtons = ({ nodeId, nodeType, step, mail, sended, redo }) => {
   })
   switch (nodeType) {
     case ORDER_NODE_TYPE_BL_COPY:
-      mailData.title = `${EXPORT_NODE_NAMES[nodeType]} - 再送`
+      mailData.title = `${EXPORT_NODE_NAMES[nodeType]} - 送信`
       return (
         <Button type="primary" onClick={() => mail.current.open(mailData)}>
           <span>{ sended ? '再送': '送信'}</span>
