@@ -154,6 +154,13 @@ const ProcessBarButtons = ({ nodeId, nodeType, step, mail, sended, redo }) => {
           )
           case SUR_STEP_WAIT_PAY:
           case SUR_STEP_PAYED:
+            mailData.to = MAIL_TO_SHIP
+            mailData.title = `${EXPORT_NODE_NAMES[nodeType]} - SUR依赖`
+            return (
+              <Button type="primary" disabled={step === SUR_STEP_WAIT_PAY} onClick={() => mail.current.open(mailData)}>SUR依赖</Button>
+            )
+          case SUR_STEP_SENDED:
+            mailData.title = `${EXPORT_NODE_NAMES[nodeType]} - 送信`
             return (
               <Button type="primary" disabled={step === SUR_STEP_WAIT_PAY} onClick={() => mail.current.open(mailData)}>送信</Button>
             )
