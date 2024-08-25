@@ -160,3 +160,15 @@ export const USER_ROLE_ACC = 5; // 总务
 
 export const REQUEST_TYPE_NORMAL = 1;
 export const REQUEST_TYPE_ADVANCE = 2;
+
+export const CUSTOMS_STATUS_END = 4;
+
+export const ACC_JOB_TYPE_SEA = 1;
+export const ACC_JOB_TYPE_BL = 2;
+
+
+export const MAIL_LOG_TYPE_MAIL = 1; //日志类型 发送邮件
+export const MAIL_LOG_TYPE_NODE_CONFIRM = 2; //日志类型 节点确认
+export const MAIL_LOG_TYPE_NODE_TOP = 3; //日志类型 取消置顶事件
+export const MAIL_LOG_TYPE_CHANGE_ORDER = 4; //日志类型 改单申请
+export const MAIL_LOG_TYPE_ACC_PAY = 5; //会计付钱

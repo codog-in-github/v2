@@ -10,32 +10,59 @@ import pubSub from "@/helpers/pubSub";
 import { request } from "@/apis/requestBuilder";
 import store from "@/store";
 import { setUserInfo } from "@/store/slices/user"
+import { USER_ROLE_ACC, USER_ROLE_ADMIN, USER_ROLE_BOOS, USER_ROLE_CUSTOMS, USER_ROLE_NORMAL } from "@/constant";
+import AccLayout from "@/components/AccLayout";
 
-const routeGuarder = async (routeState, next) => {
-  const rep = await request('/admin/user/me').get().send()
-  store.dispatch(setUserInfo({
-    name: rep.name,
-    role: rep.role_id,
-  }))
-  next()
-};
 
 pubSub.subscribe('Error:HTTP.Unauthorized', () => {
   localStorage.removeItem('token')
   router.navigate('/')
 })
 
+const redirectUrl = (roleId) => {
+  switch (roleId) {
+    case USER_ROLE_CUSTOMS:
+      return '/declarant'
+    case USER_ROLE_ACC:
+      return '/acc/todo'
+    default:
+      return
+  }
+}
+
+const routeGuarder = (guarder, children) => {
+  return {
+    element: (
+      <LazyPage
+        load={() => Promise.resolve({ default: () => <Outlet /> })}
+        beforeLoad={guarder}
+      />
+    ),
+    children,
+  }
+}
+
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Login />,
   },
-  {
-    element: <LazyPage
-      load={() =>  Promise.resolve({ default: () => <Outlet /> })}
-      beforeLoad={routeGuarder}
-    />,
-    children: [
+  routeGuarder(async (_, next) => {
+    const rep = await request('/admin/user/me').get().send()
+    store.dispatch(setUserInfo({
+      name: rep.name,
+      role: rep.role_id,
+    }))
+    next()
+  }, [
+    routeGuarder((_, next) => {
+      const role = store.getState().user.userInfo.role
+      if([USER_ROLE_ADMIN, USER_ROLE_BOOS, USER_ROLE_NORMAL].includes(role)) {
+        next()
+      } else {
+        next(redirectUrl(role))
+      }
+    }, [
       {
         path: "/rb/add/:orderId/type/:type",
         element: <LazyPage load={() => import('@/pages/orderDetail/requestBook/EditForm.jsx')} />,
@@ -147,7 +174,17 @@ const router = createBrowserRouter([
           },
         ],
       },
-      //报关员端
+    ]),
+    //报关员端
+    routeGuarder((_, next) => {
+      const role = store.getState().user.userInfo.role
+      console.log(role)
+      if([USER_ROLE_ADMIN, USER_ROLE_BOOS, USER_ROLE_CUSTOMS].includes(role)) {
+        next()
+      } else {
+        next(redirectUrl(role))
+      }
+    }, [
       {
         element: <DeclarantLayout />,
         children: [
@@ -157,9 +194,28 @@ const router = createBrowserRouter([
           },
         ],
       },
-      
-    ]
-  },
+    ]),
+    //会计端
+    routeGuarder((_, next) => {
+      const role = store.getState().user.userInfo.role
+      console.log(role)
+      if([USER_ROLE_ADMIN, USER_ROLE_BOOS, USER_ROLE_ACC].includes(role)) {
+        next()
+      } else {
+        next(redirectUrl(role))
+      }
+    }, [
+      {
+        element: <AccLayout />,
+        children: [
+          {
+            path: "/acc/todo",
+            element: <LazyPage load={() => import('@/pages/acc/Todo')} />,
+          },
+        ],
+      },
+    ])
+  ]),
   {
     path: "*",
     element: <Err404 />,

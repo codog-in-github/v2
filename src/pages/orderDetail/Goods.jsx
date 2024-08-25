@@ -4,7 +4,7 @@ import { Button, Form, Input, DatePicker, TimePicker } from "antd"
 import { debounce } from "lodash"
 import { useState } from "react"
 import classNames from "classnames"
-import { newCar, newConatainer } from "./dataProvider"
+import { DetailDataContext, newCar, newConatainer } from "./dataProvider"
 import { useCallback } from "react"
 import { Space } from "antd"
 import { useOptions } from "@/hooks"
@@ -12,6 +12,7 @@ import { SELECT_ID_CONTAINER_TYPE } from "@/constant"
 import { createContext } from "react"
 import { useContext } from "react"
 import { AutoComplete } from "antd"
+import { useRef } from "react"
 
 const usePage = (list) => {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -91,9 +92,10 @@ const ContainerList = ({
     page, onWheelHandle, movePage, movePageForce
   } = usePage(list)
   const { containerTypes } = useContext(GoodsContext)
+  const rootRef = useRef(null)
   return (
-    <div className="flex overflow-hidden">
-      <div className="flex-1 h-16" onWheel={onWheelHandle}>
+    <div ref={rootRef} className="flex overflow-hidden">
+      <div className="flex-1 h-16">
         {
           list.map((props) => (
             <div
@@ -108,7 +110,11 @@ const ContainerList = ({
                   <Input addonBefore="COM" />
                 </Form.Item>
                 <Form.Item className="flex-1" label="Container type" name={[props.name, 'containerType']}>
-                  <AutoComplete options={containerTypes} />
+                  <AutoComplete
+                    placement="topLeft"
+                    options={containerTypes}
+                    getPopupContainer={() => rootRef.current}
+                  />
                 </Form.Item>
                 <Form.Item className="flex-1" label="QUANTITY" name={[props.name, 'quantity']}>
                   <Input />
@@ -170,9 +176,10 @@ const CarList = ({
   const {
     page, onWheelHandle, movePage, movePageForce
   } = usePage(list)
+  const { rootRef } = useContext(DetailDataContext)
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <div className="flex w-full h-full" onWheel={onWheelHandle}>
+      <div className="flex w-full h-full" >
         {list.map((props) => (
           <div
             key={props.key}
@@ -189,17 +196,17 @@ const CarList = ({
             </div>
             <div className="flex gap-2 items-end">
               <Form.Item className="w-32" label="2軸3軸" name={[props.name, 'carType']}>
-                <Select options={[
+                <Select getPopupContainer={() => rootRef.current} options={[
                   { label: '2軸', value: 1 },
                   { label: '3軸', value: 2 }
                 ]}>
                 </Select>
               </Form.Item>
               <Form.Item className="w-32" label="日付" name={[props.name, 'date']}>
-                <DatePicker />
+                <DatePicker getPopupContainer={() => rootRef.current} />
               </Form.Item>
               <Form.Item className="w-36" label="時間" name={[props.name, 'time']}>
-                <TimePicker.RangePicker format="HH:mm" />
+                <TimePicker.RangePicker format="HH:mm" getPopupContainer={() => rootRef.current} />
               </Form.Item>
               {list.length > 1 && <Button
                 className="ml-auto"
@@ -249,7 +256,7 @@ const CarList = ({
                     <Input />
                   </Form.Item>
                   <Form.Item noStyle name={[props.name, 'tareType']}>
-                    <Select className="w-4" options={[
+                    <Select getPopupContainer={() => rootRef.current} className="w-4" options={[
                       { label: 'T', value: 1 },
                       { label: 'KG', value: 2 }
                     ]} />

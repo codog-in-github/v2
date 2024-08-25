@@ -120,6 +120,7 @@ const Management = ({ className }) => {
   const { form, saveOrder, savingOrder, delOrder, deletingOrder, isCopy } = useContext(DetailDataContext)
   const navigate = useNavigate()
   const copyModalInstance = useRef(null)
+  const [modal, modalContent] = Modal.useModal()
   const setDefaultNumber = () => {
     const bkgNo = form.getFieldValue('bkgNo')
     if(bkgNo) {
@@ -131,6 +132,7 @@ const Management = ({ className }) => {
 
   return (
     <div className={className}>
+      {modalContent}
       <div className="mr-auto">
         <Label>管理情報</Label>
         <div className="flex gap-2">
@@ -170,7 +172,14 @@ const Management = ({ className }) => {
         <Button
           type="primary"
           danger
-          onClick={delOrder}
+          onClick={async () => {
+            const confirm = await modal.confirm({
+              content: 'このデータを削除しますか？'
+            })
+            if(confirm) {
+              delOrder()
+            }
+          }}
           loading={deletingOrder}
           disabled={isCopy}
         >削除</Button>

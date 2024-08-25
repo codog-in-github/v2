@@ -64,10 +64,6 @@ function MainContent() {
     >
       <div
         type='primary'
-        className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
-      >指派任务</div>
-      <div
-        type='primary'
         className='text-danger-500 hover:text-white hover:bg-danger-500 border-t active:bg-danger-700'
       >终止任务</div>
     </div>

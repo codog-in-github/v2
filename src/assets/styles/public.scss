@@ -15,7 +15,7 @@ body {
   background-color: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: $color-primary;
+  @apply bg-gray-300;
   border-radius: 9999px;
 }
 

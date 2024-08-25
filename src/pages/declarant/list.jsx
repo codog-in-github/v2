@@ -1,17 +1,57 @@
 import classnames from "classnames";
 import { Avatar } from "antd";
-const DeclarantItem = ({ el }) => {
-  const arr = el.arr || [];
+import { request } from "@/apis/requestBuilder";
+import { useState } from "react";
+import { useEffect } from "react";
+import { useAsyncCallback } from "@/hooks";
+import dayjs from "dayjs";
+import { CUSTOMS_STATUS_END, ORDER_TYPE_EXPORT } from "@/constant";
+import { Spin } from "antd";
+import pubSub from "@/helpers/pubSub";
+import { createContext } from "react";
+import { useContext } from "react";
 
-  let cur = (type) => {
-    return classnames(
-      "rounded-full py-[2px] px-[10px]",
-      el.status === 1 && arr.includes(type) && "bg-blue-500 text-white",
-      el.status === 2 && arr.includes(type) && "bg-gray-700 text-white"
-    );
-  };
+const statusNames = '未,申,質,査,許'.split(',')
+const ListContext = createContext({ setStatus: async () => {} })
+const getList = async (filters) => {
+  const rep = await request('/admin/customs/list').get(filters).send()
+  const list = []
+  for(const date in rep) {
+    const data = []
+    const group = {
+      id: date,
+      date: dayjs(date).format("YYYY年MM月DD日"),
+      all: rep[date].length,
+      can: 0,
+      data
+    }
+    for(const order of rep[date]) {
+      if(order.customs_stauts < CUSTOMS_STATUS_END) {
+        group.can++
+      }
+      data.push({
+        id: order.id,
+        name: order.company_name,
+        kou: order.type === ORDER_TYPE_EXPORT ? "出" : "入",
+        pol: `${order.loading_port_name?.split('/')[1] ?? ''}-${order.delivery_country_name?.split('/')[1] ?? ''}`,
+        fan: order.order_no,
+        status: order.customs_status,
+        disabled: !order.is_confirm
+      })
+    }
+    list.push(group)
+  }
+  return list
+}
+const DeclarantItem = ({ el }) => {
+  const [status, setStatus] = useState(el.status) 
+  const { setStatus: setStatusApi } = useContext(ListContext)
+
+  useEffect(() => {
+    setStatus(el.status)
+  }, [el.status])
   return (
-    <div className="flex justify-around bg-white text-[14px]  h-[50px] items-center even:bg-gray-100">
+    <div className="grid grid-cols-[1fr_1fr_1fr_1fr_2fr] [&>*]:mx-auto bg-white text-[14px]  h-[50px] items-center even:bg-gray-100">
       <Avatar
         size={30}
         style={{ backgroundColor: "#484848", fontSize: "14px" }}
@@ -21,13 +61,25 @@ const DeclarantItem = ({ el }) => {
       <div>{el.kou}</div>
       <div>{el.pol}</div>
       <div>{el.fan}</div>
-      {el.status !== 3 && (
+      {!el.disabled && (
         <div className="w-[180px] flex justify-around bg-gray-200 rounded-lg text-[15px] ">
-          <span className={cur("wei")}>未</span>
-          <span className={cur("shen")}>申</span>
-          <span className={cur("zhi")}>質</span>
-          <span className={cur("cha")}>査</span>
-          <span className={cur("xu")}>許</span>
+          {statusNames.map((name, i) => (
+            <span
+              key={i}
+              className={classnames(
+                "rounded-full py-[2px] px-[10px] cursor-pointer",
+                i === status &&  "bg-blue-500 text-white",
+              )}
+              onClick={() => {
+                if(i <= status){
+                  return
+                } 
+                setStatusApi(el.id, i).then(() => {
+                  setStatus(i)
+                })
+              }}
+            >{name}</span> 
+          ))}
         </div>
       )}
     </div>
@@ -53,7 +105,7 @@ const DeclarantCard = ({ item }) => {
       </div>
       <div
         className={classnames(
-          "flex justify-around bg-blue-200 text-[16px] py-[8px] h-[40px]",
+          "grid grid-cols-[1fr_1fr_1fr_1fr_2fr] [&>*]:mx-auto bg-blue-200 text-[16px] py-[8px] h-[40px]",
           curCardId === item.id && "bg-blue-500 text-white"
         )}
       >
@@ -62,11 +114,9 @@ const DeclarantCard = ({ item }) => {
         <div>POL-POD</div>
         <div>管理番号</div>
         <div className="w-[180px] flex justify-around">
-          <span>未</span>
-          <span>申</span>
-          <span>質</span>
-          <span>査</span>
-          <span>許</span>
+          {statusNames.map((name, i) => (
+            <span key={i}>{name}</span>
+          ))}
         </div>
       </div>
 
@@ -80,65 +130,40 @@ const DeclarantCard = ({ item }) => {
 };
 
 const DeclarantList = () => {
-  const data = [
-    {
-      id: 1,
-      date: "2024年6月5日",
-      all: 30,
-      can: 15,
-      data: [
-        {
-          id: "1-1",
-          name: "春海組システム",
-          kou: "出",
-          pol: "KB-BK",
-          fan: "2024041081K",
-          arr: ["shen"],
-          status: 1,
-        },
-        {
-          id: "1-2",
-          name: "宁宁宁",
-          kou: "入",
-          pol: "KB-BK",
-          fan: "2024041081K",
-          arr: ["wei", "xu"],
-          status: 1,
-        },
-        {
-          id: "1-3",
-          name: "苏苏苏",
-          kou: "出",
-          pol: "KB-BK",
-          fan: "2024041081K",
-          arr: ["cha"],
-          status: 2,
-        },
-      ],
-    },
-    {
-      id: 2,
-      date: "2024年6月4日",
-      all: 30,
-      can: 25,
-    },
-  ];
-
+  const [data, setData] = useState([])
+  const [getListHandle, loading] = useAsyncCallback(async (filters) => {
+    const data = await getList(filters)
+    setData(data)
+  })
+  useEffect(() => {
+    getListHandle()
+    pubSub.subscribe("None.Customs.List.Filter", getListHandle)
+    return () => {
+      pubSub.unsubscribe("None.Customs.List.Filter", getListHandle)
+    }
+  }, [])
+  const [setStatus, loadingStatus] = useAsyncCallback(async (id, status) => {
+    await request('/admin/customs/set_status').post({ id, status }).send()
+    pubSub.publish("Info.Toast", '通关状态修改成功', 'success')
+  })
   return (
-    <div className="h-full w-full">
-      <div className="text-gray-400 text-[15px] h-[25px]">
-        * 自社通关编号表示
-      </div>
+    <ListContext.Provider value={{ setStatus }}>
+      <div className="h-full w-full">
+        <Spin spinning={loading}  fullscreen />
+        <div className="text-gray-400 text-[15px] h-[25px]">
+          * 自社通关编号表示
+        </div>
 
-      <div
-        className="bg-white px-[20px] py-[15px] overflow-x-auto  flex flex-nowrap"
-        style={{ height: "calc(100% - 25px)" }}
-      >
-        {data.map((item) => (
-          <DeclarantCard key={item.id} item={item} />
-        ))}
+        <div
+          className="bg-white px-[20px] py-[15px] overflow-x-auto  flex flex-nowrap"
+          style={{ height: "calc(100% - 25px)" }}
+        >
+          {data.map((item) => (
+            <DeclarantCard key={item.id} item={item} />
+          ))}
+        </div>
       </div>
-    </div>
+    </ListContext.Provider>
   );
 };
 

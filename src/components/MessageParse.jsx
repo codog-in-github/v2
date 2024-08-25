@@ -19,7 +19,6 @@ const MessageParse = ({ message }) => {
     const eles = []
     for(let i = 0; i < docu.body.childNodes.length; i++) {
       const node = docu.body.childNodes[i];
-      console.log(node.nodeName)
       if(node.nodeName === 'FILE') {
         eles.push(
           <FileNode key={`file-${i}`} src={node.getAttribute('src')} />

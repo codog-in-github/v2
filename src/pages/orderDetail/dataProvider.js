@@ -3,11 +3,9 @@ import dayjs from "dayjs"
 import { pipe, touch } from "@/helpers/utils"
 import { request } from "@/apis/requestBuilder"
 import { useAsyncCallback } from "@/hooks"
-import { useState, useEffect, useCallback } from "react"
-import { useParams } from "react-router-dom"
+import { useState, useEffect, useCallback, createContext, useRef } from "react"
+import { useParams, useNavigate } from "react-router-dom"
 import pubSub from "@/helpers/pubSub"
-import { createContext } from "react"
-import { useNavigate } from "react-router-dom"
 
 export const DetailDataContext = createContext()
 
@@ -34,6 +32,7 @@ const orderNodesGenerator = ({ nodes = []}) => {
       sendTime: item['mail_at'],
       sender: item['sender'],
       step: item['step'],
+      mailTimes: item['mail_times'],
       redo: item['mail_times'] > item['step'],
     })
   }
@@ -108,6 +107,7 @@ const formDataGenerator = (isCopy) => (rep) => {
    * $table->string('voyage')->default('')->comment('航线');
    */
   setIfExist('carrier', 'carrier')
+  setIfExist('carrier_id', 'carrier_id')
   setIfExist('vesselName', 'vessel_name')
   setIfExist('voyage', 'voyage')
    /**
@@ -264,6 +264,7 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
    * * ship 船社信息
    */
   setValue('carrier', 'carrier')
+  setValue('carrier_id', 'carrier_id')
   setValue('vesselName', 'vessel_name')
   setValue('voyage', 'voyage')
    /**
@@ -378,12 +379,14 @@ export const useDetailData = () => {
   const [form] = Form.useForm()
   const [nodes, setNodes] = useState([])
   const [requestBooks, setRequestBooks] = useState([])
-  const [loading, setLoading] = useState(false)
   const [messages, setMessages] = useState([])
   const [files, setFiles] = useState({})
+  const navigateForce = useRef(false)
 
   const isCopy = Boolean(copyId)
   const isTempOrder = nodes.length === 0
+
+  const rootRef = useRef(null)
 
   const onDeleteFiles = useCallback((deleteFiles, success, fail) => {
     request('/admin/delete_files')
@@ -414,12 +417,40 @@ export const useDetailData = () => {
 
   const [delOrder, deletingOrder] = useAsyncCallback(async () => {
     await request('/admin/order/delete')
-      .post()
-      .send({
+      .data({
         'id': form.getFieldValue('id')
       })
+      .send()
     pubSub.publish('Info.Toast', '删除成功', 'success')
+    navigateForce.current = true
     navigate(-1)
+  })
+
+  const [fetchOrder, loading] = useAsyncCallback((id) => {
+    return request('/admin/order/detail')
+    .get({ id })
+    .send()
+    .then(touch(pipe(
+      formDataGenerator(isCopy),
+      form.setFieldsValue.bind(form)
+    )))
+    .then(touch(pipe(
+      orderNodesGenerator,
+      setNodes
+    )))
+    .then(touch(pipe(
+      messagesGenerator,
+      setMessages,
+      () => setTimeout(scrollBottom, 20)
+    )))
+    .then(touch(pipe(
+      filesGenerator,
+      setFiles,
+    )))
+    .then(touch(pipe(
+      requestBookGenerator,
+      setRequestBooks,
+    )))
   })
 
   const [saveOrder, savingOrder] = useAsyncCallback(async () => {
@@ -434,9 +465,15 @@ export const useDetailData = () => {
       }
       return
     }
-    await request('/admin/order/edit_order')
+    const { id: newId } = await request('/admin/order/edit_order')
       .data(apiSaveDataGenerator(formData, isCopy))
       .send()
+    if(isCopy) {
+      navigateForce.current = true
+      navigate(`/orderDetail/${newId}`, { replace: true })
+    } else {
+      fetchOrder(id)
+    }
     pubSub.publish('Info.Toast', '保存成功', 'success')
   })
   const saveOrderFile = ({ fileUrl, type }) => {
@@ -457,32 +494,7 @@ export const useDetailData = () => {
     })
   }
   useEffect(() => {
-    setLoading(true)
-    request('/admin/order/detail')
-      .get({ id: id ?? copyId })
-      .send()
-      .then(touch(pipe(
-        formDataGenerator(isCopy),
-        form.setFieldsValue.bind(form)
-      )))
-      .then(touch(pipe(
-        orderNodesGenerator,
-        setNodes
-      )))
-      .then(touch(pipe(
-        messagesGenerator,
-        setMessages,
-        () => setTimeout(scrollBottom, 20)
-      )))
-      .then(touch(pipe(
-        filesGenerator,
-        setFiles,
-      )))
-      .then(touch(pipe(
-        requestBookGenerator,
-        setRequestBooks,
-      )))
-      .finally(() => setLoading(false))
+    fetchOrder(id ?? copyId)
   }, [form, id, copyId])
 
   const [refreshNodes] = useAsyncCallback(() => 
@@ -552,7 +564,9 @@ export const useDetailData = () => {
     requestBooks,
     delRequestBook,
     deletingRequestBook,
-    isCopy
+    isCopy,
+    navigateForce,
+    rootRef
   }
 }
 

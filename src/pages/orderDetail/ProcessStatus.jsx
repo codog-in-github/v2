@@ -59,10 +59,12 @@ const ProcessBar = ({
   sender,
   redo,
   mail,
+  mailTimes,
   onClickDetail
 }) => {
   const { changeNodeStatus, changingNodeStatus } = useContext(DetailDataContext)
   let context = children
+
   if(!canDo) {
     context = null
   } else if(isEnd) {
@@ -75,31 +77,23 @@ const ProcessBar = ({
       to: MAIL_TO_SHIP
     }
     context = (
-      <>
-        <div>{sendTime}  {sender}</div>
-        { [ORDER_NODE_TYPE_SUR, ORDER_NODE_TYPE_BL_COPY].includes(nodeType) && (
-          <Button  type="primary" onClick={() => mail.current.open(mailData)}>BL訂正</Button>
-        ) }
-        <Button onClick={() => onClickDetail(nodeId)}>詳細</Button>
-      </>
+      [ORDER_NODE_TYPE_SUR, ORDER_NODE_TYPE_BL_COPY].includes(nodeType) && (
+        <Button  type="primary" onClick={() => mail.current.open(mailData)}>BL訂正</Button>
+      )
     )
   } else if(redo) {
-    context = (
-      <>
-        <div>{sendTime}  {sender}</div>
-        { children }
-        <Button onClick={() => onClickDetail(nodeId)}>詳細</Button>
-      </>
-    )
+    context = children
   }
   return (
-    <div className="flex gap-4 items-center h-8">
+    <div className="flex gap-4 items-center h-8 [&:has(button)>.hidden]:block">
       <Light
         onToggle={(status) => { changingNodeStatus || changeNodeStatus(nodeId, status) }}
         active={canDo && !isEnd}
       >{EXPORT_NODE_NAMES[nodeType]}</Light>
-      <div className="flex-1 border-dashed border-t border-gray-500"></div>
+      <div className="hidden flex-1 border-dotted border-t border-[#b2b2b2]"></div>
+      {mailTimes > 0 && <div>{sendTime}  {sender}</div>}
       {context}
+      {mailTimes > 0 && <Button onClick={() => onClickDetail(nodeId, nodeType)}>詳細</Button>}
     </div>
   )
 }
@@ -186,7 +180,7 @@ const ProcessBarButtons = ({ nodeId, nodeType, step, mail, sended, redo }) => {
 }
 
 const ProcessStatus = ({className}) => {
-  const { nodes, refreshNodes, isCopy } = useContext(DetailDataContext)
+  const { nodes, refreshNodes, isCopy, rootRef } = useContext(DetailDataContext)
   const detailRef = useRef(null)
   // const multiSendOptions = nodes
   //   .filter(item => item.canDo && !item.isEnd)
@@ -200,13 +194,13 @@ const ProcessStatus = ({className}) => {
       <div className="p-2 flex items-center gap-2">
         <div>状態</div>
         <Space.Compact className="flex-1">
-          <Select mode="multiple" className="w-full"></Select>
+          <Select mode="multiple" className="w-full" getPopupContainer={() => rootRef.current}></Select>
           <Button type="primary" className="bg-success hover:!bg-success-400">送信</Button>
         </Space.Compact>
       </div>
       <div lang="p-2" className="flex flex-col gap-2 p-2">
         {!isCopy && nodes.map((item, index) => (
-          <ProcessBar {...item} mail={mail} key={index} onClickDetail={(id) => detailRef.current.open(id)}>
+          <ProcessBar {...item} mail={mail} key={index} onClickDetail={(id, type) => detailRef.current.open(id, type)}>
             <ProcessBarButtons {...item} mail={mail} />
           </ProcessBar>
         ))}

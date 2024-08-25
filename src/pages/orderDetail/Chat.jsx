@@ -5,6 +5,7 @@ import { DetailDataContext, useAtUserOptions } from "./dataProvider"
 import classNames from "classnames"
 import { useContext } from "react"
 import MessageParse from "@/components/MessageParse"
+import { useRef } from "react"
 
 const At = ({ children }) => {
   return (
@@ -55,9 +56,10 @@ const MessageBoard = ({ messages, disabled }) => {
 const MessageInput = ({ onSend, disabled, inSending = false }) => {
   const [at, setAt] = useState('')
   const [msg, setMsg] = useState('')
+  const { rootRef } = useContext(DetailDataContext)
   const {
     options: users,
-    loading
+    loading,
   } = useAtUserOptions()
   const sendBtnClickHandle = () => {
     if(!msg) {
@@ -70,11 +72,16 @@ const MessageInput = ({ onSend, disabled, inSending = false }) => {
   return (
     <Space.Compact className="flex h-16 my-4 mt-2">
       <Select
-        className="h-full w-32"
+        getPopupContainer={() => rootRef.current}
+        className="h-full w-44"
         value={at}
         options={users}
         onChange={setAt}
         loading={loading}
+        labelRender={(option) => <At>{option.label}</At>}
+        optionRender={(option) => <span className="text-lg">{option.label}</span>}
+        popupMatchSelectWidth={200}
+        allowClear
       />
       <Input disabled={disabled} value={msg} onChange={e => setMsg(e.target.value)}></Input>
       <Button disabled={disabled} loading={inSending} className="h-full" onClick={sendBtnClickHandle}>发送</Button>
@@ -87,14 +94,18 @@ const Chat = ({ className, sending }) => {
     messages,
     sendMessage,
   } = useContext(DetailDataContext)
+  const rootRef = useRef(null)
   return (
-    <div className={classNames(
-      className, 'h-full overflow-hidden'
-    )}>
+    <div
+      ref={rootRef}
+      className={classNames(
+        className, 'h-full overflow-hidden'
+      )}
+    >
       <Label className="flex-shrink-0">社内伝達</Label>
       <div className="p-2 flex-1 flex flex-col h-full">
         <MessageBoard disabled={isCopy} messages={messages} />
-        <MessageInput disabled={isCopy} onSend={sendMessage}  inSending={sending} />
+        <MessageInput rootRef={rootRef} disabled={isCopy} onSend={sendMessage}  inSending={sending} />
       </div>
     </div>
   )

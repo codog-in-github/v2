@@ -7,7 +7,7 @@ let instance;
  * 全局事件订阅发布
  * 
  * 事件命名规范
- * (Info|Warring|Error|Success)(:#事件分类#)[.(...(#子分类#))]
+ * (Info|Warring|Error|Success|None)(:#事件分类#)[.(...(#子分类#))]
  * 名称均以大驼峰命名
  * eg. Info:HTTP.State.200
  *     Error:API.Code
