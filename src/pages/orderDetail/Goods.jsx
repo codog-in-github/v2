@@ -92,7 +92,7 @@ const ContainerList = ({
     page, onWheelHandle, movePage, movePageForce
   } = usePage(list)
   const { containerTypes } = useContext(GoodsContext)
-  const rootRef = useRef(null)
+  const { rootRef, form } = useContext(DetailDataContext)
   return (
     <div ref={rootRef} className="flex overflow-hidden">
       <div className="flex-1 h-16">
@@ -114,6 +114,7 @@ const ContainerList = ({
                     placement="topLeft"
                     options={containerTypes}
                     getPopupContainer={() => rootRef.current}
+                    onSelect={(value) => form.setFieldValue(['cars', 0, 'vanType'], value)}
                   />
                 </Form.Item>
                 <Form.Item className="flex-1" label="QUANTITY" name={[props.name, 'quantity']}>
