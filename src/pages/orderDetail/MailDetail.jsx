@@ -37,7 +37,7 @@ const TimeLine = ({ items, children }) => {
                 <span className="inline-block w-16">{item.operator}</span>
                 <span className="text-gray-500">{item.operate_at}</span>
               </div>
-              {item.type === MAIL_LOG_TYPE_MAIL && children(item)}
+              {children(item)}
             </div>
           </div>
         )
@@ -51,7 +51,7 @@ const MailRecord = ({ record }) => {
     case MAIL_LOG_TYPE_ACC_PAY:
       return (
         <>
-          <div className="mb-2">金额：￥{data.mount && Number(data.mount).toFixed(2)}</div>
+          <div className="mb-2">金额：￥{data.amount && Number(data.amount).toFixed(2)}</div>
         </>
       )
     default:

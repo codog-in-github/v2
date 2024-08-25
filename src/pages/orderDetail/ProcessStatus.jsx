@@ -18,6 +18,8 @@ import {
   ORDER_NODE_TYPE_REQUEST,
   FILE_TYPE_REQUEST,
   FILE_TYPE_COST,
+  GATE_SELF,
+  MAIL_TO_CUSTOMS_DECLARANT,
 } from "@/constant"
 import Mail from "./Mail"
 import { useRef } from "react"
@@ -114,6 +116,7 @@ const getMailTo = (nodeType, step) => {
 }
 const ProcessBarButtons = ({ nodeId, nodeType, step, mail, sended, redo }) => {
   const { refreshNodes } = useContext(DetailDataContext)
+  const form = Form.useFormInstance()
   const mailData = {
     nodeType,
     nodeId,
@@ -171,6 +174,9 @@ const ProcessBarButtons = ({ nodeId, nodeType, step, mail, sended, redo }) => {
       }
     case ORDER_NODE_TYPE_CUSTOMER_DOCUMENTS:
       mailData.file = [FILE_TYPE_CUSTOMS]
+      if(form.getFieldValue('gateCompany') === GATE_SELF) {
+        mailData.to = MAIL_TO_CUSTOMS_DECLARANT
+      }
       return (
         <Button type="primary" onClick={() => mail.current.open(mailData)}>送信</Button>
       )
