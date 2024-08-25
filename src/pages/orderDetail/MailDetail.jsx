@@ -47,18 +47,28 @@ const TimeLine = ({ items, children }) => {
 }
 const MailRecord = ({ record }) => {
   const data = JSON.parse(record.content)
-  return (
-    <>
-      <div className="mb-2">收件人：{data.to?.join(',')}</div>
-      {
-        data.files && data.files.length > 0 && (
-          <div className="bg-gray-200 py-2 px-4 text-gray-800">
-            {data.files.map(basename)}
-          </div>
-        )
-      }
-    </>
-  )
+  switch (record.type) {
+    case MAIL_LOG_TYPE_ACC_PAY:
+      return (
+        <>
+          <div className="mb-2">金额：￥{data.mount && Number(data.mount).toFixed(2)}</div>
+        </>
+      )
+    default:
+      return (
+        <>
+          <div className="mb-2">收件人：{data.to?.join(',')}</div>
+          {
+            data.files && data.files.length > 0 && (
+              <div className="bg-gray-200 py-2 px-4 text-gray-800">
+                {data.files.map(basename)}
+              </div>
+            )
+          }
+        </>
+      )
+  }
+  
 }
 
 const MailDetail = ({
