@@ -17,6 +17,7 @@ import {
   ORDER_NODE_TYPE_FM,
   ORDER_NODE_TYPE_REQUEST,
   FILE_TYPE_REQUEST,
+  FILE_TYPE_COST,
 } from "@/constant"
 import Mail from "./Mail"
 import { useRef } from "react"
@@ -156,6 +157,7 @@ const ProcessBarButtons = ({ nodeId, nodeType, step, mail, sended, redo }) => {
           case SUR_STEP_PAYED:
             mailData.to = MAIL_TO_SHIP
             mailData.title = `${EXPORT_NODE_NAMES[nodeType]} - SUR依赖`
+            mailData.file = [FILE_TYPE_COST]
             return (
               <Button type="primary" disabled={step === SUR_STEP_WAIT_PAY} onClick={() => mail.current.open(mailData)}>SUR依赖</Button>
             )
