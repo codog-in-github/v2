@@ -32,7 +32,7 @@ const getList = async (filters) => {
       data.push({
         id: order.id,
         name: order.company_name,
-        kou: order.type === ORDER_TYPE_EXPORT ? "出" : "入",
+        kou: order.order_type === ORDER_TYPE_EXPORT ? "出" : "入",
         pol: `${order.loading_port_name?.split('/')[1] ?? ''}-${order.delivery_country_name?.split('/')[1] ?? ''}`,
         fan: order.order_no,
         status: order.customs_status,
