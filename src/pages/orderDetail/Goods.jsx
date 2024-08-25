@@ -213,7 +213,7 @@ const CarList = ({
                 danger
                 type="primary"
                 onClick={() => {
-                  onRemoveCar(containerFieldName, props.key)
+                  onRemoveCar(props.name)
                   if(page !== 0) {
                     movePage(page - 1)
                   }
@@ -295,6 +295,7 @@ const Goods = ({ className }) => {
     form.setFieldValue('containers', [...oldValue])
   }, [form])
   const onRemoveCarHandle = useCallback((key) => {
+    console.log(key)
     const oldValue = form.getFieldValue('cars')
     oldValue.splice(key, 1)
     form.setFieldValue('cars', [...oldValue])
