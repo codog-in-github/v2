@@ -84,13 +84,13 @@ const BookingNotice = ({ instance }) => {
         <Form.Item name="booking_no" label="BOOKING NO">
           <Input></Input>
         </Form.Item>
+        <Form.Item name="carrier" label="CARRIER">
+          <Input></Input>
+        </Form.Item>
         <Form.Item name="vessel" label="VESSEL">
           <Input></Input>
         </Form.Item>
         <Form.Item name="voyage" label="VOY">
-          <Input></Input>
-        </Form.Item>
-        <Form.Item name="carrier" label="CARRIER">
           <Input></Input>
         </Form.Item>
         <Form.Item name="loading_port_name" label="POL">
@@ -99,21 +99,23 @@ const BookingNotice = ({ instance }) => {
         <Form.Item name="delivery_port_name" label="POD">
           <Input></Input>
         </Form.Item>
-        <Form.Item name="etd" label="ETD">
-          <DatePicker></DatePicker>
-        </Form.Item>
-        <Form.Item name="eta" label="ETA">
-          <DatePicker></DatePicker>
-        </Form.Item>
-        <Form.Item name="cy_open" label="CY OPEN">
-          <DatePicker></DatePicker>
-        </Form.Item>
-        <Form.Item name="cy_cut" label="CY CUT">
-          <DatePicker></DatePicker>
-        </Form.Item>
-        <Form.Item name="doc_cut" label="DOC CUT">
-          <DatePicker></DatePicker>
-        </Form.Item>
+        <div className="grid grid-cols-2">
+          <Form.Item labelCol={{ span: 8 }} name="etd" label="ETD">
+            <DatePicker className="w-full"></DatePicker>
+          </Form.Item>
+          <Form.Item labelCol={{ span: 8 }} name="eta" label="ETA">
+            <DatePicker className="w-full"></DatePicker>
+          </Form.Item>
+          <Form.Item labelCol={{ span: 8 }} name="cy_open" label="CY OPEN">
+            <DatePicker className="w-full"></DatePicker>
+          </Form.Item>
+          <Form.Item labelCol={{ span: 8 }} name="cy_cut" label="CY CUT">
+            <DatePicker className="w-full"></DatePicker>
+          </Form.Item>
+          <Form.Item labelCol={{ span: 8 }} name="doc_cut" label="DOC CUT">
+            <DatePicker className="w-full"></DatePicker>
+          </Form.Item>
+        </div>
         <Form.List name='containers'>{list => list.map(props => (
           <Form.Item key={props.name} name={props.name} label={`CONTAINER ${props.name + 1}`}>
             <Input></Input>
@@ -121,9 +123,6 @@ const BookingNotice = ({ instance }) => {
         ))}</Form.List>
         <Form.Item name="common" label="COMMON">
           <Input></Input>
-        </Form.Item>
-        <Form.Item name="consignee" label="CONSIGNEE">
-          <Input.TextArea></Input.TextArea>
         </Form.Item>
         <Form.Item name="remark" label="REMARK">
           <Input.TextArea></Input.TextArea>
