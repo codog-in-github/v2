@@ -9,7 +9,7 @@ const getCustomers = async () => {
   const rep = await request('admin/customer/list').get().send()
   return rep.map(item => ({
     value: item['id'],
-    label: item['company_name']
+    label: item['name']
   }))
 }
 

@@ -1,5 +1,5 @@
 import { Button, Input, Row, Col, Avatar, Progress } from "antd";
-import { PlusOutlined, RightOutlined } from "@ant-design/icons";
+import { MinusOutlined, PlusOutlined, RightOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAsyncCallback } from "@/hooks";
@@ -9,23 +9,45 @@ import { Modal } from "antd";
 import { useRef } from "react";
 import { Form } from "antd";
 import SkeletonList from "@/components/SkeletonList";
+import { useCallback } from "react";
 
 const CustomerAddModal = ({ modal, onSuccess }) => {
   const [open, setOpen] = useState(false)
   const [form] = Form.useForm()
   if(modal) {
     modal.current = {
-      open() {
+      open(id) {
+        form.resetFields()
+        form.setFieldValue(['contacts', 0], {})
         setOpen(true)
+        if(id) {
+          load(id)
+        }
       }
     }
   }
-  const [submit, loading] = useAsyncCallback(async () => {
+  
+  const [load, loading] = useAsyncCallback(async (id) => {
+    const rep = await request('/admin/customer/detail').get({ id }).send()
+    form.setFieldsValue(rep)
+  })
+  
+  const [submit, inSubmit] = useAsyncCallback(async () => {
     const data = await form.validateFields()
+    console.log(data)
     await request('/admin/customer/save').data(data).send()
     onSuccess()
-    setOpen(false)
+    // setOpen(false)
   })
+
+  const del = useCallback((index) => {
+    form.setFieldValue(['contacts'], form.getFieldValue(['contacts']).filter((_, i) => i !== index))
+  }, [])
+
+  const add = useCallback(() => {
+    form.setFieldValue(['contacts'], [...form.getFieldValue(['contacts']), {}])
+  }, [])
+
   return (
     <Modal
       open={open}
@@ -34,56 +56,73 @@ const CustomerAddModal = ({ modal, onSuccess }) => {
       onCancel={() => setOpen(false)}
       width={800}
     >
-      <Form className="mt-8 pr-8" form={form} labelCol={{ span: 4 }}>
-        <Form.Item label="お客様名" name="company_name" rules={[{ required: true }]}>
-          <Input placeholder="お客様名" />          
-        </Form.Item>
-        <Form.Item label="略称" name="short_name" rules={[{ required: true }]}>
-          <Input placeholder="略称" />          
-        </Form.Item>
-        <Form.Item label="担当者" name="header" rules={[{ required: true }]}>
-          <Input placeholder="担当者" />          
-        </Form.Item>
-        <Form.Item label="法人番号" name="legal_number" rules={[{ required: true }]}>
-          <Input placeholder="法人番号" />          
-        </Form.Item>
-        <Form.Item label="電話番号" name="mobile" rules={[{ required: true }]}>
-          <Input placeholder="電話番号" />          
-        </Form.Item>
-        <Form.Item label="E-MAIL" name="mail" rules={[{ required: true }]}>
-          <Input placeholder="email" />          
-        </Form.Item>
-        <Form.Item label="メールアドレス" name="email">
-          <Input placeholder="メールアドレス" />          
-        </Form.Item>
-        <Form.Item label="住所" name="address">
-          <Input placeholder="住所" />          
-        </Form.Item>
-        <Form.Item label="FAX" name="fax">
-          <Input placeholder="FAX" />          
-        </Form.Item>
-        <Form.Item label="郵便番号" name="zip_code">
-          <Input placeholder="郵便番号" />          
+      <Form layout="vertical" className="mt-8 px-8" form={form}>
+        <Form.Item name="id" noStyle></Form.Item>
+        <div className="grid grid-cols-3 gap-x-4">
+          <Form.Item label="お客様名" name="name" rules={[{ required: true, message: 'お客様名' }]} className="col-span-2">
+            <Input />
+          </Form.Item>
+          <Form.Item label="略称" name="abbr" rules={[{ required: true, message: '略称' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="住所" name="addr" className="col-span-3">
+            <Input />
+          </Form.Item>
+          <Form.Item label="法人番号" name="code">
+            <Input />
+          </Form.Item>
+          <Form.Item label="電話" name="tel">
+            <Input />
+          </Form.Item>
+          <Form.Item label="FAX" name="fax">
+            <Input />
+          </Form.Item>
+          <Form.Item label="〒" name="zipcode">
+            <Input />
+          </Form.Item>
+          <Form.Item label="メールアドレス" name="email" className="col-span-2">
+            <Input />
+          </Form.Item>
+          <Form.Item label="CC" name="cc" className="col-span-3">
+            <Input />
+          </Form.Item>
+        </div>
+        <Form.Item label="担当者信息">
+          <Form.List name="contacts">{list => (
+            <div className="bg-gray-100 p-4">{
+              list.map((props) => (
+                <div className="flex gap-4 items-center [&:nth-child(n+2)]:mt-4" key={props.name}>
+                  <div className="w-12">担当者</div>
+                  <Form.Item noStyle name={[props.name, 'name']} rules={[{ required: true, message: '请输入担当者' }]}>
+                    <Input className="flex-1"></Input>
+                  </Form.Item>
+                  <div className="w-12">携帯</div>
+                  <Form.Item noStyle name={[props.name, 'tel']}>
+                    <Input className="flex-1"></Input>
+                  </Form.Item>
+                  <div className="w-24 flex">
+                    <Button type="primary" icon={<PlusOutlined />} onClick={add}></Button>
+                    {props.name > 0 &&  <Button type="primary" className="ml-2" onClick={() => del(props.name)} danger icon={<MinusOutlined />}></Button>}
+                  </div>
+                </div>
+              ))
+            }</div>
+          )}</Form.List>
         </Form.Item>
       </Form>
       <div className="flex gap-2 items-center justify-center">
-        <Button className="w-32" type="primary" loading={loading} onClick={submit}>确认</Button>
+        <Button className="w-32" type="primary" loading={inSubmit || loading} onClick={submit}>确认</Button>
         <Button className="w-32" onClick={() => setOpen(false)}>取消</Button>
       </div>
     </Modal>
   )
 };
 
-const CustomerCard = ({ item }) => {
-  const navigate = useNavigate()
-  const handleClick = (id) => {
-    navigate(`/customer/${id}/top`)
-  };
-
+const CustomerCard = ({ item, ...props }) => {
   return (
     <div
       className="border-2  px-2 py-2 relative rounded-lg cursor-pointer hover:border-primary duration-150"
-      onClick={() => handleClick(item.id)}
+      {...props}
     >
       <div className="absolute top-0 right-0 text-[12px] bg-primary text-white px-[10px] py-[4px] rounded leading-none">
         情報編集
@@ -138,12 +177,12 @@ const useCustomerList = () => {
     const list = await request('/admin/customer/list').get().send()
     const customers = list.map(item => ({
       id: item['id'],
-      title: item['company_name'],
-      avatar: item['short_name'],
-      person: item['header'],
-      mobile: item['mobile'],
-      all: item['order_total_count'],
-      do: item['order_indo_count'],
+      title: item['name'],
+      avatar: item['abbr'],
+      person: item['default_contact']['name'],
+      mobile: item['default_contact']['tel'],
+      all: 0,
+      do: 0,
     }))
     setCustomers(customers)
   })
@@ -193,7 +232,7 @@ const CustomerList = () => {
             list={list}
           >
             {(item) => (
-              <CustomerCard item={item} key={item.id} />
+              <CustomerCard onClick={() => modal.current.open(item.id)} item={item} key={item.id} />
             )}
           </SkeletonList>
         </div>
