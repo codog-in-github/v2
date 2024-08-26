@@ -221,8 +221,8 @@ const ProcessStatus = ({className}) => {
         ))}
       </div>
       <Label>REMARK</Label>
-      <Form.Item name="remark" className="m-2">
-        <Input.TextArea readOnly />
+      <Form.Item name="remark" className="m-2" rules={[{ required: true, message: '必須項目です' }]}>
+        <Input.TextArea readOnly={!isCopy} />
       </Form.Item>
       <Mail mail={mail} onSuccess={refreshNodes}></Mail>
       <MailDetail modal={detailRef} />

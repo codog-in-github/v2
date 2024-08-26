@@ -224,7 +224,9 @@ const formDataGenerator = (isCopy) => (rep) => {
   /**
    * $table->string('remark')->default('')->comment('备注');
    */
-  setIfExist('remark', 'remark')
+  if(!isCopy) {
+    setIfExist('remark', 'remark', (remark) => `${remark}\n${rep.creator} ${dayjs(rep.created_at).format('YYYY-MM-DD HH:mm:ss')}`)
+  }
   return result
 }
 
@@ -336,6 +338,7 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
     }
     if(isCopy) {
       delete detail['id']
+      setValue('remark', 'remark')
     }
     details.push(detail)
   }
