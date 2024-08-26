@@ -103,7 +103,7 @@ function Card({
           <CompanyAvatar text={orderInfo.avatarText}></CompanyAvatar>
           <div className='ml-4'>
             <div className="font-semibold">{orderInfo.companyName}</div>
-            <div className="mt-2 text-sm text-gray-500">{orderInfo.bkgNo}</div>
+            <div className="mt-2 text-sm text-gray-500">BKG NO. {orderInfo.bkgNo}</div>
           </div>
         </div>
       )}
