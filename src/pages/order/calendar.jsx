@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Select, Avatar } from "antd";
-import { BKG_TYPES } from "@/constant";
+import { BKG_TYPES, EXPORT_NODE_NAMES } from "@/constant";
 import { useEffect } from "react";
 import { request } from "@/apis/requestBuilder";
 import dayjs from "dayjs";
@@ -8,6 +8,7 @@ import { Button, Space, Spin } from "antd/lib";
 import { useAsyncCallback } from "@/hooks";
 import { useNavigate } from "react-router-dom";
 import { useRef } from "react";
+import classNames from "classnames";
 
 const bkgTypes = Object.entries(BKG_TYPES)
   .map(([value, label]) => ({
@@ -43,20 +44,23 @@ const useCalendarList = () => {
     const weeks = []
     for(let i = 0; i< 7; i++) {
       const list = []
-      const ymd = start.current.add(i, "day").format("YYYY-MM-DD")
+      const day = start.current.add(i, "day")
+      const ymd = day.format("YYYY-MM-DD")
+      const className = [0, 6].includes(day.day()) ? 'w-24 !flex-0' : 'flex-1'
       if(rep[ymd]) {
         list.push(...rep[ymd].map(item => ({
           id: item['id'],
           avatar: item['company_name'][0],
-          type: "通",
-          ben: 6,
-          loading: item['loading_port_name']?.split('/')[0].trim(),
-          delivery: item['delivery_port_name']?.split('/')[0].trim(),
-          bkgNo: item['bkg_no']
+          type: EXPORT_NODE_NAMES[item['active_nodes']?.[0]?.['node_id']] ?? '',
+          ben: item['containers'].length,
+          loading: `${item['loading_country_name']?.split('/')[1]?.trim() ?? ''}${item['loading_port_name']?.split('/')[1]?.trim() ?? ''}`,
+          delivery: `${item['delivery_country_name']?.split('/')[1]?.trim() ?? ''}${item['delivery_port_name']?.split('/')[1]?.trim() ?? ''}`,
+          bkgNo: item['bkg_no'],
         })))
       }
       weeks.push({
         id: i,
+        className,
         title: start.current.add(i, "day").format("ddd"),
         date: start.current.add(i, "day").format("M-D"),
         children: list,
@@ -75,7 +79,7 @@ const useCalendarList = () => {
 const CalendarItem = ({ item }) => {
   const navigate = useNavigate()
   return (
-    <div className="flex-1 border-r border-gray-500 text-[15px] first:border-l">
+    <div className={classNames("border-r border-gray-500 text-[15px] first:border-l", item.className)}>
       <div className="text-center text-gray-600 text-[16px] mb-1">
         {item.title}
       </div>
