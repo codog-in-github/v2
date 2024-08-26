@@ -27,7 +27,7 @@ const OrderDetail = () => {
             onOk={() => blocker.proceed()}
             onCancel={() => blocker.reset()}
           >
-            <div>救われないかもしれない、去りますか？</div>
+            <div>この画面から離れますか</div>
           </Modal>
           <Form
             form={form}
