@@ -51,17 +51,17 @@ const useOrderList = (pagination, filterForm) => {
       quantity: "40HQ , 6 ; 20HQ , 6",
       status: 1,
       color: [
-        "red",
-        "red",
-        "red",
-        "yellow",
-        "yellow",
         "gray",
         "gray",
         "gray",
-        "green",
-        "green",
-        "green",
+        "gray",
+        "gray",
+        "gray",
+        "gray",
+        "gray",
+        "gray",
+        "gray",
+        "gray",
       ],
     })))
   })
@@ -98,37 +98,37 @@ const columns = [
     title: "番号",
     dataIndex: "desi",
     key: "desi",
-    sorter: (a, b) => a.age - b.age,
+    // sorter: (a, b) => a.age - b.age,
   },
   {
     title: "BK号",
     dataIndex: "bk",
     key: "bk",
-    sorter: (a, b) => a.age - b.age,
+    // sorter: (a, b) => a.age - b.age,
   },
   {
-    title: "CUT",
+    title: "CY CUT",
     dataIndex: "cut",
     key: "cut",
-    sorter: (a, b) => a.age - b.age,
+    // sorter: (a, b) => a.age - b.age,
   },
   {
-    title: "POL , ETD",
+    title: "POL",
     dataIndex: "pol",
     key: "pol",
-    sorter: (a, b) => a.age - b.age,
+    // sorter: (a, b) => a.age - b.age,
   },
   {
-    title: "POD , ETA",
+    title: "POD",
     dataIndex: "pod",
     key: "pod",
-    sorter: (a, b) => a.age - b.age,
+    // sorter: (a, b) => a.age - b.age,
   },
   {
     title: "数量",
     dataIndex: "quantity",
     key: "quantity",
-    sorter: (a, b) => a.age - b.age,
+    // sorter: (a, b) => a.age - b.age,
   },
   {
     title: "状態",
@@ -151,8 +151,8 @@ const columns = [
     render: (id) => (
       <div className="btn-link-group">
         <Link className="btn-link" to={`/orderDetail/${id}`}>編集</Link>
-        <a className="btn-link">复制</a>
-        <Dropdown
+        {/* <a className="btn-link">复制</a> */}
+        {/* <Dropdown
           menu={{
             items: [
               {
@@ -168,7 +168,7 @@ const columns = [
           trigger="click"
         >
           <DashOutlined className="text-primary cursor-pointer ml-2 btn-link" />
-        </Dropdown>
+        </Dropdown> */}
       </div>
     ),
   },
@@ -191,19 +191,19 @@ const OrderList = () => {
           <Form.Item name="company_name" noStyle>
             <Input placeholder="お客様" style={{ width: 200 }} />
           </Form.Item>
-          <Form.Item name="order_id" noStyle>
+          <Form.Item name="order_no" noStyle>
             <Input placeholder="番号" style={{ width: 160 }} />
           </Form.Item>
-          <Form.Item name="bk_no" style={{ width: 160 }} noStyle>
+          <Form.Item name="bkg_no" style={{ width: 160 }} noStyle>
             <Input placeholder="BK号"></Input>
           </Form.Item>
-          <Form.Item name="pol" noStyle>
+          {/* <Form.Item name="pol" noStyle>
             <Select placeholder="POL" style={{ width: 160 }} />
           </Form.Item>
           <DashOutlined className="text-gray-500" />
           <Form.Item name="pod" noStyle>
             <Select placeholder="POD" style={{ width: 160 }}/>
-          </Form.Item>
+          </Form.Item> */}
           <Button type="primary" onClick={getList}>搜索</Button>
           <Button onClick={() => filters.resetFields()}>重置</Button>
         </Space>
