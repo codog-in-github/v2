@@ -101,13 +101,13 @@ const columns = [
     // sorter: (a, b) => a.age - b.age,
   },
   {
-    title: "BK号",
+    title: "BKG No.",
     dataIndex: "bk",
     key: "bk",
     // sorter: (a, b) => a.age - b.age,
   },
   {
-    title: "CY CUT",
+    title: "DOC CUT",
     dataIndex: "cut",
     key: "cut",
     // sorter: (a, b) => a.age - b.age,
@@ -205,7 +205,7 @@ const OrderList = () => {
             <Select placeholder="POD" style={{ width: 160 }}/>
           </Form.Item> */}
           <Button type="primary" onClick={getList}>搜索</Button>
-          <Button onClick={() => filters.resetFields()}>重置</Button>
+          <Button onClick={() => {filters.resetFields();getList()}}>重置</Button>
         </Space>
       </Form>
       <Table
