@@ -1,12 +1,13 @@
 import { useAnimate } from '@/hooks';
 import anime from 'animejs';
 import classNames from 'classnames';
-import { useRef } from 'react';
-import { useHref } from 'react-router-dom';
-import { NavLink } from 'react-router-dom';
+import { useRef, createContext, useContext } from 'react';
+import { useHref, NavLink } from 'react-router-dom';
 
+const NavContext = createContext({ vertical: false })
 export function NavButton(props) {
-  const staticClass = 'nav-button relative'
+  const { vertical } = useContext(NavContext)
+  const staticClass = ['nav-button relative', vertical && 'mb-4']
   return (
     <NavLink
       to={props.to}
@@ -23,7 +24,8 @@ export function NavButtonGroup(props) {
     'nav-button-group flex',
     {
       'rect': props.rect,
-      'align-left': props.align === 'left'
+      'align-left': props.align === 'left',
+      'flex-col': props.vertical
     }
   ]
   const boxRef = useRef(null)
@@ -52,9 +54,11 @@ export function NavButtonGroup(props) {
     props.className
   )
   return (
-    <div ref={boxRef} className={className}>
-      {props.children}
-    </div>
+    <NavContext.Provider value={{ vertical: props.vertical }}>
+      <div ref={boxRef} className={className}>
+        {props.children}
+      </div>
+    </NavContext.Provider>
   );
 }
 

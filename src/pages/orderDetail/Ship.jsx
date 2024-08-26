@@ -3,7 +3,9 @@ import Label from "@/components/Label"
 import { SELECT_ID_SHIP_CONPANY } from "@/constant"
 import { useAsyncCallback, useOptions } from "@/hooks"
 import { Form, Input, Select, DatePicker } from "antd"
+import { useContext } from "react"
 import { useState, useEffect } from "react"
+import { DetailDataContext } from "./dataProvider"
 
 const getPorts = () => {
   return request('admin/country/tree').get().send()
@@ -78,6 +80,7 @@ const Ship = ({ className }) => {
   const form = Form.useFormInstance()
   const [ships] = useOptions(SELECT_ID_SHIP_CONPANY)
   const shipOptions = ships.map(item => ({ value: item.id, label: item.value, origin: item }))
+  const { rootRef, onModifyChange } = useContext(DetailDataContext)
   return (
     <div className={className}>
       <Label>船社情報</Label>
@@ -86,18 +89,22 @@ const Ship = ({ className }) => {
           <Input name="id" hidden />
           <Form.Item name="carrier" noStyle></Form.Item>
           <Form.Item className="flex-1" label="CARRIER" name="carrier_id">
-            <Select options={shipOptions} onSelect={(_, { origin }) => {
-              form.setFieldValue('carrier', origin.value)
-              form.setFieldValue('vesselName', origin.extra ?? '')
-            }} />
+            <Select 
+              options={shipOptions} onSelect={(_, { origin }) => {
+                form.setFieldValue('carrier', origin.value)
+                form.setFieldValue('vesselName', origin.extra ?? '')
+              }}
+              getPopupContainer={() => rootRef.current}
+              onChange={onModifyChange}
+            />
           </Form.Item>
           <span className="relative bottom-1">/</span>
           <Form.Item className="flex-1" label="VESSEL NAME" name="vesselName">
-            <Input />
+            <Input onChange={onModifyChange} />
           </Form.Item>
           <span className="relative bottom-1">/</span>
           <Form.Item className="flex-1" label="VOYAGE" name="voyage">
-            <Input />
+            <Input onChange={onModifyChange} />
           </Form.Item>
         </div>
         <div className="flex gap-2 mt-2">
@@ -110,6 +117,8 @@ const Ship = ({ className }) => {
                 tree={portTree}
                 bind="loadingPort"
                 bindName="loadingCountryName"
+                onChange={onModifyChange}
+                getPopupContainer={() => rootRef.current}
               />
             </Form.Item>
             <Form.Item name="loadingPortName" noStyle />
@@ -119,19 +128,21 @@ const Ship = ({ className }) => {
                 tree={portTree}
                 bind="loadingCountry"
                 bindName="loadingPortName"
+                onChange={onModifyChange}
+                getPopupContainer={() => rootRef.current}
               />
             </Form.Item>
             <Form.Item className="col-span-2" label="ETD" name="etd">
-              <DatePicker className="w-full" />
+              <DatePicker className="w-full" onChange={onModifyChange} />
             </Form.Item>
             <Form.Item className="col-span-2" label="CY OPEN" name="cyOpen">
-              <DatePicker className="w-full" />
+              <DatePicker className="w-full" onChange={onModifyChange} />
             </Form.Item>
             <Form.Item label="CY CUT" rules={[{ required: true }]} name="cyCut">
-              <DatePicker className="w-full" />
+              <DatePicker className="w-full" onChange={onModifyChange} />
             </Form.Item>
             <Form.Item label="DOC CUT" name="docCut">
-              <DatePicker className="w-full" />
+              <DatePicker className="w-full" onChange={onModifyChange} />
             </Form.Item>
           </div>
           <div className="grid grid-cols-2 flex-1 bg-[#abdae0] p-2 gap-x-2">
@@ -143,6 +154,8 @@ const Ship = ({ className }) => {
                 tree={portTree}
                 bind="deliveryPort"
                 bindName="deliveryCountryName"
+                onChange={onModifyChange}
+                getPopupContainer={() => rootRef.current}
               />
             </Form.Item>
             <Form.Item noStyle name="deliveryPortName" />
@@ -152,16 +165,18 @@ const Ship = ({ className }) => {
                 tree={portTree}
                 bind="deliveryCountry"
                 bindName="deliveryPortName"
+                onChange={onModifyChange}
+                getPopupContainer={() => rootRef.current}
               />
             </Form.Item>
             <Form.Item className="col-span-2" label="ETA" name="eta">
-              <DatePicker />
+              <DatePicker onChange={onModifyChange} />
             </Form.Item>
             <Form.Item  label="FREE TIME DEM" name="freeTimeDem">
-              <Input />
+              <Input onChange={onModifyChange} />
             </Form.Item>
             <Form.Item  label="FREE TIME DET" name="freeTimeDet">
-              <Input />
+              <Input onChange={onModifyChange} />
             </Form.Item>
             <div className="col-span-2">PORT OF DISCHARGE</div>
             <Form.Item noStyle name="dischargeCountryName" />
@@ -171,6 +186,8 @@ const Ship = ({ className }) => {
                 tree={portTree}
                 bind="dischargePort"
                 bindName="dischargeCountryName"
+                onChange={onModifyChange}
+                getPopupContainer={() => rootRef.current}
               />
             </Form.Item>
             <Form.Item noStyle name="dischargePortName" />
@@ -180,6 +197,8 @@ const Ship = ({ className }) => {
                 tree={portTree}
                 bind="dischargeCountry"
                 bindName="dischargePortName"
+                onChange={onModifyChange}
+                getPopupContainer={() => rootRef.current}
               />
             </Form.Item>
           </div>

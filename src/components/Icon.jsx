@@ -57,8 +57,8 @@ export const Light = ({className}) => (
 )
 
 export const Customer = ({ className }) => (
-  <span className={classNames('inline-block align-middle mx-1', className)}>
-    <svg width="1em" height="1em" viewBox="-2 -2 25 27" stroke="currentcolor" fill='none' strokeWidth={2}>
+  <span className={classNames('inline-block align-middle', className)}>
+    <svg width="1em" height="1em" viewBox="-3 -3 25 30" stroke="currentcolor" fill='none' strokeWidth={2}>
       <path
         d="M10.999,0.994 C14.312,0.994 16.999,3.680 16.999,6.994 C16.999,8.730 16.261,10.293 15.083,11.389 C14.012,12.385 12.576,12.994 10.999,12.994 C9.622,12.994 8.354,12.530 7.341,11.751 C5.916,10.654 4.999,8.931 4.999,6.994 C4.999,3.680 7.685,0.994 10.999,0.994 Z"/>
       <path

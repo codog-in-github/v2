@@ -92,7 +92,7 @@ const ContainerList = ({
     page, onWheelHandle, movePage, movePageForce
   } = usePage(list)
   const { containerTypes } = useContext(GoodsContext)
-  const { rootRef, form } = useContext(DetailDataContext)
+  const { rootRef, form, onModifyChange } = useContext(DetailDataContext)
   return (
     <div ref={rootRef} className="flex overflow-hidden">
       <div className="flex-1 h-16">
@@ -107,10 +107,11 @@ const ContainerList = ({
               <Form.Item name={[props.name, 'id']} hidden />
               <div className="flex gap-1 items-end mb-2">
                 <Form.Item className="flex-1" name={[props.name, 'commodity']}>
-                  <Input addonBefore="COM" />
+                  <Input addonBefore="COM" onChange={onModifyChange} />
                 </Form.Item>
                 <Form.Item className="flex-1" label="Container type" name={[props.name, 'containerType']}>
                   <AutoComplete
+                    onChange={onModifyChange}
                     placement="topLeft"
                     options={containerTypes}
                     getPopupContainer={() => rootRef.current}
@@ -177,7 +178,7 @@ const CarList = ({
   const {
     page, onWheelHandle, movePage, movePageForce
   } = usePage(list)
-  const { rootRef } = useContext(DetailDataContext)
+  const { rootRef, onModifyChange } = useContext(DetailDataContext)
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       <div className="flex w-full h-full" >
@@ -189,25 +190,32 @@ const CarList = ({
             <Form.Item name={[props.name, 'id']} hidden />
             <div className="flex gap-2">
               <Form.Item className="flex-1" label="VAN場所" name={[props.name, 'vanPlace']}>
-                <Input />
+                <Input onChange={onModifyChange} />
               </Form.Item>
               <Form.Item className="w-32" label="TYPE" name={[props.name, 'vanType']}>
-                <Input />
+                <Input onChange={onModifyChange} />
               </Form.Item>
             </div>
             <div className="flex gap-2 items-end">
               <Form.Item className="w-32" label="2軸3軸" name={[props.name, 'carType']}>
-                <Select getPopupContainer={() => rootRef.current} options={[
-                  { label: '2軸', value: 1 },
-                  { label: '3軸', value: 2 }
-                ]}>
+                <Select
+                  onChange={onModifyChange}
+                  getPopupContainer={() => rootRef.current} options={[
+                    { label: '2軸', value: 1 },
+                    { label: '3軸', value: 2 }
+                  ]}
+                >
                 </Select>
               </Form.Item>
               <Form.Item className="w-32" label="日付" name={[props.name, 'date']}>
-                <DatePicker getPopupContainer={() => rootRef.current} />
+                <DatePicker getPopupContainer={() => rootRef.current} onChange={onModifyChange} />
               </Form.Item>
               <Form.Item className="w-36" label="時間" name={[props.name, 'time']}>
-                <TimePicker.RangePicker format="HH:mm" getPopupContainer={() => rootRef.current} />
+                <TimePicker.RangePicker
+                  format="HH:mm"
+                  getPopupContainer={() => rootRef.current}
+                  onChange={onModifyChange}
+                />
               </Form.Item>
               {list.length > 1 && <Button
                 className="ml-auto"
@@ -232,35 +240,40 @@ const CarList = ({
             <div className="border-t border-gray-400 border-dashed my-2" />
             <div className="flex gap-2">
               <Form.Item className="flex-1" label="運送会社" name={[props.name, 'transCom']}>
-                <Input />
+                <Input onChange={onModifyChange} />
               </Form.Item>
               <Form.Item className="flex-1" label="ドライバー" name={[props.name, 'driver']}>
-                <Input />
+                <Input onChange={onModifyChange} />
               </Form.Item>
               <Form.Item className="flex-1" label="連絡先" name={[props.name, 'tel']}>
-                <Input />
+                <Input onChange={onModifyChange} />
               </Form.Item>
               <Form.Item className="flex-1" label="車番" name={[props.name, 'carCode']}>
-                <Input />
+                <Input onChange={onModifyChange} />
               </Form.Item>
             </div>
             <div className="flex gap-2">
               <Form.Item className="flex-1" label="CONTAINER" name={[props.name, 'container']}>
-                <Input />
+                <Input onChange={onModifyChange} />
               </Form.Item>
               <Form.Item className="flex-1" label="SEAL" name={[props.name, 'seal']}>
-                <Input />
+                <Input onChange={onModifyChange} />
               </Form.Item>
               <Form.Item className="flex-1" label="TARE">
                 <Space.Compact>
                   <Form.Item noStyle name={[props.name, 'tare']}>
-                    <Input />
+                    <Input onChange={onModifyChange} />
                   </Form.Item>
                   <Form.Item noStyle name={[props.name, 'tareType']}>
-                    <Select getPopupContainer={() => rootRef.current} className="w-4" options={[
-                      { label: 'T', value: 1 },
-                      { label: 'KG', value: 2 }
-                    ]} />
+                    <Select
+                      getPopupContainer={() => rootRef.current}
+                      className="w-4"
+                      options={[
+                        { label: 'T', value: 1 },
+                        { label: 'KG', value: 2 }
+                      ]}
+                      onChange={onModifyChange}
+                    />
                   </Form.Item>
                 </Space.Compact>
               </Form.Item>
@@ -282,25 +295,34 @@ const GoodsContext = createContext()
 const Goods = ({ className }) => {
   const form = Form.useFormInstance()
   const [containerTypes] = useOptions(SELECT_ID_CONTAINER_TYPE)
+  const { onModifyChange } = useContext(DetailDataContext)
+
   const onAddContainerHandle = useCallback(() => {
+    onModifyChange()
     const oldValue = form.getFieldValue('containers')
     form.setFieldValue('containers', [...oldValue, newConatainer()])
-  }, [form])
+  },[form, onModifyChange])
+
   const onAddCarHandle = useCallback(() => {
+    onModifyChange()
     const oldValue = form.getFieldValue('cars')
     form.setFieldValue('cars', [...oldValue, newCar()])
-  }, [form])
+  }, [form, onModifyChange])
+
   const onRemoveContainerHandle = useCallback((key) => {
+    onModifyChange()
     const oldValue = form.getFieldValue('containers')
     oldValue.splice(key, 1)
     form.setFieldValue('containers', [...oldValue])
-  }, [form])
+  }, [form, onModifyChange])
+
   const onRemoveCarHandle = useCallback((key) => {
+    onModifyChange()
     console.log(key)
     const oldValue = form.getFieldValue('cars')
     oldValue.splice(key, 1)
     form.setFieldValue('cars', [...oldValue])
-  }, [form])
+  }, [form, onModifyChange])
   // const [carCompanys] = useOptions(1)
   return (
     <GoodsContext.Provider value={{ containerTypes }}>

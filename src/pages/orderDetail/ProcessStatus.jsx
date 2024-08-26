@@ -195,7 +195,7 @@ const ProcessBarButtons = ({ nodeId, nodeType, step, mail, sended, redo }) => {
 }
 
 const ProcessStatus = ({className}) => {
-  const { nodes, refreshNodes, isCopy, rootRef } = useContext(DetailDataContext)
+  const { nodes, refreshNodes, isCopy, rootRef, onModifyChange } = useContext(DetailDataContext)
   const detailRef = useRef(null)
   // const multiSendOptions = nodes
   //   .filter(item => item.canDo && !item.isEnd)
@@ -221,8 +221,12 @@ const ProcessStatus = ({className}) => {
         ))}
       </div>
       <Label>REMARK</Label>
+      <Form.Item name="remarks" className="m-2">
+        <Input.TextArea onChange={onModifyChange} />
+      </Form.Item>
+      <Label className="mt-4">ORDER INFO</Label>
       <Form.Item name="remark" className="m-2" rules={[{ required: true, message: '必須項目です' }]}>
-        <Input.TextArea readOnly={!isCopy} />
+        <Input.TextArea readOnly={!isCopy} onChange={onModifyChange} />
       </Form.Item>
       <Mail mail={mail} onSuccess={refreshNodes}></Mail>
       <MailDetail modal={detailRef} />

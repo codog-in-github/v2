@@ -12,7 +12,7 @@ import { useBlocker } from "react-router-dom"
 import { Modal } from "antd"
 const OrderDetail = () => {
   const detailHook = useDetailData()
-  const blocker = useBlocker(() => !detailHook.navigateForce.current)
+  const blocker = useBlocker(() => detailHook.modified.current)
   const {
     form,
     loading,

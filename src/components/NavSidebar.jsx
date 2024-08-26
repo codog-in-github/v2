@@ -6,22 +6,23 @@ function Sidebar({ className }) {
     <NavButtonGroup
       align="left"
       rect
-      className={classNames("nav-side-bar bg-white p-4 flex-col", className)}
+      vertical
+      className={classNames("nav-side-bar bg-white p-4", className)}
     >
       <NavButton to="/customer-list" className="mb-2">
-        <Icon.Customer className="text-lg" />
+        <Icon.Customer className="text-lg mr-2" />
         顧客名簿
       </NavButton>
       <NavButton to="/order" className="mb-2">
-        <Icon.OrderList className="text-lg mr-1" />
+        <Icon.OrderList className="text-lg mr-2" />
         オーダー
       </NavButton>
       <NavButton to="/calendar" className="mb-2">
-      <Icon.OrderCalendar className="text-lg mr-1" />
+      <Icon.OrderCalendar className="text-lg mr-2" />
         オーダー表
       </NavButton>
       <NavButton to="/ship" className="mb-2">
-        <Icon.Boat className="text-lg mr-1" />
+        <Icon.Boat className="text-lg mr-2" />
         船期
       </NavButton>
       {/* <NavButton to="/petition" className="mb-2">

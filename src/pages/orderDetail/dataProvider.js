@@ -221,6 +221,7 @@ const formDataGenerator = (isCopy) => (rep) => {
     } else {
       result.cars.push(newCar())
     }
+  setIfExist('remarks', 'remarks')
   /**
    * $table->string('remark')->default('')->comment('备注');
    */
@@ -338,9 +339,12 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
     }
     if(isCopy) {
       delete detail['id']
-      setValue('remark', 'remark')
     }
     details.push(detail)
+  }
+  setValue('remarks', 'remarks')
+  if(isCopy){
+    setValue('remark', 'remark')
   }
   return result
 }
@@ -384,12 +388,23 @@ export const useDetailData = () => {
   const [requestBooks, setRequestBooks] = useState([])
   const [messages, setMessages] = useState([])
   const [files, setFiles] = useState({})
-  const navigateForce = useRef(false)
+  const modified = useRef(false)
 
   const isCopy = Boolean(copyId)
   const isTempOrder = nodes.length === 0
 
   const rootRef = useRef(null)
+
+  const modifyChangeGenerator = useCallback((onChange) => {
+    modified.current = true
+    return (...args) => {
+      return onChange(...args)
+    }
+  }, [])
+
+  const onModifyChange = useCallback(() => {
+    modified.current = true
+  }, [])
 
   const onDeleteFiles = useCallback((deleteFiles, success, fail) => {
     request('/admin/delete_files')
@@ -425,7 +440,7 @@ export const useDetailData = () => {
       })
       .send()
     pubSub.publish('Info.Toast', '删除成功', 'success')
-    navigateForce.current = true
+    modified.current = false
     navigate(-1)
   })
 
@@ -472,7 +487,7 @@ export const useDetailData = () => {
       .data(apiSaveDataGenerator(formData, isCopy))
       .send()
     if(isCopy) {
-      navigateForce.current = true
+      modified.current = false
       navigate(`/orderDetail/${newId}`, { replace: true })
     } else {
       fetchOrder(id)
@@ -568,8 +583,10 @@ export const useDetailData = () => {
     delRequestBook,
     deletingRequestBook,
     isCopy,
-    navigateForce,
-    rootRef
+    modified,
+    rootRef,
+    onModifyChange,
+    modifyChangeGenerator
   }
 }
 

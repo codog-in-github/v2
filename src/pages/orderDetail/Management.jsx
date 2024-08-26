@@ -117,7 +117,7 @@ const CopyModal = ({
 
 const Management = ({ className }) => {
   const { options, loading } = useGateCompanyOptions()
-  const { form, saveOrder, savingOrder, delOrder, deletingOrder, isCopy } = useContext(DetailDataContext)
+  const { form, saveOrder, savingOrder, delOrder, deletingOrder, isCopy, onModifyChange, rootRef } = useContext(DetailDataContext)
   const navigate = useNavigate()
   const copyModalInstance = useRef(null)
   const [modal, modalContent] = Modal.useModal()
@@ -141,16 +141,24 @@ const Management = ({ className }) => {
           </Form.Item>
           <Form.Item name="id" hidden />
           <Form.Item label="BKG NO." name="bkgNo" className="[&_label]:!font-bold" rules={[{ required: true, message: 'BKG NO.を入力してください' }]}>
-            <Input onBlur={setDefaultNumber} />
+            <Input onBlur={setDefaultNumber} onChange={onModifyChange} />
           </Form.Item>
           <Form.Item label="B/L NO." name="blNo">
-            <Input />
+            <Input onChange={onModifyChange} />
           </Form.Item>
-          <Form.Item label="TYPE" name="type"  className="w-48 [&_label]:!font-bold" rules={[{ required: true, message: 'TYPEを入力してください' }]}>
-            <BkgTypeSelect className="[&_input]:!text-lg" />
+          <Form.Item
+            label="TYPE"
+            name="type"
+            className="w-48 [&_label]:!font-bold"
+            rules={[{ required: true, message: 'TYPEを入力してください' }]}
+          >
+            <BkgTypeSelect
+              className="[&_input]:!text-lg"
+              getPopupContainer={() => rootRef.current}
+              onChange={onModifyChange} />
           </Form.Item>
           <Form.Item label="社内管理番号" name="orderNo">
-            <Input readOnly />
+            <Input readOnly  />
           </Form.Item>
           <Form.Item
             label="通関"
@@ -158,7 +166,13 @@ const Management = ({ className }) => {
             className="w-52 [&_label]:!font-bold"
             rules={[{ required: true, message: '通関を入力してください' }]}
           >
-            <Select showSearch options={options} loading={loading} />
+            <Select
+              showSearch
+              options={options}
+              loading={loading}
+              onChange={onModifyChange}
+              getPopupContainer={() => rootRef.current}
+            />
           </Form.Item>
         </div>
       </div>
