@@ -31,19 +31,19 @@ export const SideLayout = () => {
             text-center
             bg-[#f2f4f8]
             [&>*]:flex-1
-            [&>*]:cursor-pointer
             [&>.active]:pointer-events-none
             [&>.active]:bg-primary
             [&>.active]:text-white
           "
         >
             <div
-              className={classNames({'active': orderType === ORDER_TYPE_EXPORT })}
+              className={classNames('cursor-pointer', {'active': orderType === ORDER_TYPE_EXPORT })}
               onClick={() => dispatch(setOrderType(ORDER_TYPE_EXPORT))}
             >出口</div>
             <div
-              className={classNames({ 'active': orderType === ORDER_TYPE_IMPORT })}
-              onClick={() => dispatch(setOrderType(ORDER_TYPE_IMPORT))}
+              className="cursor-not-allowed"
+              // className={classNames({ 'active': orderType === ORDER_TYPE_IMPORT })}
+              // onClick={() => dispatch(setOrderType(ORDER_TYPE_IMPORT))}
             >进口</div>
         </div>
       </div>
