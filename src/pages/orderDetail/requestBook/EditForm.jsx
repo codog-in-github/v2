@@ -111,12 +111,16 @@ const formDataFormat = (book, type = REQUEST_TYPE_NORMAL) => {
     }
     formData['details'] = details
   } else {
-    const autoAddType = type === REQUEST_TYPE_NORMAL ? COST_PART_CUSTOMS : COST_PART_OTHER
-    formData['details'] = {
-      [autoAddType]: [{}]
-    }
-    formData['counts'] = {
-      [autoAddType]: [{}]
+    if(type === REQUEST_TYPE_NORMAL) {
+      formData['details'] = {
+        [COST_PART_CUSTOMS]: [{}],
+        [COST_PART_SEA]: [{}],
+        [COST_PART_LAND]: [{}]
+      }
+    } else {
+      formData['counts'] = {
+        [COST_PART_OTHER]: [{}]
+      }
     }
   }
   return formData
@@ -228,6 +232,8 @@ const DetailRow = ({ partType, partName, props }) => {
         <Form.Item noStyle name={[props.key, 'detail']}>
           <Input className="flex-1" onBlur={calcPrice}></Input>
         </Form.Item>
+      </td>
+      <td className="text-center">
         <Form.Item noStyle name={[props.key, 'currency']}>
           <SingleCheckbox onBlur={calcPrice}  />
         </Form.Item>
@@ -315,20 +321,31 @@ const CostTable = ({ value }) => {
   })
 }
 
-const detailPart = (type) => {
+const detailPart = (type, i) => {
   let partName = getPartName(type)
   return (list) => {
     if(!list?.length) {
       return null
     }
-    return list.map((props, i) => (
-      <DetailRow
-        key={props.key}
-        partType={type}
-        partName={i ? '' : partName}
-        props={props}
-      />
-    ))
+    return (
+      <>
+        { i  > 0 && (
+          <>
+            <tr><td></td></tr>
+            <tr className="border-dashed border-t border-gray-300"></tr>
+            <tr><td></td></tr>
+          </>
+        )}
+       {list.map((props, i) => (
+        <DetailRow
+          key={props.key}
+          partType={type}
+          partName={i ? '' : partName}
+          props={props}
+        />
+      ))}
+      </>
+    )
   }
 }
 
@@ -343,6 +360,22 @@ const useItemList = (selectId) => {
   return items
 }
 
+const MiniTotal = () => {
+  const detailsOrigin = Form.useWatch('details')
+
+  const miniTotal = useMemo(() => {
+    
+    if(!detailsOrigin) {
+      return 0
+    }
+    const details = Object.values(detailsOrigin).flat().filter(item => item) ?? []
+
+    return details.filter(item => item['is_tax'])
+      .reduce((acc, cur) => acc + Number(cur['amount'] ?? 0), 0)
+
+  }, [detailsOrigin])
+  return `[*消費税対象金額 ${miniTotal.toFixed(2)}]`
+}
 
 const Total = () => {
   const form = Form.useFormInstance()
@@ -356,12 +389,12 @@ const Total = () => {
 
   useEffect(() => {
     let total = details.reduce((acc, cur) => {
-      return acc + (Number(cur['amount']) ?? 0)
+      return acc + Number(cur['amount'] ?? 0)
     }, 0)
     if(isNaN(total)) {
       total = 0
     }
-    let tax = details.filter(item => item['tax']).reduce((acc, cur) => acc + cur['amount'] * 0.1, 0)
+    let tax = details.filter(item => item['is_tax']).reduce((acc, cur) => acc + Number(cur['amount']) * 0.1, 0)
     if(isNaN(tax)) {
       tax = 0
     }
@@ -534,15 +567,16 @@ const EditForm = () => {
                   <td className="w-24"></td>
                   <td className="w-32">明細項目</td>
                   <td className="w-64">詳細</td>
+                  <td className="w-12 text-center">转换</td>
                   <td className="w-32">单价</td>
                   <td className="w-16">数量</td>
                   <td className="w-16">单位</td>
-                  <td className="w-16">消費税</td>
+                  <td className="w-16 text-center">消費税</td>
                   <td className="w-64">金额</td>
                 </tr>
                 {
-                  costTypes.map((type) => (
-                    <Form.List key={type} name={['details', type]}>{detailPart(type)}</Form.List>
+                  costTypes.map((type, i) => (
+                    <Form.List key={type} name={['details', type]}>{detailPart(type, i)}</Form.List>
                   ))
                 }
               </tbody>
@@ -550,7 +584,7 @@ const EditForm = () => {
           </div>
 
           { bookType === REQUEST_TYPE_NORMAL && (
-            <div className="ml-16 my-4">
+            <div className="mx-16 my-4 flex justify-between">
               <Popover
                 trigger="hover"
                 placement="rightTop"
@@ -559,6 +593,7 @@ const EditForm = () => {
               >
                 <Button type="primary" className="bg-success hover:!bg-success-400">枠追加</Button>
               </Popover>
+              <MiniTotal></MiniTotal>
             </div>
           )}
 
@@ -578,7 +613,7 @@ const EditForm = () => {
 
           <div className="flex gap-2 justify-end px-16">
             <Button className="w-32" disabled={!id} type="primary" onClick={() => navigate(`/rb/add/${orderId}/type/${type}`, { replace: true })}>追加請求書</Button>
-            <Button className="w-32" type="primary">参照入力</Button>
+            {/* <Button className="w-32" type="primary">参照入力</Button> */}
             <Button className="w-32" type="primary" disabled={disabled || !id} loading={exporting} onClick={doExport}>出力</Button>
             <Button className="w-32" loading={submiting} type="primary" onClick={submit}>保存</Button>
             <Button className="w-32" disabled={false} onClick={() => navigate(-1)}>戻る</Button>

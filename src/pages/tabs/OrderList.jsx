@@ -65,7 +65,7 @@ function OrderList() {
   const navigate = useNavigate()
   const [topNode, topNodeLoading] = useAsyncCallback(async () => {
     await request('/admin/order/change_top').data({
-      'id': order.current['order_id'],
+      'id': order.current['id'],
       'node_status': tab,
       'is_top': 1
     }).send()
