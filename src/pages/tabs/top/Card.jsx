@@ -100,10 +100,10 @@ function Card({
         </div>
       ) : (
         <div className='flex flex-1'>
-          <CompanyAvatar bg={orderInfo.avatarColor} text={orderInfo.avatarText}></CompanyAvatar>
+          <CompanyAvatar text={orderInfo.avatarText}></CompanyAvatar>
           <div className='ml-4'>
             <div className="font-semibold">{orderInfo.companyName}</div>
-            <div className="mt-2 text-sm text-gray-500">{orderInfo.contactPerson} | {orderInfo.contactPhone}</div>
+            <div className="mt-2 text-sm text-gray-500">{orderInfo.contactPerson} | {orderInfo.bkgNo}</div>
           </div>
         </div>
       )}

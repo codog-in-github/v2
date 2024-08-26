@@ -22,6 +22,7 @@ const ordersSort = (orders) => {
       expiredAt: dayjs(item['top_finish_time']),
       remark: item['remark'],
       contactPerson: item['order']['header'],
+      bkgNo: item['order']['bkg_no'],
       contactPhone: item['order']['mobile'],
       avatarText: item['order']['company_name'][0],
       companyName: item['order']['company_name'],
@@ -33,7 +34,6 @@ const ordersSort = (orders) => {
       isTempOrder: true,
       id: item['id'],
       renderKey: `tmp-${item['id']}`,
-      avatarColor: Color(item['company_color']).toString(),
       expiredAt: dayjs(item['created_at']).add(1, 'hour'),
       remark: item['remark'],
       companyName: item['company_name'],
@@ -41,14 +41,14 @@ const ordersSort = (orders) => {
   }
   for(const item of orders['no_send']) {
     newOrders.push({
-      avatarColor: Color(item['order']['company_color']).toString(),
       id: item['order']['id'],
       renderKey: `no_send-${item['order']['id']}`,
       expiredAt: dayjs(item['created_at']).add(1, 'hour'),
       remark: item['remark'],
       contactPerson: item['order']['header'],
       contactPhone: item['order']['mobile'],
-      avatarText: item['order']['company_name'][0],
+      avatarText: item['order']['company_name'][0] ?? '',
+      bkgNo: item['order']['bkg_no'],
       companyName: item['order']['company_name'],
     })
   }
