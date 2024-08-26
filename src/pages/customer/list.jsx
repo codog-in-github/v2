@@ -1,7 +1,6 @@
 import { Button, Input, Row, Col, Avatar, Progress } from "antd";
 import { MinusOutlined, PlusOutlined, RightOutlined } from "@ant-design/icons";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAsyncCallback } from "@/hooks";
 import { useEffect } from "react";
 import { request } from "@/apis/requestBuilder";
@@ -37,7 +36,7 @@ const CustomerAddModal = ({ modal, onSuccess }) => {
     console.log(data)
     await request('/admin/customer/save').data(data).send()
     onSuccess()
-    // setOpen(false)
+    setOpen(false)
   })
 
   const del = useCallback((index) => {
