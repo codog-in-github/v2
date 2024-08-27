@@ -12,8 +12,10 @@ import { request } from '@/apis/requestBuilder';
 import { useSelector } from 'react-redux';
 import { useTopOrderList } from './dataProvider';
 import MessageList from './MessageList';
-import { useContextMenu } from '@/hooks';
+import { useCompleteList, useContextMenu } from '@/hooks';
 import SkeletonList from '@/components/SkeletonList';
+import { ORDER_TAB_STATUS_TOP } from '@/constant';
+import dayjs from 'dayjs';
 
 const c = namespaceClass('page-top')
 const saveOrder = (data) => {
@@ -38,6 +40,7 @@ function MainContent() {
   const { orders, loading, refresh } = useTopOrderList()
   const [modalOpen, setModalOpen] = useState(false)
   const navigate = useNavigate()
+  const [completeList, completeLoading] = useCompleteList(ORDER_TAB_STATUS_TOP)
 
   const toDetail = useCallback(({ id }) => {
     navigate('/orderDetail/' + id)
@@ -100,16 +103,26 @@ function MainContent() {
           <div 
             className="grid min-[1800px]:grid-cols-4 grid-cols-3 [&>*]:!h-[160px] gap-4 flex-wrap"
           >
-            {/*
-            <Card 
-              avatarText='無'
-              avatarColor='#8F8F8F'
-              companyName='無錫永興貨運有限公司'
-              contactPerson='王大明'
-              contactPhone='86-15240056982'
-              end
-            />
-            */}
+          <SkeletonList
+            skeletonCount={10}
+            skeletonClassName="!w-full !h-full"
+            list={completeList}
+            loading={completeLoading}
+          >
+            {item => (
+              <Card 
+                orderInfo={{
+                  avatarText: item.order?.company_name?.[0],
+                  companyName: item.order?.company_name,
+                  bkgNo: item.order?.bkg_no,
+                }}
+                end={{
+                  name: item.sender,
+                  time: dayjs(item.mail_at).format('YYYY年MM月DD日 HH:mm')
+                }}
+              />
+            )}
+            </SkeletonList>
           </div>
         </div>
       </div>

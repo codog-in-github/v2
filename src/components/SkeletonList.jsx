@@ -1,3 +1,4 @@
+import { Empty } from "antd"
 import { Skeleton } from "antd"
 
 const SkeletonList = ({
@@ -6,6 +7,7 @@ const SkeletonList = ({
   skeletonClassName,
   list = [],
   prepend,
+  empty,
   append,
   children = () => null,
 }) => {
@@ -15,7 +17,9 @@ const SkeletonList = ({
       <Skeleton.Node className={skeletonClassName} key={k} active>
         <></>
       </Skeleton.Node>
-    )) : list.map(children)}
+    )) : (
+      list && list.length ? list.map(children) : <Empty />
+    )}
     {append}
   </>
 }

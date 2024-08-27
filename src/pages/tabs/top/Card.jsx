@@ -5,6 +5,7 @@ import CompanyAvatar from '@/components/CompanyAvatar';
 import { useMemo } from 'react';
 import { themeColor } from '@/helpers/color';
 import Color from 'color';
+import dayjs from 'dayjs';
 
 /**
  * 
@@ -30,11 +31,11 @@ function getTimeDistant(start, end) {
  * @param {import('dayjs').Dayjs} param0.expiredAt 
  * @returns 
  */
-function Timer({ expiredAt }) {
+function Timer({ expiredAt  = dayjs() }) {
   const [display, setDisplay] = useState(
     getTimeDistant(new Date(), expiredAt.toDate())
   )
-  const [color, setColor] = useState('primary')
+  const [color, setColor] = useState(expiredAt.diff(new Date(), 'minutes') < 20 ? 'danger' : 'primary')
   useEffect(() => {
     const timerId = setInterval(() => {
       if( expiredAt.toDate()  < new Date()) {
@@ -72,6 +73,7 @@ function Card({
   orderInfo = {},
   onToDetail,
   className,
+  end,
   ...props
 }) {
   return (
@@ -108,10 +110,10 @@ function Card({
         </div>
       )}
 
-      { orderInfo.end ? (
+      { end ? (
         <div className='flex items-center text-sm'>
-          <div className='text-gray-800'>2024年6月3日18:00:58</div>
-          <div className='ml-auto p-2 bg-gray-200 rounded'>吉田</div>
+          <div className='text-gray-800'>{end.time}</div>
+          <div className='ml-auto p-2 bg-gray-200 rounded'>{end.name}</div>
         </div>
       ) : (
         <Timer expiredAt={orderInfo.expiredAt}></Timer>

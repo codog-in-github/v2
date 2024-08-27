@@ -1,7 +1,7 @@
 import { themeColor } from "@/helpers/color";
 import { request } from "@/apis/requestBuilder";
 import { useEffect, useState, useRef } from "react";
-import { useAsyncCallback, useContextMenu } from "@/hooks";
+import { useAsyncCallback, useCompleteList, useContextMenu } from "@/hooks";
 import { useNavigate } from "react-router-dom";
 import { LoadingOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -51,7 +51,7 @@ function Card({
       }}
       {...props}
     >
-      
+
       <div className="flex p-2 overflow-hidden">
         <div
           className="rounded-full w-8 h-8 leading-8 text-center text-white flex-shrink-0"
@@ -83,9 +83,31 @@ function Card({
   );
 }
 
+const OrderGroup = ({
+  loading,
+  list,
+  title,
+  children = () => null
+}) => {
+  return (
+    <div className="bg-white  m-2 rounded-lg shadow p-4">
+      <div>{title}</div>
+      <div className="grid grid-cols-4 lg:grid-cols-5 gap-8 flex-wrap mt-4 [&>*]:!h-[140px]">
+        <SkeletonList
+          skeletonCount={10}
+          skeletonClassName="!w-full !h-full"
+          loading={loading}
+          list={list}
+        >{children}</SkeletonList>
+      </div>
+    </div>
+  )
+}
+
 function Po() {
   const { tab } = useParams()
-  const { list, reload, loading} = useTabOrderList(tab)
+  const { list, reload, loading } = useTabOrderList(tab)
+  const [compList, loadingComp] = useCompleteList(tab)
   const order = useRef(null)
   const navigate = useNavigate()
   const [topNode, topNodeLoading] = useAsyncCallback(async () => {
@@ -95,8 +117,8 @@ function Po() {
     }).send()
     pubSub.publish('Info.Toast', '已置顶任务', 'success')
     reload()
-  }) 
-  
+  })
+
   const [menu, open] = useContextMenu(
     <div
       className="
@@ -106,11 +128,11 @@ function Po() {
       "
       onClick={e => e.stopPropagation()}
     >
-      <div
+      {/* <div
         type='primary'
         className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
-        onClick={() => {}}
-      >指派任务</div>
+        onClick={() => { }}
+      >指派任务</div> */}
       <div
         type='primary'
         className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
@@ -135,39 +157,48 @@ function Po() {
   }
   return (
     <div className="flex-1">
-      <div className="bg-white  m-2 rounded-lg shadow p-4">
-        <div>未完成</div>
-        <div className="grid grid-cols-4 lg:grid-cols-5 gap-8 flex-wrap mt-4 [&>*]:!h-[140px]">
-          <SkeletonList
-            skeletonCount={10}
-            skeletonClassName="!w-full !h-full"
-            loading={loading}
-            list={list}
-          >
-            {item => (
-              <Card
-                onContextMenu={e => contextMenuHandle(e, item)}
-                onClick={() => navigate(`/orderDetail/${item['order_id']}`)}
-                customer={item['company_name']}
-                transCom={item['trans_com']}
-                key={item['id']}
-                pol={item['loading_port_name']}
-                pod={item['delivery_port_name']}
-                bkgNo={item['bkg_no']}
-                type={item['color']}
-                address={item['van_place']}
-                date={item['deliver_time']}
-              />
-            )}
-          </SkeletonList>
-        </div>
-      </div>
-      <div className="bg-white  m-2 rounded-lg shadow p-4">
-        <div>直近完了</div>
-        <div className="flex gap-8 flex-wrap mt-4">
-          {/* <Card address="中国浙江省宁波市鄞州区中…" end date={Date.now()} /> */}
-        </div>
-      </div>
+      <OrderGroup
+        title="未完成"
+        loading={loading}
+        list={list}
+      >
+        {item => (
+          <Card
+            onContextMenu={e => contextMenuHandle(e, item)}
+            onClick={() => navigate(`/orderDetail/${item['order_id']}`)}
+            customer={item['company_name']}
+            transCom={item['trans_com']}
+            key={item['id']}
+            pol={item['loading_port_name']}
+            pod={item['delivery_port_name']}
+            bkgNo={item['bkg_no']}
+            type={item['color']}
+            address={item['van_place']}
+            date={item['deliver_time']}
+          />
+        )}
+      </OrderGroup>
+      <OrderGroup
+        title="直近完了"
+        loading={loadingComp}
+        list={compList}
+      >
+        {item => (
+            <Card
+              onClick={() => navigate(`/orderDetail/${item['order']['order_id']}`)}
+              customer={item['order']?.['company_name']}
+              transCom={item['order']?.['trans_com']}
+              key={item['order']?.['id']}
+              pol={item['order']?.['loading_port_name']}
+              pod={item['order']?.['delivery_port_name']}
+              bkgNo={item['order']?.['bkg_no']}
+              type={item['order']?.['color']}
+              address={item['order']?.['van_place']}
+              date={item['order']?.['deliver_time']}
+              end
+            />
+        )}
+      </OrderGroup>
       {menu}
     </div>
   );

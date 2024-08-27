@@ -211,3 +211,15 @@ export const useGateCompanyOptions = (showSelf = true) => {
   }, [showSelf])
   return { options, loading }
 }
+
+export const useCompleteList = (tab) => {
+  const [list, setList] = useState([])
+  const [load, loading] = useAsyncCallback(async (tab) => {
+    const rep = await request('/admin/order/complete_lasted').get({ tab }).send()
+    setList(rep)
+  })
+  useEffect(() => {
+    load(tab)
+  }, [tab])
+  return [list, loading]
+}

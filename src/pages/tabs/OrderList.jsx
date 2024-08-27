@@ -1,13 +1,14 @@
 import { themeColor } from "@/helpers/color";
 import { request } from "@/apis/requestBuilder";
 import { useEffect, useState, useRef } from "react";
-import { useAsyncCallback, useContextMenu } from "@/hooks";
+import { useAsyncCallback, useCompleteList, useContextMenu } from "@/hooks";
 import { useNavigate } from "react-router-dom";
 import { LoadingOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import pubSub from "@/helpers/pubSub";
 import { useParams } from "react-router-dom";
 import SkeletonList from "@/components/SkeletonList";
+import { Empty } from "antd";
 
 const useTabOrderList = (type) => {
   const [list, setList] = useState([]);
@@ -38,7 +39,7 @@ function Card({
       }}
       {...props}
     >
-      <div className="flex p-2 overflow-hidden" style={{background: themeColor(colors[orderInfo.color], 95)}}>
+      <div className="flex p-2 overflow-hidden" style={{ background: themeColor(colors[orderInfo.color], 95) }}>
         <div
           className="rounded-full w-8 h-8 leading-8 text-center text-white flex-shrink-0"
           style={{ backgroundColor: themeColor(colors[orderInfo.color], 60) }}
@@ -58,9 +59,28 @@ function Card({
   );
 }
 
+const OrderGroup = ({ title, list, loading, children, empty }) => {
+  return (
+
+    <div className="bg-white  m-2 rounded-lg shadow p-4">
+      <div>{title}</div>
+      <div className="grid grid-cols-4 lg:grid-cols-5 gap-8 flex-wrap mt-4">
+        <SkeletonList
+          empty={<Empty></Empty>}
+          list={list}
+          loading={loading}
+          skeletonCount={8}
+          skeletonClassName="w-full h-32"
+        >{children}</SkeletonList>
+      </div>
+    </div>
+  )
+}
+
 function OrderList() {
   const { tab } = useParams()
   const { list, reload, loading } = useTabOrderList(tab)
+  const [compList, loadingComp] = useCompleteList(tab)
   const order = useRef(null)
   const navigate = useNavigate()
   const [topNode, topNodeLoading] = useAsyncCallback(async () => {
@@ -71,8 +91,8 @@ function OrderList() {
     }).send()
     pubSub.publish('Info.Toast', '已置顶任务', 'success')
     reload()
-  }) 
-  
+  })
+
   const [menu, open] = useContextMenu(
     <div
       className="
@@ -82,11 +102,11 @@ function OrderList() {
       "
       onClick={e => e.stopPropagation()}
     >
-      <div
+      {/* <div
         type='primary'
         className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
         onClick={() => {}}
-      >指派任务</div>
+      >指派任务</div> */}
       <div
         type='primary'
         className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
@@ -111,31 +131,33 @@ function OrderList() {
   }
   return (
     <div className="flex-1">
-      <div className="bg-white  m-2 rounded-lg shadow p-4">
-        <div>未完成</div>
-        <div className="grid grid-cols-4 lg:grid-cols-5 gap-8 flex-wrap mt-4">
-          <SkeletonList
-            list={list}
-            loading={loading}
-            skeletonCount={8}
-            skeletonClassName="w-full h-32"
-          >
-            {item => (
-              <Card
-                key={item['id']}
-                onContextMenu={e => contextMenuHandle(e, item)}
-                onClick={() => navigate(`/orderDetail/${item['id']}`)}
-                orderInfo={item}
-              />
-            )}
-          </SkeletonList>
-        </div>
-      </div>
-      <div className="bg-white  m-2 rounded-lg shadow p-4">
-        <div>直近完了</div>
-        <div className="flex gap-8 flex-wrap mt-4">
-        </div>
-      </div>
+      <OrderGroup
+        title="未完成"
+        loading={loading}
+        list={list}
+      >
+        {item => (
+          <Card
+            key={item['id']}
+            onContextMenu={e => contextMenuHandle(e, item)}
+            onClick={() => navigate(`/orderDetail/${item['id']}`)}
+            orderInfo={item}
+          />
+        )}
+      </OrderGroup>
+      <OrderGroup
+        title="直近完了"
+        loading={loadingComp}
+        list={compList}
+      >
+        {item => (
+          <Card
+            key={item['id']}
+            onClick={() => navigate(`/orderDetail/${item['id']}`)}
+            orderInfo={item.order}
+          />
+        )}
+      </OrderGroup>
       {menu}
     </div>
   );

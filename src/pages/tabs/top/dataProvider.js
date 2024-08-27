@@ -29,7 +29,6 @@ const ordersSort = (orders) => {
     })
   }
   for(const item of orders['tmp']) {
-    console.log(item)
     newOrders.push({
       isTempOrder: true,
       id: item['id'],
