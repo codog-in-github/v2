@@ -7,7 +7,7 @@ const SkeletonList = ({
   skeletonClassName,
   list = [],
   prepend,
-  empty,
+  showEmpty = true,
   append,
   children = () => null,
 }) => {
@@ -18,7 +18,7 @@ const SkeletonList = ({
         <></>
       </Skeleton.Node>
     )) : (
-      list && list.length ? list.map(children) : <Empty />
+      list && list.length ? list.map(children) : (showEmpty && <Empty />)
     )}
     {append}
   </>

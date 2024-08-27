@@ -83,6 +83,7 @@ function MainContent() {
             skeletonClassName="!w-full !h-full"
             loading={loading}
             list={orders}
+            showEmpty={false}
             prepend={<AddCard onClick={() => setModalOpen(true)} />}
           >
             {(order) => (
@@ -101,7 +102,7 @@ function MainContent() {
         <div className="mt-8">
           <h2 className="text-xl font-semibold mb-4">直近完了</h2>
           <div 
-            className="grid min-[1800px]:grid-cols-4 grid-cols-3 [&>*]:!h-[160px] gap-4 flex-wrap"
+            className="grid min-[1800px]:grid-cols-4 grid-cols-3 [&>*]:!h-[160px] gap-4 flex-wrap [&:has(.ant-empty)]:!grid-cols-1"
           >
           <SkeletonList
             skeletonCount={10}

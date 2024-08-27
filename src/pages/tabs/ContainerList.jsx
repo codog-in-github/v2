@@ -8,7 +8,7 @@ import dayjs from "dayjs";
 import pubSub from "@/helpers/pubSub";
 import { useParams } from "react-router-dom";
 import SkeletonList from "@/components/SkeletonList";
-
+import classNames from "classnames";
 const useTabOrderList = (type) => {
   const [list, setList] = useState([]);
   const [reload, loading] = useAsyncCallback(async () => {
@@ -59,7 +59,7 @@ function Card({
         ></div>
         <div className="ml-2 flex-1 w-1">
           <div className="truncate">{address}</div>
-          <div>{pol.split('/')[0]}-{pod.split('/')[0]}</div>
+          <div className="truncate">{pol.split('/')[0]}-{pod.split('/')[0]}</div>
         </div>
       </div>
       <div className="flex">
@@ -92,7 +92,12 @@ const OrderGroup = ({
   return (
     <div className="bg-white  m-2 rounded-lg shadow p-4">
       <div>{title}</div>
-      <div className="grid grid-cols-4 lg:grid-cols-5 gap-8 flex-wrap mt-4 [&>*]:!h-[140px]">
+      <div
+        className={classNames(
+          'grid grid-cols-4 lg:grid-cols-5 gap-8 flex-wrap mt-4 [&>*]:!h-[140px]',
+          '[&:has(.ant-empty)]:!grid-cols-1'
+        )}
+      >
         <SkeletonList
           skeletonCount={10}
           skeletonClassName="!w-full !h-full"

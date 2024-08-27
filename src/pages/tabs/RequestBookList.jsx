@@ -30,7 +30,7 @@ const ListGroup = ({ title, color, list, onContextMenu, loading }) => {
 
     <div className="bg-white  m-2 rounded-lg shadow p-4">
       <div>{title}</div>
-      <div className="grid grid-cols-4 lg:grid-cols-5 gap-8 flex-wrap mt-4">
+      <div className="grid grid-cols-4 lg:grid-cols-5 gap-8 flex-wrap mt-4 [&:has(.ant-empty)]:!grid-cols-1">
         <SkeletonList
           list={list}
           loading={loading}
@@ -111,11 +111,11 @@ function RequestBookPage() {
       "
       onClick={e => e.stopPropagation()}
     >
-      <div
+      {/* <div
         type='primary'
         className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
         onClick={() => { }}
-      >指派任务</div>
+      >指派任务</div> */}
       <div
         type='primary'
         className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
