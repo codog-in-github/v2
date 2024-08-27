@@ -173,15 +173,15 @@ const CustomerCard = ({ item, ...props }) => {
 const useCustomerList = () => {
   const [customers, setCustomers] = useState([]);
   const [getCustomerList, loading] = useAsyncCallback(async () => {
-    const list = await request('/admin/customer/list').get().send()
+    const list = await request('/admin/customer/list').get({ with_count: 1 }).send()
     const customers = list.map(item => ({
       id: item['id'],
       title: item['name'],
       avatar: item['abbr'],
       person: item['default_contact']['name'],
       mobile: item['default_contact']['tel'],
-      all: 0,
-      do: 0,
+      all: item['total'],
+      do: item['indo'],
     }))
     setCustomers(customers)
   })

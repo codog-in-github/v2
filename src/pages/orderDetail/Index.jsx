@@ -13,10 +13,7 @@ import { Modal } from "antd"
 const OrderDetail = () => {
   const detailHook = useDetailData()
   const blocker = useBlocker(() => detailHook.modified.current)
-  const {
-    form,
-    loading,
-  } = detailHook
+  const { form, loading } = detailHook
   return (
     <>
       <div ref={detailHook.rootRef} className="flex-1"  style={{ zoom: 0.95 }}>
