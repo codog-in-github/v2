@@ -151,6 +151,7 @@ const Mail = ({ mail, onSuccess }) => {
     onCancel={() => setOpen(false)}
     footer={null}
     forceRender
+    maskClosable={false}
   >
     <Form form={form} layout="vertical" className="p-4">
       <Form.Item noStyle name="order_id"></Form.Item>

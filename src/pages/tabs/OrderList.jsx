@@ -8,6 +8,7 @@ import pubSub from "@/helpers/pubSub";
 import { useParams } from "react-router-dom";
 import SkeletonList from "@/components/SkeletonList";
 import { Empty, Avatar } from "antd";
+import { ORDER_TAB_STATUS_ACL, ORDER_TAB_STATUS_BL_COPY } from "@/constant";
 
 const useTabOrderList = (type) => {
   const [list, setList] = useState([]);
@@ -22,6 +23,7 @@ const useTabOrderList = (type) => {
 }
 const colors = ['danger', 'warning', 'success']
 function Card({
+  tab,
   orderInfo = {},
   ...props
 }) {
@@ -47,8 +49,10 @@ function Card({
         </Avatar>
         <div className="ml-2 flex-1 w-1" >
           <div className="truncate text-[22px] flex items-center w-full">
-            <span className="mr-auto">{orderInfo['cy_cut']?.substring(5)}</span>
-            <span className="text-[14px]" style={{ color: themeColor(colors[orderInfo.color], 60) }}>CY CUT</span>
+            <span className="mr-auto">{orderInfo[~~(tab) === ORDER_TAB_STATUS_ACL ? 'doc_cut':'cy_cut']?.substring(5)}</span>
+            <span className="text-[14px]" style={{ color: themeColor(colors[orderInfo.color], 60) }}>
+              {~~tab === ORDER_TAB_STATUS_ACL ?'DOC CUT': 'CY CUT'}
+            </span>
           </div>
           <div className="truncate">{orderInfo['loading_port_name']?.split('/')[0]}-{orderInfo['delivery_port_name']?.split('/')[0]}</div>
         </div>
@@ -139,6 +143,7 @@ function OrderList() {
       >
         {item => (
           <Card
+            tab={tab}
             key={item['id']}
             onContextMenu={e => contextMenuHandle(e, item)}
             onClick={() => navigate(`/orderDetail/${item['id']}`)}
@@ -153,6 +158,7 @@ function OrderList() {
       >
         {item => (
           <Card
+            tab={tab}
             key={item['id']}
             onClick={() => navigate(`/orderDetail/${item['id']}`)}
             orderInfo={item.order}

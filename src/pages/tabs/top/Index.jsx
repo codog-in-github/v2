@@ -93,7 +93,9 @@ function MainContent() {
                 onToDetail={id => navigate(`/orderDetail/${id}`)}
                 onContextMenu={e => {
                   e.preventDefault()
-                  show({ x: e.clientX, y: e.clientY })
+                  if(order.isTempOrder){
+                    show({ x: e.clientX, y: e.clientY })
+                  }
                 }}
               />
             )}

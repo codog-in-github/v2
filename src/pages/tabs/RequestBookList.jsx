@@ -7,6 +7,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import pubSub from "@/helpers/pubSub";
 import SkeletonList from "@/components/SkeletonList";
 import { ORDER_NODE_TYPE_REQUEST, ORDER_TAB_STATUS_REQUEST } from "@/constant";
+import { Avatar } from "antd";
 
 const useReqList = () => {
   const [list, setList] = useState({});
@@ -30,7 +31,7 @@ const ListGroup = ({ title, color, list, onContextMenu, loading }) => {
 
     <div className="bg-white  m-2 rounded-lg shadow p-4">
       <div>{title}</div>
-      <div className="grid grid-cols-4 lg:grid-cols-5 gap-8 flex-wrap mt-4 [&:has(.ant-empty)]:!grid-cols-1">
+      <div className="grid grid-cols-4 lg:grid-cols-6 gap-8 flex-wrap mt-4 [&:has(.ant-empty)]:!grid-cols-1">
         <SkeletonList
           list={list}
           loading={loading}
@@ -62,7 +63,7 @@ function Card({
   }
   return (
     <div
-      className="border-2 border-t-[6px] rounded h-32 cursor-pointer overflow-hidden"
+      className="border-2 border-t-[6px] rounded h-[120px] cursor-pointer overflow-hidden text-[#484848]"
       style={{
         borderColor: themeColor(color, 60),
         ...grayscale
@@ -70,19 +71,22 @@ function Card({
       {...props}
     >
       <div className="flex p-2 overflow-hidden" style={{ background: themeColor(color, 95) }}>
-        <div
-          className="rounded-full w-8 h-8 leading-8 text-center text-white flex-shrink-0"
+        <Avatar
+          size={40}
           style={{ backgroundColor: themeColor(color, 60) }}
         >
           {orderInfo['company_name']?.[0]}
-        </div>
+        </Avatar>
         <div className="ml-2 flex-1 w-1" >
-          <div className="truncate">{orderInfo['cy_cut']?.substring(5)}</div>
-          <div>{orderInfo['loading_port_name']?.split('/')[0]}-{orderInfo['delivery_port_name']?.split('/')[0]}</div>
+          <div className="truncate text-[22px] flex items-center w-full">
+            <span className="mr-auto">{orderInfo['cy_cut']?.substring(5)}</span>
+            <span className="text-[14px]" style={{ color: themeColor(color, 60) }}>CY CUT</span>
+          </div>
+          <div className="truncate">{orderInfo['loading_port_name']?.split('/')[0]}-{orderInfo['delivery_port_name']?.split('/')[0]}</div>
         </div>
       </div>
       <div className="flex justify-between p-2">
-        <div>{orderInfo.containers?.[0]?.['common']}</div>
+        <div className="truncate">{orderInfo.containers?.[0]?.['common']}</div>
         <div>{orderInfo['bkg_no']}</div>
       </div>
     </div>

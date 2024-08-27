@@ -10,7 +10,7 @@ import { useRef } from "react"
 const At = ({ children }) => {
   return (
     <span
-      className="py-1 px-2 rounded-full bg-primary-100 text-primary text-nowrap text-xs"
+      className="py-1 px-2 rounded-full bg-primary-100 text-primary text-nowrap text-xs inline-block align-baseline"
     >@{children}</span>
   )
 }
@@ -18,7 +18,7 @@ const At = ({ children }) => {
 const Message = ({ from, at, content, time }) => {
   return (
     <div className="flex gap-2 items-start leading-6" >
-      <div className="leading-6 w-12 text-right text-gray-400 text-xs">{from}</div>
+      <div className="leading-6 w-12 text-right text-gray-400">{from}</div>
       <div className="h-6 flex items-center">
         <div className="w-1 h-1 bg-primary rounded-full" />
       </div>
@@ -48,7 +48,7 @@ const MessageBoard = ({ messages, disabled }) => {
     }
   }
   return (
-    <div id="message-board" className="bg-gray-200 p-2 flex-1 overflow-auto">
+    <div id="message-board" className="bg-gray-200 p-2 flex-1 overflow-auto text-lg">
       {msgEle}
     </div>
   )
@@ -78,7 +78,7 @@ const MessageInput = ({ onSend, disabled, inSending = false }) => {
         options={users}
         onChange={setAt}
         loading={loading}
-        labelRender={(option) => <At>{option.label}</At>}
+        labelRender={(option) => <span>@{option.label}</span>}
         optionRender={(option) => <span className="text-lg">{option.label}</span>}
         popupMatchSelectWidth={200}
         allowClear
