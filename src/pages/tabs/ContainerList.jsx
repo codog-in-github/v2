@@ -190,16 +190,16 @@ function Po() {
       >
         {item => (
             <Card
-              onClick={() => navigate(`/orderDetail/${item['order']['order_id']}`)}
-              customer={item['order']?.['company_name']}
-              transCom={item['order']?.['trans_com']}
-              key={item['order']?.['id']}
-              pol={item['order']?.['loading_port_name']}
-              pod={item['order']?.['delivery_port_name']}
-              bkgNo={item['order']?.['bkg_no']}
-              type={item['order']?.['color']}
-              address={item['order']?.['van_place']}
-              date={item['order']?.['deliver_time']}
+              onClick={() => navigate(`/orderDetail/${item['order']['id']}`)}
+              customer={item['order']['company_name']}
+              transCom={item['order']['details'][0]['trans_com']}
+              key={item['order']['id']}
+              pol={item['order']['loading_port_name']}
+              pod={item['order']['delivery_port_name']}
+              bkgNo={item['order']['bkg_no']}
+              type={item['order']['color']}
+              address={item['order']['details'][0]['van_place']}
+              date={item['order']['deliver_time']}
               end
             />
         )}
