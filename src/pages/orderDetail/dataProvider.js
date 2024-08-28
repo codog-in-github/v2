@@ -67,9 +67,9 @@ const formDataGenerator = (isCopy) => (rep) => {
   } else {
     setIfExist('orderDate', 'bkg_date', dayjs)
     setIfExist('orderNo', 'order_no')
+    setIfExist('bkgNo', 'bkg_no')
+    setIfExist('blNo', 'bl_no')
   }
-  setIfExist('bkgNo', 'bkg_no')
-  setIfExist('blNo', 'bl_no')
   if(rep['bkg_type']) {
     result.type = {
       key: rep['bkg_type'],
@@ -445,6 +445,7 @@ export const useDetailData = () => {
   })
 
   const [fetchOrder, loading] = useAsyncCallback((id) => {
+    form.resetFields()
     return request('/admin/order/detail')
     .get({ id })
     .send()
