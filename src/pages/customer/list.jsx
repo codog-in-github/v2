@@ -147,7 +147,7 @@ const CustomerCard = ({ item, ...props }) => {
         情報編集
         <RightOutlined className="ml-1" />
       </div>
-      <div className="font-bold">{item.title}</div>
+      <div className="font-bold truncate">{item.title}</div>
       <div className="flex items-center justify-between">
         <div className="flex-1 flex items-center  border-r border-dashed border-gray-400 ">
           <Avatar
