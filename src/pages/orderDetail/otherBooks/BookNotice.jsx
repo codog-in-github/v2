@@ -69,6 +69,7 @@ const BookingNotice = ({ instance }) => {
       open={open}
       onCancel={() => setOpen(false)}
       okText="EXPORT"
+      maskClosable={false}
       okButtonProps={{ loading: exporting || loading }}
       onOk={exportBook}
     >

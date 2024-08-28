@@ -90,7 +90,7 @@ const OrderGroup = ({
   children = () => null
 }) => {
   return (
-    <div className="bg-white  m-2 rounded-lg shadow p-4">
+    <div className="bg-white mb-[20px] rounded-lg shadow p-4">
       <div>{title}</div>
       <div
         className={classNames(

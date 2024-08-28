@@ -275,6 +275,7 @@ const StaffPet = () => {
         open={isModalOpen}
         onCancel={handleCancel}
         className="staff-modal"
+        maskClosable={false}
         footer={null}
         width="80%"
       >

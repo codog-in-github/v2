@@ -73,8 +73,8 @@ function MainContent() {
   )
 
   return (
-    <div className="flex h-full overflow-auto">
-      <div className={classNames(c('main-content'), 'flex-1', 'overflow-auto')}>
+    <div className="no-padding flex h-full overflow-auto">
+      <div className={classNames(c('main-content'), 'flex-1', 'overflow-auto', 'p-[20px]')}>
         <div
           className="grid min-[1800px]:grid-cols-4 grid-cols-3 [&>*]:!h-[160px] gap-4 flex-wrap"
         >

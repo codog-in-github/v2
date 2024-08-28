@@ -90,6 +90,7 @@ const CopyModal = ({
       title="類似事件"
       open={open}
       onOk={submit}
+      maskClosable={false}
       okButtonProps={{
         loading: submiting,
       }}

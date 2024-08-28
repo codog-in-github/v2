@@ -149,7 +149,10 @@
 }
 
 .nav-layout-main {
-  padding: 0 15px;
+  padding: 20px;
+  &:has(.no-padding){
+    padding: 0;
+  }
 }
 
 .staff-content {

@@ -48,6 +48,7 @@ const AddModal = ({
     <Modal
       open={open}
       title="新規案件"
+      maskClosable={false}
       footer={(
         <div className="flex items-center justify-center gap-2">
           <LoadingButton type="primary" onClick={() => validate(onOk)}>保存并关闭</LoadingButton>

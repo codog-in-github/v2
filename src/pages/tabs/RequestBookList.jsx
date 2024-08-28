@@ -29,7 +29,7 @@ const ListGroup = ({ title, color, list, onContextMenu, loading }) => {
   const navigate = useNavigate()
   return (
 
-    <div className="bg-white  m-2 rounded-lg shadow p-4">
+    <div className="bg-white mb-[20px] rounded-lg shadow p-4">
       <div>{title}</div>
       <div className="grid grid-cols-4 lg:grid-cols-6 gap-8 flex-wrap mt-4 [&:has(.ant-empty)]:!grid-cols-1">
         <SkeletonList

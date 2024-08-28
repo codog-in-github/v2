@@ -89,6 +89,7 @@ const Handling = ({ instance }) => {
       okText="EXPORT"
       okButtonProps={{ loading: exporting || loading }}
       onOk={exportBook}
+      maskClosable={false}
     >
       <Form className="py-4" form={form} labelCol={{ span: 4 }}>
         <Form.Item name="id" noStyle></Form.Item>

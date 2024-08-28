@@ -29,6 +29,7 @@ const ListModal = ({ instance }) => {
       open={open}
       onCancel={() => setOpen(false)}
       footer={null}
+      maskClosable={false}
     >
       <div className="p-2">
         <Table

@@ -23,6 +23,7 @@ const OrderDetail = () => {
             open={blocker.state === 'blocked'}
             onOk={() => blocker.proceed()}
             onCancel={() => blocker.reset()}
+            maskClosable={false}
           >
             <div>この画面から離れますか</div>
           </Modal>

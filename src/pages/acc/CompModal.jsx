@@ -26,7 +26,7 @@ const CompModal = ({
     onSuccess()
   })
   return (
-    <Modal title="上传凭证" open={open} onOk={done} onCancel={() => setOpen(false)} okButtonProps={{ loading }} cla>
+    <Modal title="上传凭证" open={open} onOk={done} onCancel={() => setOpen(false)} okButtonProps={{ loading }} maskClosable={false}>
       <Form form={form} className="mt-8">
         <Form.Item noStyle name='id' ></Form.Item>
         <Form.Item name='files' label="凭证" rules={[{ required: true, message: '请上传凭证' }]}>

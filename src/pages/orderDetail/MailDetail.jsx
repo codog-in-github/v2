@@ -104,6 +104,7 @@ const MailDetail = ({
       title={title}
       footer={null}
       onCancel={() => setOpen(false)}
+      maskClosable={false}
     >
       <div className="flex flex-col gap-4 mp-4">
         {loading ? (

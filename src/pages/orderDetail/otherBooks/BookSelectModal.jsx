@@ -19,7 +19,7 @@ const BookSelectModal = ({ instance }) => {
   }
 
   return (
-    <Modal title="COHISE BOOK" open={open} footer={null} onCancel={() => setOpen(false)}>
+    <Modal title="COHISE BOOK" open={open} footer={null} onCancel={() => setOpen(false)} maskClosable={false}>
       <div className="my-4">
         <Button onClick={() => openForm(bookingNoticeInstance)}>BOOKEING NOTICE</Button>
         {/* <Button className="ml-2" onClick={() => openForm(handingInstance)}>荷捌表</Button> */}

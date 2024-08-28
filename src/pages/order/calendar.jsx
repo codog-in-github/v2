@@ -28,7 +28,7 @@ const useCalendarList = () => {
     reload()
   };
   const moveCurrent = () => {
-    start.current = dayjs()
+    start.current = dayjs().startOf("week")
     reload()
   };
   const changeType = (val) => {
@@ -46,6 +46,7 @@ const useCalendarList = () => {
       const list = []
       const day = start.current.add(i, "day")
       const ymd = day.format("YYYY-MM-DD")
+      const className = [0, 6].includes(i) && 'flex-1 min-w-[200px]'
       if(rep[ymd]) {
         list.push(...rep[ymd].map(item => ({
           id: item['id'],
@@ -62,6 +63,7 @@ const useCalendarList = () => {
         title: start.current.add(i, "day").format("ddd"),
         date: start.current.add(i, "day").format("M-D"),
         children: list,
+        className
       })
     }
     setList(weeks)
@@ -77,7 +79,7 @@ const useCalendarList = () => {
 const CalendarItem = ({ item }) => {
   const navigate = useNavigate()
   return (
-    <div className={classNames("border-r border-gray-500 text-[15px] first:border-l flex-1", item.className)}>
+    <div className={classNames("border-r border-gray-500 text-[15px] w-[300px] last:border-r-0 flex-shrink-0", item.className)}>
       <div className="text-center text-gray-600 text-[16px] mb-1">
         {item.title}
       </div>
@@ -133,7 +135,7 @@ const OrderCalendar = () => {
         </div>
       </div>
 
-      <div className="flex-1 flex mt-4">
+      <div className="flex-1 flex mt-4 overflow-x-auto">
         {list.map((item) => (
           <CalendarItem key={item.id} item={item} />
         ))}
