@@ -9,13 +9,18 @@ import { useRef } from "react";
 import { Form } from "antd";
 import SkeletonList from "@/components/SkeletonList";
 import { useCallback } from "react";
+import pubSub from "@/helpers/pubSub";
 
 const CustomerAddModal = ({ modal, onSuccess }) => {
   const [open, setOpen] = useState(false)
   const [form] = Form.useForm()
+  const [isEdit, setIsEdit] = useState(false)
+  const [modalInstance, modalEl] = Modal.useModal()
+
   if(modal) {
     modal.current = {
       open(id) {
+        setIsEdit(!!id)
         form.resetFields()
         form.setFieldValue(['contacts', 0], {})
         setOpen(true)
@@ -47,6 +52,18 @@ const CustomerAddModal = ({ modal, onSuccess }) => {
     form.setFieldValue(['contacts'], [...form.getFieldValue(['contacts']), {}])
   }, [])
 
+  const [delCustomer] = useAsyncCallback(async () => {
+    const confirm = await modalInstance.confirm({
+      title: '确认删除',
+      content: '确认删除该客户？',
+    })
+    if(!confirm) return
+    await request('/admin/customer/delete').data({ id: form.getFieldValue('id')  }).send()
+    pubSub.publish('Info.Toast', '削除完了', 'success')
+    setOpen(false)
+    onSuccess()
+  })
+
   return (
     <Modal
       open={open}
@@ -54,7 +71,9 @@ const CustomerAddModal = ({ modal, onSuccess }) => {
       footer={null}
       onCancel={() => setOpen(false)}
       width={800}
+      maskClosable={false}
     >
+      {modalEl}
       <Form layout="vertical" className="mt-8 px-8" form={form}>
         <Form.Item name="id" noStyle></Form.Item>
         <div className="grid grid-cols-3 gap-x-4">
@@ -111,6 +130,7 @@ const CustomerAddModal = ({ modal, onSuccess }) => {
       </Form>
       <div className="flex gap-2 items-center justify-center">
         <Button className="w-32" type="primary" loading={inSubmit || loading} onClick={submit}>确认</Button>
+        {isEdit && <Button className="w-32" type="primary" onClick={delCustomer} danger>删除</Button>}
         <Button className="w-32" onClick={() => setOpen(false)}>取消</Button>
       </div>
     </Modal>

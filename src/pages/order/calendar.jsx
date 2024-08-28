@@ -77,7 +77,7 @@ const useCalendarList = () => {
 const CalendarItem = ({ item }) => {
   const navigate = useNavigate()
   return (
-    <div className={classNames("border-r border-gray-500 text-[15px] first:border-l flex-1 overflow-x-auto", item.className)}>
+    <div className={classNames("border-r border-gray-500 text-[15px] first:border-l flex-1", item.className)}>
       <div className="text-center text-gray-600 text-[16px] mb-1">
         {item.title}
       </div>
