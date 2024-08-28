@@ -109,7 +109,12 @@ const ContainerList = ({
                 <Form.Item className="flex-1" name={[props.name, 'commodity']}>
                   <Input addonBefore="COM" onChange={onModifyChange} />
                 </Form.Item>
-                <Form.Item className="flex-1" label="Container type" name={[props.name, 'containerType']}>
+                <Form.Item
+                  className="flex-1"
+                  label="Container type"
+                  name={[props.name, 'containerType']}
+                  rules={[{ required: true, message: 'container type' }]}
+                >
                   <AutoComplete
                     onChange={onModifyChange}
                     placement="topLeft"
@@ -118,7 +123,12 @@ const ContainerList = ({
                     onSelect={(value) => form.setFieldValue(['cars', 0, 'vanType'], value)}
                   />
                 </Form.Item>
-                <Form.Item className="flex-1" label="QUANTITY" name={[props.name, 'quantity']}>
+                <Form.Item
+                  className="flex-1"
+                  label="QUANTITY"
+                  name={[props.name, 'quantity']}
+                  rules={[{ required: true, message: 'quantity 必填' }]}
+                >
                   <Input />
                 </Form.Item>
                 {list.length > 1 ? (
