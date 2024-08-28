@@ -486,8 +486,8 @@ export const useDetailData = () => {
     const { id: newId } = await request('/admin/order/edit_order')
       .data(apiSaveDataGenerator(formData, isCopy))
       .send()
+    modified.current = false
     if(isCopy) {
-      modified.current = false
       navigate(`/orderDetail/${newId}`, { replace: true })
     } else {
       fetchOrder(id)
