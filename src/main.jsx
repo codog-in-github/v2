@@ -11,26 +11,23 @@ import 'dayjs/locale/zh-cn';
 import '@/assets/styles/public.scss';
 import 'handsontable/dist/handsontable.full.min.css';
 
-
-const antdGlobalConfig = {
-  locale: ja_JP,
-  form: {
-    colon: false
-  },
-  theme: {
-    token: {
-      colorPrimary: themeColor('primary'),
-      colorWarring: themeColor('warning'),
-      borderRadius: 4,
-    },
-  }
-};
-
 dayjs.locale('ja')
 registerAllModules();
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <ConfigProvider {...antdGlobalConfig}>
+  <ConfigProvider
+    locale={ja_JP}
+    form={{
+      colon: false
+    }}
+    theme={{
+      token: {
+        colorPrimary: themeColor('primary'),
+        colorWarring: themeColor('warning'),
+        borderRadius: 4,
+      },
+    }}
+  >
     <App />
   </ConfigProvider>
 )

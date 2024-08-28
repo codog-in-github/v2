@@ -16,7 +16,7 @@ const bkgTypes = Object.entries(BKG_TYPES)
   }))
 
 const useCalendarList = () => {
-  const start = useRef(dayjs())
+  const start = useRef(dayjs().startOf("week"))
   const bkgType = useRef(null)
   const [list, setList] = useState([]);
   const moveNext = () => {
@@ -46,7 +46,6 @@ const useCalendarList = () => {
       const list = []
       const day = start.current.add(i, "day")
       const ymd = day.format("YYYY-MM-DD")
-      const className = [0, 6].includes(day.day()) ? 'w-24 !flex-0' : 'flex-1'
       if(rep[ymd]) {
         list.push(...rep[ymd].map(item => ({
           id: item['id'],
@@ -60,7 +59,6 @@ const useCalendarList = () => {
       }
       weeks.push({
         id: i,
-        className,
         title: start.current.add(i, "day").format("ddd"),
         date: start.current.add(i, "day").format("M-D"),
         children: list,
@@ -79,7 +77,7 @@ const useCalendarList = () => {
 const CalendarItem = ({ item }) => {
   const navigate = useNavigate()
   return (
-    <div className={classNames("border-r border-gray-500 text-[15px] first:border-l", item.className)}>
+    <div className={classNames("border-r border-gray-500 text-[15px] first:border-l flex-1 overflow-x-auto", item.className)}>
       <div className="text-center text-gray-600 text-[16px] mb-1">
         {item.title}
       </div>
@@ -113,7 +111,7 @@ const CalendarItem = ({ item }) => {
 const OrderCalendar = () => {
   const { start, moveNext, moveCurrent, movePrev, changeType, loading, list } = useCalendarList();
   return (
-    <div className="main-content">
+    <div className="main-content h-full flex flex-col">
       <div className="flex justify-end relative">
         <div className="absolute left-0 right-0 m-auto w-[100px] text-center text-gray-700 text-[22px] font-bold">
           {start.current.format("YYYY-MM")}
@@ -135,7 +133,7 @@ const OrderCalendar = () => {
         </div>
       </div>
 
-      <div className="flex mt-4" style={{ height: "calc(100% - 32px)" }}>
+      <div className="flex-1 flex mt-4">
         {list.map((item) => (
           <CalendarItem key={item.id} item={item} />
         ))}
