@@ -172,7 +172,7 @@ function Po() {
             onContextMenu={e => contextMenuHandle(e, item)}
             onClick={() => navigate(`/orderDetail/${item['order_id']}`)}
             customer={item['company_name']}
-            transCom={item['trans_com']}
+            transCom={item['trans_com_name']}
             key={item['id']}
             pol={item['loading_port_name']}
             pod={item['delivery_port_name']}
@@ -192,7 +192,7 @@ function Po() {
             <Card
               onClick={() => navigate(`/orderDetail/${item['order']['id']}`)}
               customer={item['order']['company_name']}
-              transCom={item['order']['details'][0]['trans_com']}
+              transCom={item['order']['details'][0]['trans_com_name']}
               key={item['order']['id']}
               pol={item['order']['loading_port_name']}
               pod={item['order']['delivery_port_name']}

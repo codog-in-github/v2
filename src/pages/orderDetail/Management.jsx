@@ -173,6 +173,9 @@ const Management = ({ className }) => {
               loading={loading}
               onChange={onModifyChange}
               getPopupContainer={() => rootRef.current}
+              dropdownAlign={{
+                overflow: { adjustY: false }
+              }}
             />
           </Form.Item>
         </div>

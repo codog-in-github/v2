@@ -1,6 +1,6 @@
 import { request } from "@/apis/requestBuilder";
 import { useAsyncCallback, useDepartmentList } from "@/hooks";
-import { Radio, DatePicker, Form, Modal, Input } from "antd";
+import { Radio, DatePicker, Form, Modal, Input, Button } from "antd";
 import dayjs from "dayjs";
 import { useContext, useState } from "react";
 import { DetailDataContext } from "../dataProvider";
@@ -14,7 +14,7 @@ const BookingNotice = ({ instance }) => {
   const departmentList = useDepartmentList()
   const { form: detailForm } = useContext(DetailDataContext)
 
-  const [exportBook, exporting] = useAsyncCallback(async () => {
+  const [exportBook, exporting] = useAsyncCallback(async (preview) => {
     const formData = form.getFieldsValue()
     dateFileds.forEach(field => {
       if(formData[field]) {
@@ -29,7 +29,7 @@ const BookingNotice = ({ instance }) => {
         delete formData[field]
       }
     }
-    await request('/admin/book/booking_notice/export').data(formData).download().send()
+    await request('/admin/book/booking_notice/export').data(formData).download(null, preview).send()
     setOpen(false)
     pubSub.publish('Info.Toast', '导出成功', 'success')
   })
@@ -68,9 +68,12 @@ const BookingNotice = ({ instance }) => {
       width={700}
       open={open}
       onCancel={() => setOpen(false)}
-      okText="EXPORT"
       maskClosable={false}
-      okButtonProps={{ loading: exporting || loading }}
+      footer={<>
+        <Button type="primary" loading={exporting || loading} onClick={() => exportBook()}>EXPORT</Button>
+        <Button type="primary" loading={exporting || loading} onClick={() => exportBook(true)}>PREVIEW</Button>
+        <Button>CANCEL</Button>
+      </>}
       onOk={exportBook}
     >
       <Form form={form} labelCol={{ span: 4 }}>
@@ -78,6 +81,9 @@ const BookingNotice = ({ instance }) => {
         <Form.Item name="order_id" noStyle></Form.Item>
         <Form.Item name="department_id" label="ADDRESS">
           <Radio.Group options={departmentList}></Radio.Group>
+        </Form.Item>
+        <Form.Item name="order_no" label="社内管理番号">
+          <Input readOnly></Input>
         </Form.Item>
         <Form.Item name="booker" label="BOOKER">
           <Input></Input>

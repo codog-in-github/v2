@@ -61,6 +61,8 @@ const PortSelect = ({ tree, bind, bindName, ...props }) => {
       {...props}
       onSelect={(_, option) => form.setFieldValue(bindName, `${option['label']}/${option['code']}`)}
       options={options}
+      showSearch
+      optionFilterProp="code"
       fieldNames={{
         value: 'id',
         label: 'code',
@@ -94,6 +96,8 @@ const Ship = ({ className }) => {
                 form.setFieldValue('carrier', origin.value)
                 form.setFieldValue('vesselName', origin.extra ?? '')
               }}
+              showSearch
+              optionFilterProp="label"
               getPopupContainer={() => rootRef.current}
               onChange={onModifyChange}
             />

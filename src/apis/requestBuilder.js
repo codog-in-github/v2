@@ -182,7 +182,7 @@ class Request {
     return this
   }
 
-  download(filename) {
+  download(filename, preview = false) {
     this.config({
       responseType: 'blob'
     })
@@ -196,7 +196,7 @@ class Request {
           filename = 'download'
         }
       }
-      return next(downloadBlob(rep.data, filename))
+      return next(downloadBlob(rep.data, filename, preview))
     })
     return this
   }

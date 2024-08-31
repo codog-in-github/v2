@@ -48,7 +48,7 @@ const useOrderList = (pagination, filterForm) => {
       cut: item['doc_cut'],
       pol: item['loading_port_name'],
       pod: item['delivery_port_name'],
-      quantity: "40HQ , 6 ; 20HQ , 6",
+      quantity: item['containers'].map(item => `${item['container_type']}-${item['quantity']}`).join('; '),
       status: 1,
       color: [
         "gray",
@@ -66,7 +66,7 @@ const useOrderList = (pagination, filterForm) => {
     })))
   })
   return {
-    list, getList
+    list, getList, loading
   }
 };
 

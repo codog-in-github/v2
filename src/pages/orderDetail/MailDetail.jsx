@@ -58,6 +58,7 @@ const MailRecord = ({ record }) => {
       return (
         <>
           <div className="mb-2">收件人：{data.to?.join(',')}</div>
+          {data.cc && <div className="mb-2">cc：{data.cc}</div>}
           {
             data.files && data.files.length > 0 && (
               <div className="bg-gray-200 py-2 px-4 text-gray-800">

@@ -225,8 +225,8 @@ const ProcessStatus = ({className}) => {
         <Input.TextArea onChange={onModifyChange} />
       </Form.Item>
       <Label className="mt-4">ORDER INFO</Label>
-      <Form.Item name="remark" className="m-2" rules={[{ required: true, message: '必須項目です' }]}>
-        <Input.TextArea readOnly={!isCopy} onChange={onModifyChange} />
+      <Form.Item name="remark" className="m-2">
+        <Input.TextArea readOnly onChange={onModifyChange} />
       </Form.Item>
       <Mail mail={mail} onSuccess={refreshNodes}></Mail>
       <MailDetail modal={detailRef} />

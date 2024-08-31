@@ -56,12 +56,18 @@ const FileSelect = ({ files: originFiles, fileType, value, onChange, vertical })
   )
 }
 const ToSelect = ({ type, value, onChange }) => {
+  const form = Form.useFormInstance()
   const [options, setOptions] = useState([])
   const [load, loading] = useAsyncCallback(async (type) => {
     const rep = await request('/admin/order/get_mail_companies').get({ type }).send()
     switch(type) {
       case MAIL_TO_CUSTOMER:
-        setOptions(rep.map(item => ({ value: item.email, label: `${item.company_name}-${item.header}-${item.email}` })))
+        setOptions(rep.map(item => ({
+          key: item.id,
+          value: item.email,
+          label: `${item.name}-${item.email}`,
+          cc: item.cc
+        })))
         break
       case MAIL_TO_ACC:
       case MAIL_TO_CUSTOMS_DECLARANT:
@@ -88,7 +94,11 @@ const ToSelect = ({ type, value, onChange }) => {
   }, [type])
   if([MAIL_TO_ACC, MAIL_TO_CUSTOMS_DECLARANT].includes(type)) {
     return (
-      <Checkbox.Group value={value} options={options} onChange={onChange}></Checkbox.Group>
+      <Checkbox.Group
+        value={value}
+        options={options}
+        onChange={onChange}
+      ></Checkbox.Group>
     )
   }
   return (
@@ -96,6 +106,60 @@ const ToSelect = ({ type, value, onChange }) => {
       mode="tags"
       loading={loading}
       onChange={onChange}
+      onSelect={(_, { cc }) => {
+        if(cc) {
+          form.setFieldsValue({ cc: cc.split('|') })
+        }
+      }}
+      showSearch
+      allowClear
+      value={value}
+      options={options}
+    />
+  )
+}
+
+
+const CcSelect = ({ type, value, onChange }) => {
+  const form = Form.useFormInstance()
+  const [options, setOptions] = useState([])
+  const [load, loading] = useAsyncCallback(async (type) => {
+    if(type !== MAIL_TO_CUSTOMER) {
+      setOptions([])
+      return
+    }
+    const rep = await request('/admin/order/get_mail_companies').get({ type }).send()
+    const list = []
+    for(let i = 0; i < rep.length; i++) {
+      const item =rep[i]
+      if(item.cc) {
+        const ccs = item.cc.split('|')
+        for(const cc of ccs) {
+          list.push({
+            value: cc,
+            label: `${item.name}-${cc}`
+          })
+        }
+        setOptions(list)
+      }
+    }
+    setOptions(list)
+  })
+  useEffect(() => {
+    load(type)
+  }, [type])
+  return (
+    <Select
+      mode="tags"
+      loading={loading}
+      onChange={onChange}
+      onSelect={(_, { cc }) => {
+        if(cc) {
+          form.setFieldsValue({ cc: cc.split('|') })
+        }
+      }}
+      showSearch
+      allowClear
       value={value}
       options={options}
     />
@@ -159,6 +223,9 @@ const Mail = ({ mail, onSuccess }) => {
       <Form.Item noStyle name="simple"></Form.Item>
       <Form.Item label="受信者" name="to" rules={[{ required: true, message: '必須項目です' }]}>
         <ToSelect type={mailToType} ></ToSelect>
+      </Form.Item>
+      <Form.Item label="CC" name="cc">
+        <CcSelect type={mailToType} ></CcSelect>
       </Form.Item>
       {!simpleMode && (
         <Form.Item label="件名" name="subject" rules={[{ required: true, message: '必須項目です' }]}>

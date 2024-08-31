@@ -207,7 +207,8 @@ const formDataGenerator = (isCopy) => (rep) => {
           carType: item['bearing_type'] || void 0,
           date: item['deliver_date'] !== '0000-00-00' ? dayjs(item['deliver_date']) : null,
           time,
-          transCom: item['trans_com'],
+          transComId: item['trans_com_id'],
+          transComName: item['trans_com_name'],
           driver: item['driver'],
           tel: item['tel'],
           carCode: item['car'],
@@ -226,7 +227,8 @@ const formDataGenerator = (isCopy) => (rep) => {
    * $table->string('remark')->default('')->comment('备注');
    */
   if(!isCopy) {
-    setIfExist('remark', 'remark', (remark) => `${remark}\n${rep.creator} ${dayjs(rep.created_at).format('YYYY-MM-DD HH:mm:ss')}`)
+    const remark = rep.remark ? rep.remark + '\n' : ''
+    result.remark =`${remark}${rep.creator} ${dayjs(rep.created_at).format('YYYY-MM-DD HH:mm:ss')}`
   }
   return result
 }
@@ -320,6 +322,7 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
   const details = []
   result['details'] = details
   for(const item of formData.cars) {
+    console.log(item)
     const detail = {
       'id' : item.id ?? '',
       'container_id' : item.containerId ?? '',
@@ -328,7 +331,8 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
       'bearing_type': item.carType ?? 0,
       'deliver_date': item.date?.format('YYYY-MM-DD') ?? '',
       'deliver_time_range': item.time?.map(item => item.format('HH:mm')).join('-') ?? '',
-      'trans_com': item.transCom ?? '',
+      'trans_com_name': item.transComName ?? '',
+      'trans_com_id': item.transComId ?? '',
       'driver': item.driver ?? '',
       'tel': item.tel ?? '',
       'car': item.carCode ?? '',

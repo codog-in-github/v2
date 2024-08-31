@@ -7,12 +7,14 @@ import classNames from "classnames"
 import { DetailDataContext, newCar, newConatainer } from "./dataProvider"
 import { useCallback } from "react"
 import { Space } from "antd"
-import { useOptions } from "@/hooks"
+import { useAsyncCallback, useOptions } from "@/hooks"
 import { SELECT_ID_CONTAINER_TYPE } from "@/constant"
 import { createContext } from "react"
 import { useContext } from "react"
 import { AutoComplete } from "antd"
 import { useRef } from "react"
+import { useEffect } from "react"
+import { request } from "@/apis/requestBuilder"
 
 const usePage = (list) => {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -117,7 +119,10 @@ const ContainerList = ({
                 >
                   <AutoComplete
                     onChange={onModifyChange}
-                    placement="topLeft"
+                    dropdownAlign={{
+                      overflow: { adjustY: false }
+                    }}
+                    placement="bottomRight"
                     options={containerTypes}
                     getPopupContainer={() => rootRef.current}
                     onSelect={(value) => form.setFieldValue(['cars', 0, 'vanType'], value)}
@@ -188,7 +193,8 @@ const CarList = ({
   const {
     page, onWheelHandle, movePage, movePageForce
   } = usePage(list)
-  const { rootRef, onModifyChange } = useContext(DetailDataContext)
+  const { rootRef, onModifyChange, form } = useContext(DetailDataContext)
+  const { carOptions } = useContext(GoodsContext)
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       <div className="flex w-full h-full" >
@@ -223,6 +229,7 @@ const CarList = ({
               <Form.Item className="w-36" label="時間" name={[props.name, 'time']}>
                 <TimePicker.RangePicker
                   format="HH:mm"
+                  needConfirm={false}
                   getPopupContainer={() => rootRef.current}
                   onChange={onModifyChange}
                 />
@@ -249,8 +256,24 @@ const CarList = ({
             </div>
             <div className="border-t border-gray-400 border-dashed my-2" />
             <div className="flex gap-2">
-              <Form.Item className="flex-1" label="運送会社" name={[props.name, 'transCom']}>
-                <Input onChange={onModifyChange} />
+            <Form.Item noStyle name={[props.name, 'transComName']}></Form.Item>
+            <Form.Item className="flex-1" label="運送会社" name={[props.name, 'transComId']}>
+                <Select
+                  onChange={onModifyChange}
+                  getPopupContainer={() => rootRef.current}
+                  options={carOptions}
+                  maxCount={5}
+                  dropdownAlign={{
+                    overflow: { adjustY: false }
+                  }}
+                  showSearch
+                  onSelect={(_, { name }) => form.setFieldValue(['cars', props.name, 'transComName'], name)}
+                  fieldNames={{
+                    label: 'name',
+                    value: 'id'
+                  }}
+                  optionFilterProp="name"
+                />
               </Form.Item>
               <Form.Item className="flex-1" label="ドライバー" name={[props.name, 'driver']}>
                 <Input onChange={onModifyChange} />
@@ -302,10 +325,23 @@ const CarList = ({
   )
 }
 const GoodsContext = createContext()
+
+const useCarsComps = () => {
+  const [carComps, setCarComps] = useState([])
+  const [getData, loading] = useAsyncCallback(async () => {
+    const list = await request('/admin/trans_comp_list').get().send()
+    setCarComps(list)
+  })
+  useEffect(() => {
+    getData()
+  }, [])
+  return [carComps, loading]
+}
 const Goods = ({ className }) => {
   const form = Form.useFormInstance()
   const [containerTypes] = useOptions(SELECT_ID_CONTAINER_TYPE)
   const { onModifyChange } = useContext(DetailDataContext)
+  const [carOptions] = useCarsComps()
 
   const onAddContainerHandle = useCallback(() => {
     onModifyChange()
@@ -335,7 +371,7 @@ const Goods = ({ className }) => {
   }, [form, onModifyChange])
   // const [carCompanys] = useOptions(1)
   return (
-    <GoodsContext.Provider value={{ containerTypes }}>
+    <GoodsContext.Provider value={{ containerTypes, carOptions }}>
       <div className={className}>
         <Label className="flex-shrink-0">貨物情報</Label>
         <div className="mx-2 flex-1 overflow-hidden">

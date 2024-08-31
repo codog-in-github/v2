@@ -104,11 +104,15 @@ export const touch = (func) => {
  * @param {Blob} blob 
  * @param {string} fileName 
  */
-export const downloadBlob = (blob, fileName) => {
+export const downloadBlob = (blob, fileName, preview = false) => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = fileName;
+  if(preview) {
+    a.target = '_blank'
+  } else {
+    a.download = fileName;
+  }
   a.click();
   URL.revokeObjectURL(url);
   a.remove()
