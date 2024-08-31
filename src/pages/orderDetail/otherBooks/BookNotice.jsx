@@ -1,10 +1,9 @@
 import { request } from "@/apis/requestBuilder";
 import { useAsyncCallback, useDepartmentList } from "@/hooks";
-import { Radio, DatePicker, Form, Modal, Input, Button } from "antd";
+import { Radio, DatePicker, Form, Modal, Input } from "antd";
 import dayjs from "dayjs";
 import { useContext, useState } from "react";
 import { DetailDataContext } from "../dataProvider";
-import pubSub from "@/helpers/pubSub";
 
 const dateFileds = ['etd', 'eta', 'cy_open', 'cy_cut', 'doc_cut']
 
@@ -14,7 +13,7 @@ const BookingNotice = ({ instance }) => {
   const departmentList = useDepartmentList()
   const { form: detailForm } = useContext(DetailDataContext)
 
-  const [exportBook, exporting] = useAsyncCallback(async (preview) => {
+  const [exportBook, exporting] = useAsyncCallback(async () => {
     const formData = form.getFieldsValue()
     dateFileds.forEach(field => {
       if(formData[field]) {
@@ -29,9 +28,8 @@ const BookingNotice = ({ instance }) => {
         delete formData[field]
       }
     }
-    await request('/admin/book/booking_notice/export').data(formData).download(null, preview).send()
+    await request('/admin/book/booking_notice/export').data(formData).download(null, true).send()
     setOpen(false)
-    pubSub.publish('Info.Toast', '导出成功', 'success')
   })
 
   const [setFormData, loading] = useAsyncCallback(async (id) => {
@@ -69,11 +67,8 @@ const BookingNotice = ({ instance }) => {
       open={open}
       onCancel={() => setOpen(false)}
       maskClosable={false}
-      footer={<>
-        <Button type="primary" loading={exporting || loading} onClick={() => exportBook()}>EXPORT</Button>
-        <Button type="primary" loading={exporting || loading} onClick={() => exportBook(true)}>PREVIEW</Button>
-        <Button>CANCEL</Button>
-      </>}
+      okButtonProps={{ loading: exporting || loading }}
+      okText="EXPORT"
       onOk={exportBook}
     >
       <Form form={form} labelCol={{ span: 4 }}>

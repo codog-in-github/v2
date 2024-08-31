@@ -10,6 +10,7 @@ import { Form } from "antd";
 import SkeletonList from "@/components/SkeletonList";
 import { useCallback } from "react";
 import pubSub from "@/helpers/pubSub";
+import TagInput from "@/components/TagInput";
 
 const CustomerAddModal = ({ modal, onSuccess }) => {
   const [open, setOpen] = useState(false)
@@ -33,12 +34,17 @@ const CustomerAddModal = ({ modal, onSuccess }) => {
   
   const [load, loading] = useAsyncCallback(async (id) => {
     const rep = await request('/admin/customer/detail').get({ id }).send()
+    if(rep.cc) {
+      rep.cc = rep.cc.split('|')
+    }
     form.setFieldsValue(rep)
   })
   
   const [submit, inSubmit] = useAsyncCallback(async () => {
     const data = await form.validateFields()
-    console.log(data)
+    if(data.cc) {
+      data.cc = data.cc.join('|')
+    }
     await request('/admin/customer/save').data(data).send()
     onSuccess()
     setOpen(false)
@@ -102,7 +108,7 @@ const CustomerAddModal = ({ modal, onSuccess }) => {
             <Input />
           </Form.Item>
           <Form.Item label="CC" name="cc" className="col-span-3">
-            <Input />
+            <TagInput />
           </Form.Item>
         </div>
         <Form.Item label="担当者信息">

@@ -90,6 +90,7 @@ const formDataGenerator = (isCopy) => (rep) => {
    * $table->string('mobile')->default('')->comment('联系方式');
    * $table->string('legal_number')->default('')->comment('法人番号');
    */
+  setIfExist('customerId', 'customer_id')
   setIfExist('customerName', 'company_name')
   setIfExist('customerAbbr', 'short_name')
   setIfExist('customerPostalCode', 'zip_code')
@@ -258,6 +259,7 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
    * * customer お客様情報
    */
   setValue('customerName', 'company_name')
+  setValue('customerId', 'customer_id')
   setValue('customerAbbr', 'short_name')
   setValue('customerPostalCode', 'zip_code')
   setValue('customerAddr', 'address')

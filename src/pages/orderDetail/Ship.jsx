@@ -6,6 +6,7 @@ import { Form, Input, Select, DatePicker } from "antd"
 import { useContext } from "react"
 import { useState, useEffect } from "react"
 import { DetailDataContext } from "./dataProvider"
+import { AutoComplete } from "antd"
 
 const getPorts = () => {
   return request('admin/country/tree').get().send()
@@ -79,9 +80,9 @@ const PortSelect = ({ tree, bind, bindName, ...props }) => {
 }
 const Ship = ({ className }) => {
   const { portTree, loading: portLoading } = usePorts()
-  const form = Form.useFormInstance()
   const [ships] = useOptions(SELECT_ID_SHIP_CONPANY)
-  const shipOptions = ships.map(item => ({ value: item.id, label: item.value, origin: item }))
+  const shipOptions = ships.map(item => ({ value: item.id, label: item.value }))
+  const vesselOptions = ships.map(item => ({ value: item.extra })).filter(item => !!item.value)
   const { rootRef, onModifyChange } = useContext(DetailDataContext)
   return (
     <div className={className}>
@@ -92,19 +93,29 @@ const Ship = ({ className }) => {
           <Form.Item name="carrier" noStyle></Form.Item>
           <Form.Item className="flex-1" label="CARRIER" name="carrier_id">
             <Select 
-              options={shipOptions} onSelect={(_, { origin }) => {
-                form.setFieldValue('carrier', origin.value)
-                form.setFieldValue('vesselName', origin.extra ?? '')
-              }}
+              options={shipOptions}
               showSearch
               optionFilterProp="label"
               getPopupContainer={() => rootRef.current}
               onChange={onModifyChange}
+              dropdownAlign={{
+                overflow: { adjustY: false }
+              }}
             />
           </Form.Item>
           <span className="relative bottom-1">/</span>
           <Form.Item className="flex-1" label="VESSEL NAME" name="vesselName">
-            <Input onChange={onModifyChange} />
+            <AutoComplete
+              onChange={onModifyChange}
+              options={vesselOptions}
+              getPopupContainer={() => rootRef.current}
+              filterOption={(value, option) => {
+                return option.value.toLowerCase().includes(value.toLowerCase())
+              }}
+              dropdownAlign={{
+                overflow: { adjustY: false }
+              }}
+            />
           </Form.Item>
           <span className="relative bottom-1">/</span>
           <Form.Item className="flex-1" label="VOYAGE" name="voyage">

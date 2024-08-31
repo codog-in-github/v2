@@ -1,7 +1,7 @@
 import { Button, Modal, Input, Form, Select } from "antd"
 import { useState, useContext, useEffect } from "react"
 import { DetailDataContext } from "./dataProvider"
-import { FILE_TYPE_CUSTOMS, MAIL_TO_ACC, MAIL_TO_CUSTOMER, MAIL_TO_CUSTOMS_DECLARANT, MAIL_TYPE_NORMAL } from "@/constant"
+import { MAIL_TO_ACC, MAIL_TO_CUSTOMER, MAIL_TO_CUSTOMS_DECLARANT, MAIL_TYPE_NORMAL } from "@/constant"
 import { Checkbox } from "antd"
 import { CloseOutlined } from "@ant-design/icons"
 import { useAsyncCallback } from "@/hooks"
@@ -10,7 +10,6 @@ import { useMemo } from "react"
 import pubSub from "@/helpers/pubSub"
 import { basename } from "@/helpers"
 import { useRef } from "react"
-import { Radio } from "antd"
 import classNames from "classnames"
 
 const FileSelect = ({ files: originFiles, fileType, value, onChange, vertical }) => {
@@ -55,11 +54,16 @@ const FileSelect = ({ files: originFiles, fileType, value, onChange, vertical })
     </div>
   )
 }
-const ToSelect = ({ type, value, onChange }) => {
+const ToSelect = ({ type, customerId, value, onChange }) => {
   const form = Form.useFormInstance()
   const [options, setOptions] = useState([])
-  const [load, loading] = useAsyncCallback(async (type) => {
-    const rep = await request('/admin/order/get_mail_companies').get({ type }).send()
+  const [load, loading] = useAsyncCallback(async (type, customerId) => {
+    if(!type){
+      setOptions([])
+      return
+    }
+    const rep = await request('/admin/order/get_mail_companies')
+      .get({ type, customer_id: customerId }).send()
     switch(type) {
       case MAIL_TO_CUSTOMER:
         setOptions(rep.map(item => ({
@@ -90,8 +94,9 @@ const ToSelect = ({ type, value, onChange }) => {
     }
   })
   useEffect(() => {
-    load(type)
-  }, [type])
+    console.log('useEffect', type, customerId)
+    load(type, customerId)
+  }, [type, customerId])
   if([MAIL_TO_ACC, MAIL_TO_CUSTOMS_DECLARANT].includes(type)) {
     return (
       <Checkbox.Group
@@ -106,11 +111,6 @@ const ToSelect = ({ type, value, onChange }) => {
       mode="tags"
       loading={loading}
       onChange={onChange}
-      onSelect={(_, { cc }) => {
-        if(cc) {
-          form.setFieldsValue({ cc: cc.split('|') })
-        }
-      }}
       showSearch
       allowClear
       value={value}
@@ -120,7 +120,7 @@ const ToSelect = ({ type, value, onChange }) => {
 }
 
 
-const CcSelect = ({ type, value, onChange }) => {
+const CcSelect = ({ type, customerId,value, onChange }) => {
   const form = Form.useFormInstance()
   const [options, setOptions] = useState([])
   const [load, loading] = useAsyncCallback(async (type) => {
@@ -128,16 +128,16 @@ const CcSelect = ({ type, value, onChange }) => {
       setOptions([])
       return
     }
-    const rep = await request('/admin/order/get_mail_companies').get({ type }).send()
+    const rep = await request('/admin/order/get_mail_companies')
+      .get({ type, customer_id: customerId }).send()
     const list = []
     for(let i = 0; i < rep.length; i++) {
-      const item =rep[i]
+      const item = rep[i]
       if(item.cc) {
         const ccs = item.cc.split('|')
         for(const cc of ccs) {
           list.push({
-            value: cc,
-            label: `${item.name}-${cc}`
+            value: cc
           })
         }
         setOptions(list)
@@ -147,17 +147,12 @@ const CcSelect = ({ type, value, onChange }) => {
   })
   useEffect(() => {
     load(type)
-  }, [type])
+  }, [type, customerId])
   return (
     <Select
       mode="tags"
       loading={loading}
       onChange={onChange}
-      onSelect={(_, { cc }) => {
-        if(cc) {
-          form.setFieldsValue({ cc: cc.split('|') })
-        }
-      }}
       showSearch
       allowClear
       value={value}
@@ -170,7 +165,8 @@ const CcSelect = ({ type, value, onChange }) => {
 const Mail = ({ mail, onSuccess }) => {
   const [open, setOpen] = useState(false)
   const { files, form: orderForm } = useContext(DetailDataContext)
-  const [mailToType, setMailToType] = useState(MAIL_TO_CUSTOMER)
+  const [customerId, setCustomerId] = useState(null)
+  const [mailToType, setMailToType] = useState(null)
   const mailType = useRef(MAIL_TYPE_NORMAL)
   const simpleMode = useMemo(() => [MAIL_TO_ACC, MAIL_TO_CUSTOMS_DECLARANT].includes(mailToType), [mailToType])
   const [form] = Form.useForm()
@@ -186,6 +182,8 @@ const Mail = ({ mail, onSuccess }) => {
     })
     setMailToType(mailInfo.to)
     setFileType(mailInfo.file)
+    console.log('setCustomerId', orderForm.getFieldValue('customerId'))
+    setCustomerId(orderForm.getFieldValue('customerId'))
     mailType.current = mailInfo.type
     // const rep = await request('/admin/order/mail_template')
     //   .get({ 'type': 1, 'order_id': orderForm.getFieldValue('id') }).send()
@@ -222,10 +220,10 @@ const Mail = ({ mail, onSuccess }) => {
       <Form.Item noStyle name="node_id"></Form.Item>
       <Form.Item noStyle name="simple"></Form.Item>
       <Form.Item label="受信者" name="to" rules={[{ required: true, message: '必須項目です' }]}>
-        <ToSelect type={mailToType} ></ToSelect>
+        <ToSelect type={mailToType} customerId={customerId}></ToSelect>
       </Form.Item>
       <Form.Item label="CC" name="cc">
-        <CcSelect type={mailToType} ></CcSelect>
+        <CcSelect type={mailToType} customerId={customerId}></CcSelect>
       </Form.Item>
       {!simpleMode && (
         <Form.Item label="件名" name="subject" rules={[{ required: true, message: '必須項目です' }]}>

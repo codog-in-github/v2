@@ -256,9 +256,9 @@ const CarList = ({
             </div>
             <div className="border-t border-gray-400 border-dashed my-2" />
             <div className="flex gap-2">
-            <Form.Item noStyle name={[props.name, 'transComName']}></Form.Item>
-            <Form.Item className="flex-1" label="運送会社" name={[props.name, 'transComId']}>
-                <Select
+            <Form.Item noStyle name={[props.name, 'transComId']}></Form.Item>
+            <Form.Item className="flex-1" label="運送会社" name={[props.name, 'transComName']}>
+                <AutoComplete
                   onChange={onModifyChange}
                   getPopupContainer={() => rootRef.current}
                   options={carOptions}
@@ -266,13 +266,12 @@ const CarList = ({
                   dropdownAlign={{
                     overflow: { adjustY: false }
                   }}
-                  showSearch
-                  onSelect={(_, { name }) => form.setFieldValue(['cars', props.name, 'transComName'], name)}
-                  fieldNames={{
-                    label: 'name',
-                    value: 'id'
+                  filterOption={(value, option) => {
+                    return option.name.toLowerCase().includes(value.toLowerCase())
                   }}
-                  optionFilterProp="name"
+                  fieldNames={{
+                    value: 'name'
+                  }}
                 />
               </Form.Item>
               <Form.Item className="flex-1" label="ドライバー" name={[props.name, 'driver']}>

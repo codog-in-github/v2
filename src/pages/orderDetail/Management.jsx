@@ -56,6 +56,9 @@ const BkgTypeSelect = ({ value, onChange, ...props }) => {
       onChange={e => setInputValue(e)}
       onBlur={onBlur}
       options={options}
+      dropdownAlign={{
+        overflow: { adjustY: false }
+      }}
     />
   )
 }
