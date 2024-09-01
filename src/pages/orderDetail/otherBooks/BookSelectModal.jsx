@@ -1,6 +1,9 @@
 import { Button, Modal } from "antd"
 import { useRef, useState } from "react";
 import BookingNotice from "./BookNotice";
+import { useAsyncCallback } from "@/hooks";
+import { chooseFilePromise } from "@/helpers/file";
+import { request } from "@/apis/requestBuilder";
 // import Handling from "./Handling";
 
 const BookSelectModal = ({ instance }) => {
@@ -18,11 +21,19 @@ const BookSelectModal = ({ instance }) => {
     setOpen(false)
   }
 
+  const [exportTxt, exporting] = useAsyncCallback(async () => {
+    const file = await chooseFilePromise()
+    await request('/admin/customs/acl').form({ file }).download().send()
+  })
+
   return (
     <Modal title="COHISE BOOK" open={open} footer={null} onCancel={() => setOpen(false)} maskClosable={false}>
       <div className="my-4">
         <Button onClick={() => openForm(bookingNoticeInstance)}>BOOKEING NOTICE</Button>
         {/* <Button className="ml-2" onClick={() => openForm(handingInstance)}>荷捌表</Button> */}
+      </div>
+      <div>
+        <Button loading={exporting} onClick={exportTxt}>ACL TO TXT</Button>
       </div>
       <BookingNotice instance={bookingNoticeInstance}></BookingNotice>
       {/* <Handling instance={handingInstance} /> */}

@@ -129,6 +129,7 @@ const ProcessBarButtons = ({ nodeId, nodeType, step, mail, sended, redo }) => {
   const [confirmNode, inConfirm] = useAsyncCallback(async () => {
     await request('/admin/order/node_confirm').get({ id: nodeId, is_confirm: 1 }).send()
     refreshNodes()
+    pubSub.publish('Info.Order.Change')
     pubSub.publish('Info.Toast', '确认成功', 'success')
   })
   switch (nodeType) {
@@ -228,7 +229,13 @@ const ProcessStatus = ({className}) => {
       <Form.Item name="remark" className="m-2">
         <Input.TextArea readOnly onChange={onModifyChange} />
       </Form.Item>
-      <Mail mail={mail} onSuccess={refreshNodes}></Mail>
+      <Mail
+        mail={mail}
+        onSuccess={() => {
+          refreshNodes()
+          pubSub.publish('Info.Order.Change')
+        }}
+      ></Mail>
       <MailDetail modal={detailRef} />
     </div>
   )

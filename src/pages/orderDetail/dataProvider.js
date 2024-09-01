@@ -499,6 +499,7 @@ export const useDetailData = () => {
     } else {
       fetchOrder(id)
     }
+    pubSub.publish('Info.Order.Change')
     pubSub.publish('Info.Toast', '保存成功', 'success')
   })
   const saveOrderFile = ({ fileUrl, type }) => {
@@ -522,15 +523,15 @@ export const useDetailData = () => {
     fetchOrder(id ?? copyId)
   }, [form, id, copyId])
 
-  const [refreshNodes] = useAsyncCallback(() => 
-    request('/admin/order/detail')
+  const [refreshNodes] = useAsyncCallback(() => {
+    return request('/admin/order/detail')
       .get({ id })
       .send()
       .then(touch(pipe(
         orderNodesGenerator,
         setNodes
       )))
-  )
+  })
 
   const [sendMessage, sending] = useAsyncCallback(async ({msg, at}) => {
     const data = { 'order_id': id, 'content': msg }

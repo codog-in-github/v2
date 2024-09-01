@@ -21,10 +21,10 @@ function Sidebar({ className }) {
       <Icon.OrderCalendar className="text-lg mr-2" />
         オーダー表
       </NavButton>
-      {/* <NavButton to="/ship" className="mb-2">
+      <NavButton to="/ship" className="mb-2">
         <Icon.Boat className="text-lg mr-2" />
         船期
-      </NavButton> */}
+      </NavButton>
       {/* <NavButton to="/petition" className="mb-2">
         請求書変更
       </NavButton> */}

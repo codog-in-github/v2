@@ -38,3 +38,12 @@ export const chooseFile = (() => {
     inputElement.click();
   }
 })()
+
+export const chooseFilePromise = (config) => new Promise((resolve, reject) => {
+  chooseFile({
+    ...config,
+    onChoose: resolve,
+    onCancel: reject,
+    onError: reject,
+  })
+})

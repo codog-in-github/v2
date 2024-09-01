@@ -16,6 +16,7 @@ import { useCompleteList, useContextMenu } from '@/hooks';
 import SkeletonList from '@/components/SkeletonList';
 import { ORDER_TAB_STATUS_TOP } from '@/constant';
 import dayjs from 'dayjs';
+import pubSub from '@/helpers/pubSub';
 
 const c = namespaceClass('page-top')
 const saveOrder = (data) => {
@@ -53,6 +54,7 @@ function MainContent() {
   const onOkEditHandle = useSaveOrder(toDetail)
   const onOkHandle = useSaveOrder(() => {
     refresh()
+    pubSub.publish('Info.Order.Change')
     closeAddModal()
   })
 
