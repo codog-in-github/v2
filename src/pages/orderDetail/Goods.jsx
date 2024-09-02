@@ -15,6 +15,7 @@ import { AutoComplete } from "antd"
 import { useRef } from "react"
 import { useEffect } from "react"
 import { request } from "@/apis/requestBuilder"
+import dayjs from "dayjs"
 
 const usePage = (list) => {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -229,6 +230,7 @@ const CarList = ({
               <Form.Item className="w-36" label="時間" name={[props.name, 'time']}>
                 <TimePicker.RangePicker
                   format="HH:mm"
+                  allowEmpty={[false, true]}
                   needConfirm={false}
                   getPopupContainer={() => rootRef.current}
                   onChange={onModifyChange}

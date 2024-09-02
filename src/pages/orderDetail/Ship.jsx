@@ -2,11 +2,19 @@ import { request } from "@/apis/requestBuilder"
 import Label from "@/components/Label"
 import { SELECT_ID_SHIP_CONPANY } from "@/constant"
 import { useAsyncCallback, useOptions } from "@/hooks"
-import { Form, Input, Select, DatePicker } from "antd"
+import { Form, Input, Select, DatePicker, Button } from "antd"
 import { useContext } from "react"
 import { useState, useEffect } from "react"
 import { DetailDataContext } from "./dataProvider"
 import { AutoComplete } from "antd"
+import { PlusCircleFilled } from "@ant-design/icons"
+import { Modal } from "antd"
+import { useRef } from "react"
+import { useMemo } from "react"
+import { useImperativeHandle } from "react"
+import { forwardRef } from "react"
+import FormItem from "antd/lib/form/FormItem"
+import pubSub from "@/helpers/pubSub"
 
 const getPorts = () => {
   return request('admin/country/tree').get().send()
@@ -14,16 +22,17 @@ const getPorts = () => {
 
 const usePorts = () => {
   const [portTree, setPortTree] = useState([])
-  const [callback, loading] = useAsyncCallback(async () => {
+  const [fetch, loading] = useAsyncCallback(async () => {
     const rep = await getPorts()
     setPortTree(rep)
   }, [])
   useEffect(() => {
-    callback()
+    fetch()
   }, [])
   return {
     portTree,
-    loading
+    loading,
+    fetch
   }
 }
 
@@ -41,6 +50,10 @@ const CountrySelect = ({ tree, bind, bindName, ...props }) => {
           [bind]: void 0
         })
       }}
+      dropdownAlign={{
+        overflow: { adjustY: false }
+      }}
+      allowClear
       fieldNames={{
         value: 'id',
         label: 'code',
@@ -74,16 +87,123 @@ const PortSelect = ({ tree, bind, bindName, ...props }) => {
             return ''
         return `${item['label']}(${item['code']})`
       }}
+      dropdownAlign={{
+        overflow: { adjustY: false }
+      }}
+      allowClear
       optionRender={({ data }) => <div>{data['label']}<span className="float-right">({data['code']})</span></div>}
     />
   )
 }
+
+// eslint-disable-next-line react/display-name
+const AddCarrierModal = forwardRef(({ onSuccess }, ref) => {
+  const [open, setOpen] = useState(false)
+  const [form] = Form.useForm()
+  const [add, loading] = useAsyncCallback(async () => {
+    const data = await form.validateFields()
+    const rep = await request('admin/carrier_add').data(data).send()
+    onSuccess(rep)
+    setOpen(false)
+  })
+  useImperativeHandle(ref, () => {
+    return {
+      open: (value) => {
+        console.log(value)
+        setOpen(true)
+      },
+    }
+  }, [])
+  return (
+    <Modal
+      title="ADD"
+      open={open}
+      onCancel={() => setOpen(false)}
+      onOk={add}
+      maskClosable={false}
+      okButtonProps={{ loading }}
+    >
+      <Form form={form} className="pt-2">
+        <Form.Item label="CARRIER" name="name" rules={[{ required: true, message: 'CARRIER 必填' }]}>
+          <Input />
+        </Form.Item>
+      </Form>
+    </Modal>
+  )
+})
+
+// eslint-disable-next-line react/display-name
+const AddPortModal = forwardRef(({ onSuccess }, ref) => {
+  const [open, setOpen] = useState(false)
+  const [form] = Form.useForm()
+  const [add, loading] = useAsyncCallback(async () => {
+    const data = await form.validateFields()
+    const rep = await request('admin/country/add').data(data).send()
+    onSuccess(rep)
+    setOpen(false)
+  })
+  useImperativeHandle(ref, () => {
+    return {
+      open: (pid) => {
+        form.resetFields()
+        if(pid) {
+          form.setFieldValue('pid', pid)
+        }
+        setOpen(true)
+      },
+    }
+  }, [])
+  return (
+    <Modal
+      title="ADD"
+      open={open}
+      onCancel={() => setOpen(false)}
+      onOk={add}
+      maskClosable={false}
+      okButtonProps={{ loading }}
+    >
+      <Form form={form} className="pt-2" labelCol={{ span: 4 }}>
+        <FormItem name="pid" noStyle></FormItem>
+        <Form.Item label="NAME" name="label" rules={[{ required: true, message: 'NAME 必填' }]}>
+          <Input />
+        </Form.Item><Form.Item label="ABBR" name="code" rules={[{ required: true, message: 'ABBR 必填' }]}>
+          <Input />
+        </Form.Item>
+      </Form>
+    </Modal>
+  )
+})
+
+
+const useCarrierOptions = () => {
+  const [list, setList] = useState([])
+  const [callback, loading] = useAsyncCallback(async () => {
+    const rep = await request('admin/carrier_options').get().send()
+    setList(rep)
+  }, [])
+  useEffect(() => {
+    callback()
+  }, [])
+  return [list, loading, callback]
+}
 const Ship = ({ className }) => {
-  const { portTree, loading: portLoading } = usePorts()
+  const { rootRef, onModifyChange, form } = useContext(DetailDataContext)
+  const { portTree, loading: portLoading, fetch: fetchPort } = usePorts()
+  const [carriers, , reloadCarrier] = useCarrierOptions()
+  const addCarrierModalRef = useRef()
+  const addPortModalRef = useRef()
+  const onPortAdd = useRef(() => {})
+  /**
+   * 2024/09/02
+   * 船公司列表从options表移到PartnerCompany
+   * SELECT_ID_SHIP_CONPANY 只用来查询 vessel 列表
+   */
   const [ships] = useOptions(SELECT_ID_SHIP_CONPANY)
-  const shipOptions = ships.map(item => ({ value: item.id, label: item.value }))
-  const vesselOptions = ships.map(item => ({ value: item.extra })).filter(item => !!item.value)
-  const { rootRef, onModifyChange } = useContext(DetailDataContext)
+
+  const vesselOptions = useMemo(
+    () => ships.map(item => ({ value: item.extra })).filter(item => !!item.value),
+    [ships]
+  )
   return (
     <div className={className}>
       <Label>船社情報</Label>
@@ -93,14 +213,24 @@ const Ship = ({ className }) => {
           <Form.Item name="carrier" noStyle></Form.Item>
           <Form.Item className="flex-1" label="CARRIER" name="carrier_id">
             <Select 
-              options={shipOptions}
+              options={carriers}
               showSearch
               optionFilterProp="label"
-              getPopupContainer={() => rootRef.current}
-              onChange={onModifyChange}
               dropdownAlign={{
                 overflow: { adjustY: false }
               }}
+              getPopupContainer={() => rootRef.current}
+              onSelect={(_, item) => {
+                form.setFieldValue('carrier', item.label)
+                onModifyChange()
+              }}
+              notFoundContent={(
+                <Button
+                  type="primary"
+                  className="w-full"
+                  onClick={() => addCarrierModalRef.current.open()}
+                ><PlusCircleFilled />ADD</Button>
+              )}
             />
           </Form.Item>
           <span className="relative bottom-1">/</span>
@@ -133,6 +263,24 @@ const Ship = ({ className }) => {
                 bind="loadingPort"
                 bindName="loadingCountryName"
                 onChange={onModifyChange}
+                notFoundContent={(
+                  <Button
+                    type="primary"
+                    className="w-full"
+                    onClick={() => {
+                      onPortAdd.current = (rep) => {
+                        form.setFieldsValue({
+                          loadingCountryName: `${rep.label}/${rep.code}`,
+                          loadingCountry: rep.id,
+                          loadingPort: null,
+                          loadingPortName: ''
+                        })
+                        fetchPort()
+                      }
+                      addPortModalRef.current.open()
+                    }}
+                  ><PlusCircleFilled />ADD</Button>
+                )}
                 getPopupContainer={() => rootRef.current}
               />
             </Form.Item>
@@ -144,6 +292,26 @@ const Ship = ({ className }) => {
                 bind="loadingCountry"
                 bindName="loadingPortName"
                 onChange={onModifyChange}
+                notFoundContent={(
+                  <Button
+                    type="primary"
+                    className="w-full"
+                    onClick={() => {
+                      const pid = form.getFieldValue('loadingCountry')
+                      if(!pid) {
+                        return pubSub.publish('Info.Toast', '请先选择 Country/Region', 'error')
+                      }
+                      onPortAdd.current = (rep) => {
+                        form.setFieldsValue({
+                          loadingPortName: `${rep.label}/${rep.code}`,
+                          loadingPort: rep.id,
+                        })
+                        fetchPort()
+                      }
+                      addPortModalRef.current.open(pid)
+                    }}
+                  ><PlusCircleFilled />ADD</Button>
+                )}
                 getPopupContainer={() => rootRef.current}
               />
             </Form.Item>
@@ -171,6 +339,24 @@ const Ship = ({ className }) => {
                 bindName="deliveryCountryName"
                 onChange={onModifyChange}
                 getPopupContainer={() => rootRef.current}
+                notFoundContent={(
+                  <Button
+                    type="primary"
+                    className="w-full"
+                    onClick={() => {
+                      onPortAdd.current = (rep) => {
+                        form.setFieldsValue({
+                          deliveryCountryName: `${rep.label}/${rep.code}`,
+                          deliveryCountry: rep.id,
+                          deliveryPort: null,
+                          deliveryPortName: ''
+                        })
+                        fetchPort()
+                      }
+                      addPortModalRef.current.open()
+                    }}
+                  ><PlusCircleFilled />ADD</Button>
+                )}
               />
             </Form.Item>
             <Form.Item noStyle name="deliveryPortName" />
@@ -182,6 +368,26 @@ const Ship = ({ className }) => {
                 bindName="deliveryPortName"
                 onChange={onModifyChange}
                 getPopupContainer={() => rootRef.current}
+                notFoundContent={(
+                  <Button
+                    type="primary"
+                    className="w-full"
+                    onClick={() => {
+                      const pid = form.getFieldValue('deliveryCountry')
+                      if(!pid) {
+                        return pubSub.publish('Info.Toast', '请先选择 Country/Region', 'error')
+                      }
+                      onPortAdd.current = (rep) => {
+                        form.setFieldsValue({
+                          deliveryPortName: `${rep.label}/${rep.code}`,
+                          deliveryPort: rep.id,
+                        })
+                        fetchPort()
+                      }
+                      addPortModalRef.current.open(pid)
+                    }}
+                  ><PlusCircleFilled />ADD</Button>
+                )}
               />
             </Form.Item>
             <Form.Item className="col-span-2" label="ETA" name="eta">
@@ -203,6 +409,24 @@ const Ship = ({ className }) => {
                 bindName="dischargeCountryName"
                 onChange={onModifyChange}
                 getPopupContainer={() => rootRef.current}
+                notFoundContent={(
+                  <Button
+                    type="primary"
+                    className="w-full"
+                    onClick={() => {
+                      onPortAdd.current = (rep) => {
+                        form.setFieldsValue({
+                          dischargeCountryName: `${rep.label}/${rep.code}`,
+                          dischargeCountry: rep.id,
+                          dischargePort: null,
+                          dischargePortName: ''
+                        })
+                        fetchPort()
+                      }
+                      addPortModalRef.current.open()
+                    }}
+                  ><PlusCircleFilled />ADD</Button>
+                )}
               />
             </Form.Item>
             <Form.Item noStyle name="dischargePortName" />
@@ -214,11 +438,45 @@ const Ship = ({ className }) => {
                 bindName="dischargePortName"
                 onChange={onModifyChange}
                 getPopupContainer={() => rootRef.current}
+                notFoundContent={(
+                  <Button
+                    type="primary"
+                    className="w-full"
+                    onClick={() => {
+                      const pid = form.getFieldValue('dischargeCountry')
+                      if(!pid) {
+                        return pubSub.publish('Info.Toast', '请先选择 Country/Region', 'error')
+                      }
+                      onPortAdd.current = (rep) => {
+                        form.setFieldsValue({
+                          dischargePortName: `${rep.label}/${rep.code}`,
+                          dischargePort: rep.id,
+                        })
+                        fetchPort()
+                      }
+                      addPortModalRef.current.open(pid)
+                    }}
+                  ><PlusCircleFilled />ADD</Button>
+                )}
               />
             </Form.Item>
           </div>
         </div>
       </div>
+
+      <AddCarrierModal
+        ref={addCarrierModalRef}
+        onSuccess={(rep) => {
+          form.setFieldValue('carrier_id', rep.id)
+          form.setFieldValue('carrier', rep.name)
+          reloadCarrier()
+        }}
+      ></AddCarrierModal>
+      
+      <AddPortModal
+        ref={addPortModalRef}
+        onSuccess={(rep) => onPortAdd.current(rep)}
+      ></AddPortModal>
     </div>
   )
 }

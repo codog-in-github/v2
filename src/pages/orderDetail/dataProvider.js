@@ -332,7 +332,7 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
       'van_type': item.vanType ?? '',
       'bearing_type': item.carType ?? 0,
       'deliver_date': item.date?.format('YYYY-MM-DD') ?? '',
-      'deliver_time_range': item.time?.map(item => item.format('HH:mm')).join('-') ?? '',
+      'deliver_time_range': item.time?.map(item => item?.format('HH:mm') ?? '').join('-') ?? '',
       'trans_com_name': item.transComName ?? '',
       'trans_com_id': item.transComId ?? '',
       'driver': item.driver ?? '',

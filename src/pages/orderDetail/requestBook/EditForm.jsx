@@ -507,7 +507,7 @@ const EditForm = () => {
   }, [details, form])
 
   const [doExport, exporting] = useAsyncCallback(async () => {
-    await request('/admin/request_book/export').data({ id }).download().send()
+    await request('/admin/request_book/export').data({ id }).download(null, true).send()
   })
   
   return (
