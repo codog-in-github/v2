@@ -259,3 +259,4 @@ export const request = import.meta.env.DEV
   )
   : (url = '') => new Request(url)
 
+export const getBaseUrl = () => baseURL

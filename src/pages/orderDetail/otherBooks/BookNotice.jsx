@@ -1,9 +1,10 @@
-import { request } from "@/apis/requestBuilder";
+import { getBaseUrl, request } from "@/apis/requestBuilder";
 import { useAsyncCallback, useDepartmentList } from "@/hooks";
 import { Radio, DatePicker, Form, Modal, Input } from "antd";
 import dayjs from "dayjs";
 import { useContext, useState } from "react";
 import { DetailDataContext } from "../dataProvider";
+import QueryString from "qs";
 
 const dateFileds = ['etd', 'eta', 'cy_open', 'cy_cut', 'doc_cut']
 
@@ -28,7 +29,10 @@ const BookingNotice = ({ instance }) => {
         delete formData[field]
       }
     }
-    await request('/admin/book/booking_notice/export').data(formData).download(null, true).send()
+    const bookName = `BOOKING NOTICE ${detailForm.getFieldValue('blNo')}`
+    window.open(
+      `${getBaseUrl()}/admin/book/booking_notice/export/${encodeURI(bookName)}?${QueryString.stringify(formData)}`
+    )
     setOpen(false)
   })
 
