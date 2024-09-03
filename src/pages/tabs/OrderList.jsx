@@ -16,7 +16,14 @@ const useTabOrderList = (type) => {
     const res = await request('/admin/order/tab_order_list').get({
       'node_status': type
     }).send()
-    setList(res)
+    const orders = []
+    for(const item of res) {
+      orders.push({
+        ...item.order,
+        color: item.color
+      })
+    }
+    setList(orders)
   })
   useEffect(() => { reload() }, [type])
   return { list, reload, loading }
@@ -54,11 +61,15 @@ function Card({
               {~~tab === ORDER_TAB_STATUS_ACL ?'DOC CUT': 'CY CUT'}
             </span>
           </div>
-          <div className="truncate">{orderInfo['loading_port_name']?.split('/')[0]}-{orderInfo['delivery_port_name']?.split('/')[0]}</div>
+          <div className="truncate">
+            {orderInfo['loading_port_name']?.split('/')[1] ?? 'POL'}
+            -
+            {orderInfo['delivery_port_name']?.split('/')[1] ?? 'POD'}
+          </div>
         </div>
       </div>
       <div className="flex justify-between p-2">
-        <div className="truncate">{orderInfo.containers?.[0]?.['common']}</div>
+        <div className="truncate">{orderInfo.containers?.[0]?.['common'] || 'COMMON'}</div>
         <div>{orderInfo['bkg_no']}</div>
       </div>
     </div>
