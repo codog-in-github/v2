@@ -30,6 +30,7 @@ function Card({
   customer = '',
   address = '',
   date,
+  time,
   bkgNo = '',
   pod = '',
   pol = '',
@@ -39,9 +40,8 @@ function Card({
   if (end) {
     grayscale.filter = "grayscale(100%)";
   }
-  const m = dayjs(date);
-  const md = m.format("MM-DD");
-  const hm = m.format("HH:mm");
+  const md = date.substring(5);
+  const hm = time.split('-')[0] || '00:00';
   return (
     <div
       className="border-2 border-t-[6px] rounded cursor-pointer overflow-hidden"
@@ -58,8 +58,8 @@ function Card({
           style={{ backgroundColor: themeColor(colors[type], 60) }}
         ></div>
         <div className="ml-2 flex-1 w-1">
-          <div className="truncate">{address}</div>
-          <div className="truncate">{pol.split('/')[0]}-{pod.split('/')[0]}</div>
+          <div className="truncate">{address || 'ADDRESS'}</div>
+          <div className="truncate">{pol.split('/')[1] || 'POL'}-{pod.split('/')[1] || 'POD'}</div>
         </div>
       </div>
       <div className="flex">
@@ -179,7 +179,8 @@ function Po() {
             bkgNo={item['bkg_no']}
             type={item['color']}
             address={item['van_place']}
-            date={item['deliver_time']}
+            date={item['deliver_date']}
+            time={item['deliver_time_range']}
           />
         )}
       </OrderGroup>
@@ -200,6 +201,7 @@ function Po() {
               type={item['order']['color']}
               address={item['order']['details'][0]['van_place']}
               date={item['order']['deliver_time']}
+              time={item['order']['deliver_time_range']}
               end
             />
         )}
