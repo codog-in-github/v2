@@ -51,8 +51,8 @@ const AddModal = ({
       maskClosable={false}
       footer={(
         <div className="flex items-center justify-center gap-2">
-          <LoadingButton type="primary" onClick={() => validate(onOk)}>保存并关闭</LoadingButton>
-          <LoadingButton type="primary" onClick={() => validate(onOkEdit)}>保存并编辑</LoadingButton>
+          <LoadingButton type="primary" onClick={() => validate(onOk)}>保存して閉じる</LoadingButton>
+          <LoadingButton type="primary" onClick={() => validate(onOkEdit)}>保存し編集</LoadingButton>
           <Button color="red" onClick={cancelHandle}>取消</Button>
         </div>
       )}

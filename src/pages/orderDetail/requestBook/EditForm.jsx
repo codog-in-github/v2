@@ -19,6 +19,8 @@ import { useNavigate } from "react-router-dom"
 import FormValue from "@/components/FormValue"
 import { useState } from "react"
 import FileTabs from "@/components/FileTabs"
+import { Space } from "antd/lib"
+import { Select } from "antd"
 
 const costTypes = [
   COST_PART_CUSTOMS,
@@ -136,10 +138,13 @@ const saveDataFormat = (formData) => {
       continue
     }
     for(const detail of saveData['details'][group]) {
-      details.push({
+      const row = {
         ...detail,
         type: group
-      })
+      }
+      row.detail = row.detail + (row.currencyUnit || '')
+      delete row.currencyUnit
+      details.push(row)
     }
   }
   saveData['details'] = details
@@ -229,13 +234,23 @@ const DetailRow = ({ partType, partName, props }) => {
         </Form.Item>
       </td>
       <td className="flex gap-2">
-        <Form.Item noStyle name={[props.key, 'detail']}>
-          <Input className="flex-1" onBlur={calcPrice}></Input>
-        </Form.Item>
+        <Space.Compact className="flex-1">
+          <Form.Item noStyle name={[props.key, 'detail']}>
+            <Input onBlur={calcPrice} />
+          </Form.Item>
+          <Form.Item noStyle name={[props.key, 'currencyUnit']}>
+          </Form.Item>
+        </Space.Compact>
       </td>
       <td className="text-center">
         <Form.Item noStyle name={[props.key, 'currency']}>
-          <SingleCheckbox onBlur={calcPrice}  />
+          <Select
+            className="w-16"
+            allowClear
+            options={[
+              {value: '$'}
+            ]}
+          ></Select>
         </Form.Item>
       </td>
       <td>
