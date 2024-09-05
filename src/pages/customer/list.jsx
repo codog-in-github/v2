@@ -198,8 +198,8 @@ const CustomerCard = ({ item, ...props }) => {
 
 const useCustomerList = () => {
   const [customers, setCustomers] = useState([]);
-  const [getCustomerList, loading] = useAsyncCallback(async () => {
-    const list = await request('/admin/customer/list').get({ with_count: 1 }).send()
+  const [getCustomerList, loading] = useAsyncCallback(async (name) => {
+    const list = await request('/admin/customer/list').get({ with_count: 1, name }).send()
     const customers = list.map(item => ({
       id: item['id'],
       title: item['name'],
@@ -219,33 +219,28 @@ const useCustomerList = () => {
 const CustomerList = () => {
   const { list, reload, loading } = useCustomerList()
   const modal = useRef(null)
-
-  const [keyword, setKeyword] = useState("");
-
-  const onSearch = (value) => {
-    setKeyword(value);
-  };
-
+  const [filterForm] = Form.useForm()
   const add = () => {
     modal.current.open()
   };
 
   return (
-    <div className="main-content">
+    <div className="main-content overflow-x-auto">
       <div className="flex items-center justify-between">
         <div>
           <Button type="primary" icon={<PlusOutlined />} onClick={add}>
             お客様新規登録
           </Button>
         </div>
-        <div>
-          <Input.Search
-            placeholder="お客様"
-            onSearch={onSearch}
-            enterButton
-            value={keyword}
-          />
-        </div>
+        <Form form={filterForm}>
+          <Form.Item name="name" noStyle>
+            <Input.Search
+              placeholder="お客様"
+              onSearch={() => reload(filterForm.getFieldValue('name'))}
+              enterButton
+            />
+          </Form.Item>
+        </Form>
       </div>
 
       <div className="mt-5">
