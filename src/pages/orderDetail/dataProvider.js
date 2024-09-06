@@ -277,9 +277,9 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
    /**
    * * loading 装船信息
    */
-  setValue('loadingCountry', 'loading_country_id')
+  setValue('loadingCountry', 'loading_country_id', val => val || 0)
   setValue('loadingCountryName', 'loading_country_name')
-  setValue('loadingPort', 'loading_port_id')
+  setValue('loadingPort', 'loading_port_id', val => val || 0)
   setValue('loadingPortName', 'loading_port_name')
   setValue('etd', 'etd', (dayjs) => dayjs?.format('YYYY-MM-DD HH:mm:ss'))
   setValue('cyOpen', 'cy_open', (dayjs) => dayjs?.format('YYYY-MM-DD HH:mm:ss'))
@@ -289,16 +289,16 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
   /** 
    * * delivery
    */
-  setValue('deliveryCountry', 'delivery_country_id')
+  setValue('deliveryCountry', 'delivery_country_id', val => val || 0)
   setValue('deliveryCountryName', 'delivery_country_name')
-  setValue('deliveryPort', 'delivery_port_id')
+  setValue('deliveryPort', 'delivery_port_id', val => val || 0)
   setValue('deliveryPortName', 'delivery_port_name')
   setValue('eta', 'eta', (dayjs) => dayjs?.format('YYYY-MM-DD HH:mm:ss'))
   setValue('freeTimeDem', 'free_time_dem')
   setValue('freeTimeDet', 'free_time_det')
-  setValue('dischargeCountry', 'discharge_country_id')
+  setValue('dischargeCountry', 'discharge_country_id', val => val || 0)
   setValue('dischargeCountryName', 'discharge_country_name')
-  setValue('dischargePort', 'discharge_port_id')
+  setValue('dischargePort', 'discharge_port_id', val => val || 0)
   setValue('dischargePortName', 'discharge_port_name')
 
   /**
@@ -324,7 +324,6 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
   const details = []
   result['details'] = details
   for(const item of formData.cars) {
-    console.log(item)
     const detail = {
       'id' : item.id ?? '',
       'container_id' : item.containerId ?? '',

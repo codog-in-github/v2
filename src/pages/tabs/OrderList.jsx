@@ -8,7 +8,8 @@ import pubSub from "@/helpers/pubSub";
 import { useParams } from "react-router-dom";
 import SkeletonList from "@/components/SkeletonList";
 import { Empty, Avatar } from "antd";
-import { ORDER_TAB_STATUS_ACL, ORDER_TAB_STATUS_BL_COPY } from "@/constant";
+import { ORDER_TAB_STATUS_ACL } from "@/constant";
+import PortFullName from "@/components/PortFullName";
 
 const useTabOrderList = (type) => {
   const [list, setList] = useState([]);
@@ -62,14 +63,14 @@ function Card({
             </span>
           </div>
           <div className="truncate">
-            {orderInfo['loading_port_name']?.split('/')[1] ?? 'POL'}
-            -
-            {orderInfo['delivery_port_name']?.split('/')[1] ?? 'POD'}
+            <PortFullName country={orderInfo['loading_country_name']} port={orderInfo['loading_port_name']} placeholder="POL" />
+            {' - '}
+            <PortFullName country={orderInfo['delivery_country_name']} port={orderInfo['delivery_port_name']} placeholder="POD" />
           </div>
         </div>
       </div>
-      <div className="flex justify-between p-2">
-        <div className="truncate">{orderInfo.containers?.[0]?.['common'] || 'COMMON'}</div>
+      <div className="flex justify-between p-2 items-baseline">
+        <div className="truncate text-sm">{orderInfo.containers?.[0]?.['common'] || 'COM'}</div>
         <div>{orderInfo['bkg_no']}</div>
       </div>
     </div>

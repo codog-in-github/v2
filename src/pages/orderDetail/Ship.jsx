@@ -43,7 +43,13 @@ const CountrySelect = ({ tree, bind, bindName, ...props }) => {
       {...props}
       showSearch
       options={tree}
-      optionFilterProp="code"
+      filterOption={(input, option) => {
+        const upperCase = input.toUpperCase()
+        return (
+          option.label.toUpperCase().includes(upperCase) ||
+          option.code.includes(upperCase)
+        )
+      }}
       onSelect={(_, option) =>{
         form.setFieldsValue({
           [bindName]: `${option['label']}/${option['code']}`,
@@ -53,6 +59,7 @@ const CountrySelect = ({ tree, bind, bindName, ...props }) => {
       dropdownAlign={{
         overflow: { adjustY: false }
       }}
+      onClear={() => form.setFieldValue(bindName, '')}
       allowClear
       fieldNames={{
         value: 'id',
@@ -76,11 +83,18 @@ const PortSelect = ({ tree, bind, bindName, ...props }) => {
       onSelect={(_, option) => form.setFieldValue(bindName, `${option['label']}/${option['code']}`)}
       options={options}
       showSearch
-      optionFilterProp="code"
       fieldNames={{
         value: 'id',
         label: 'code',
       }}
+      filterOption={(input, option) => {
+        const upperCase = input.toUpperCase()
+        return (
+          option.label.toUpperCase().includes(upperCase) ||
+          option.code.includes(upperCase)
+        )
+      }}
+      onClear={() => form.setFieldValue(bindName, '')}
       labelRender={({ value }) => {
         const item = options.find(item => item.id === value)
         if(!item)

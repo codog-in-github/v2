@@ -9,6 +9,7 @@ import pubSub from "@/helpers/pubSub";
 import { useParams } from "react-router-dom";
 import SkeletonList from "@/components/SkeletonList";
 import classNames from "classnames";
+import PortFullName from "@/components/PortFullName";
 const useTabOrderList = (type) => {
   const [list, setList] = useState([]);
   const [reload, loading] = useAsyncCallback(async () => {
@@ -32,8 +33,8 @@ function Card({
   date,
   time,
   bkgNo = '',
-  pod = '',
-  pol = '',
+  pod = ['', ''],
+  pol = ['', ''],
   ...props
 }) {
   const grayscale = {};
@@ -58,8 +59,12 @@ function Card({
           style={{ backgroundColor: themeColor(colors[type], 60) }}
         ></div>
         <div className="ml-2 flex-1 w-1">
-          <div className="truncate">{address || 'ADDRESS'}</div>
-          <div className="truncate">{pol.split('/')[1] || 'POL'}-{pod.split('/')[1] || 'POD'}</div>
+          <div className="truncate">{address || 'VAN場所'}</div>
+          <div className="truncate">
+            <PortFullName country={pol[0]} port={pol[1]} placeholder="POL" />
+            {' - '}
+            <PortFullName country={pod[0]} port={pod[1]} placeholder="POD" />
+          </div>
         </div>
       </div>
       <div className="flex">
@@ -174,8 +179,8 @@ function Po() {
             customer={item['company_name']}
             transCom={item['trans_com_name']}
             key={item['id']}
-            pol={item['loading_port_name']}
-            pod={item['delivery_port_name']}
+            pol={[item['loading_country_name'], item['loading_port_name']]}
+            pod={[item['delivery_country_name'], item['delivery_port_name']]}
             bkgNo={item['bkg_no']}
             type={item['color']}
             address={item['van_place']}
@@ -195,8 +200,8 @@ function Po() {
               customer={item['order']['company_name']}
               transCom={item['order']['details'][0]['trans_com_name']}
               key={item['order']['id']}
-              pol={item['order']['loading_port_name']}
-              pod={item['order']['delivery_port_name']}
+              pol={[item['order']['loading_country_name'], item['order']['loading_port_name']]}
+              pod={[item['order']['delivery_country_name'], item['order']['delivery_port_name']]}
               bkgNo={item['order']['bkg_no']}
               type={item['order']['color']}
               address={item['order']['details'][0]['van_place']}

@@ -143,10 +143,11 @@ const CustomerAddModal = ({ modal, onSuccess }) => {
   )
 };
 
+const avatarColors = ['#f37053', '#3e66e8', '#d46de0']
 const CustomerCard = ({ item, ...props }) => {
   return (
     <div
-      className="border-2  px-2 py-2 relative rounded-lg cursor-pointer hover:border-primary duration-150"
+      className="border-2  px-2 pt-4 mb-2 relative rounded-lg cursor-pointer hover:border-primary duration-150"
       {...props}
     >
       <div className="absolute top-0 right-0 text-[12px] bg-primary text-white px-[10px] py-[4px] rounded leading-none">
@@ -160,15 +161,15 @@ const CustomerCard = ({ item, ...props }) => {
             shape="square"
             size={50}
             style={{
-              backgroundColor: "#426CF6",
+              backgroundColor: avatarColors[item.avatar.charCodeAt(0) % avatarColors.length],
             }}
           >
             <span className="text-[28px]">{item.avatar}</span>
           </Avatar>
 
           <div className="flex flex-col  pl-2 pr-2">
-            <div>{item.person}</div>
-            <div className="text-[12px] text-gray-500">{item.mobile}</div>
+            <div>{item.person} <span className="text-[#E9A502] text-xs bg-[#FFECC8] p-1 rounded">担当者</span></div>
+            <div className="text-[12px] mt-2 text-gray-500">{item.mobile || '電話'}</div>
           </div>
         </div>
 
@@ -244,7 +245,7 @@ const CustomerList = () => {
       </div>
 
       <div className="mt-5">
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid 2xl:grid-cols-4 sm:grid-cols-3 gap-4">
           <SkeletonList
             skeletonClassName="h-full w-full"
             skeletonCount={8}
