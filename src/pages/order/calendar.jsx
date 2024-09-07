@@ -9,6 +9,7 @@ import { useAsyncCallback } from "@/hooks";
 import { useNavigate } from "react-router-dom";
 import { useRef } from "react";
 import classNames from "classnames";
+import PortFullName from "@/components/PortFullName";
 
 const bkgTypes = Object.entries(BKG_TYPES)
   .map(([value, label]) => ({
@@ -53,8 +54,8 @@ const useCalendarList = () => {
           avatar: item['company_name'][0],
           type: EXPORT_NODE_NAMES[item['active_nodes']?.[0]?.['node_id']] ?? '',
           ben: item['containers'].length,
-          loading: `${item['loading_country_name']?.split('/')[1]?.trim() ?? ''}${item['loading_port_name']?.split('/')[1]?.trim() ?? ''}`,
-          delivery: `${item['delivery_country_name']?.split('/')[1]?.trim() ?? ''}${item['delivery_port_name']?.split('/')[1]?.trim() ?? ''}`,
+          loading: [item['loading_country_name'], item['loading_port_name']],
+          delivery: [item['delivery_country_name'], item['delivery_port_name']],
           bkgNo: item['bkg_no'],
         })))
       }
@@ -95,10 +96,14 @@ const CalendarItem = ({ item }) => {
           </Avatar>
           <div>{el.ben}本</div>
           <div className="flex flex-col">
-            <div className="text-nowrap">{el.loading}</div>
-            <div className="text-nowrap">{el.delivery}</div>
+            <div className="text-nowrap">
+              <PortFullName country={el.loading[0]} port={el.loading[1]} placeholder="POL" />
+            </div>
+            <div className="text-nowrap">
+              <PortFullName country={el.delivery[0]} port={el.delivery[1]} placeholder="POL" />
+            </div>
           </div>
-          <div className="break-words w-12">{el.bkgNo}</div>
+          <div className="break-words w-16">{el.bkgNo}</div>
           {el.type && (
             <Avatar size={26} style={{ backgroundColor: "#FD7556" }}>
               {el.type}

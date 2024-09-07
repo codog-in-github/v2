@@ -36,7 +36,7 @@ const usePorts = () => {
   }
 }
 
-const CountrySelect = ({ tree, bind, bindName, ...props }) => {
+const CountrySelect = ({ tree, bindId, bindName, ...props }) => {
   const form = Form.useFormInstance()
   return (
     <Select
@@ -53,13 +53,16 @@ const CountrySelect = ({ tree, bind, bindName, ...props }) => {
       onSelect={(_, option) =>{
         form.setFieldsValue({
           [bindName]: `${option['label']}/${option['code']}`,
-          [bind]: void 0
+          [bindId]: void 0
         })
       }}
       dropdownAlign={{
         overflow: { adjustY: false }
       }}
-      onClear={() => form.setFieldValue(bindName, '')}
+      onClear={() => form.setFieldsValue({
+        [bindName]: '',
+        [bindId]: void 0
+      })}
       allowClear
       fieldNames={{
         value: 'id',
@@ -70,12 +73,14 @@ const CountrySelect = ({ tree, bind, bindName, ...props }) => {
   )
 }
 
-const PortSelect = ({ tree, bind, bindName, ...props }) => {
+const PortSelect = ({ tree, bindId, bindName, ...props }) => {
   let options = []
   const form = Form.useFormInstance()
-  const parentValue = Form.useWatch(bind, form)
+  const parentValue = Form.useWatch(bindId, form)
   if(parentValue) {
     options = tree.find(item => item.id === parentValue)?.children ?? []
+  } else {
+    form.setFieldValue(bindName, '')
   }
   return (
     <Select
@@ -274,7 +279,7 @@ const Ship = ({ className }) => {
               <CountrySelect
                 loading={portLoading}
                 tree={portTree}
-                bind="loadingPort"
+                bindId="loadingPort"
                 bindName="loadingCountryName"
                 onChange={onModifyChange}
                 notFoundContent={(
@@ -303,7 +308,7 @@ const Ship = ({ className }) => {
               <PortSelect
                 loading={portLoading}
                 tree={portTree}
-                bind="loadingCountry"
+                bindId="loadingCountry"
                 bindName="loadingPortName"
                 onChange={onModifyChange}
                 notFoundContent={(
@@ -349,7 +354,7 @@ const Ship = ({ className }) => {
               <CountrySelect
                 loading={portLoading}
                 tree={portTree}
-                bind="deliveryPort"
+                bindId="deliveryPort"
                 bindName="deliveryCountryName"
                 onChange={onModifyChange}
                 getPopupContainer={() => rootRef.current}
@@ -378,7 +383,7 @@ const Ship = ({ className }) => {
               <PortSelect
                 loading={portLoading}
                 tree={portTree}
-                bind="deliveryCountry"
+                bindId="deliveryCountry"
                 bindName="deliveryPortName"
                 onChange={onModifyChange}
                 getPopupContainer={() => rootRef.current}
@@ -419,7 +424,7 @@ const Ship = ({ className }) => {
               <CountrySelect
                 loading={portLoading}
                 tree={portTree}
-                bind="dischargePort"
+                bindId="dischargePort"
                 bindName="dischargeCountryName"
                 onChange={onModifyChange}
                 getPopupContainer={() => rootRef.current}
@@ -448,7 +453,7 @@ const Ship = ({ className }) => {
               <PortSelect
                 loading={portLoading}
                 tree={portTree}
-                bind="dischargeCountry"
+                bindId="dischargeCountry"
                 bindName="dischargePortName"
                 onChange={onModifyChange}
                 getPopupContainer={() => rootRef.current}

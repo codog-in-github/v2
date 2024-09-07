@@ -5,9 +5,9 @@ import Color from "color"
 import dayjs from "dayjs"
 import { useEffect, useState } from "react"
 
-const getOrders = () => {
+const getOrders = (params) => {
   return request('admin/order/top_list')
-    .get().send()
+    .get(params).send()
 }
 
 const ordersSort = (orders) => {
@@ -55,15 +55,21 @@ const ordersSort = (orders) => {
   return newOrders
 }
 
-export const useTopOrderList = () => { 
+export const useTopOrderList = (form) => { 
   const [orders, setOrders] = useState([])
 
   const [refresh, loading] = useAsyncCallback(async () => {
-    const rep = await getOrders()
+    const rep = await getOrders(form.getFieldsValue())
     setOrders(ordersSort(rep))
   }, [])
 
-  useEffect(() => { refresh() }, [])
+  useEffect(() => {
+    form.setFieldsValue({
+      'filter_key': 'bkg_no',
+      'filter_value': '',
+    })
+    refresh()
+  }, [])
 
   return {
     orders,

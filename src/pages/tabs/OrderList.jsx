@@ -10,12 +10,16 @@ import SkeletonList from "@/components/SkeletonList";
 import { Empty, Avatar } from "antd";
 import { ORDER_TAB_STATUS_ACL } from "@/constant";
 import PortFullName from "@/components/PortFullName";
+import OrderFilter from "@/components/OrderFilter";
+import { Form } from "antd";
+import { CARD_COLORS } from "./common";
 
-const useTabOrderList = (type) => {
+const useTabOrderList = (type, form) => {
   const [list, setList] = useState([]);
   const [reload, loading] = useAsyncCallback(async () => {
     const res = await request('/admin/order/tab_order_list').get({
-      'node_status': type
+      'node_status': type,
+      ...form.getFieldsValue()
     }).send()
     const orders = []
     for(const item of res) {
@@ -26,7 +30,13 @@ const useTabOrderList = (type) => {
     }
     setList(orders)
   })
-  useEffect(() => { reload() }, [type])
+  useEffect(() => {
+    form.setFieldsValue({
+      'filter_key': 'bkg_no',
+      'filter_value': '',
+    })
+    reload()
+  }, [type])
   return { list, reload, loading }
 }
 const colors = ['danger', 'warning', 'success']
@@ -43,22 +53,22 @@ function Card({
     <div
       className="border-2 border-t-[6px] rounded h-[120px] cursor-pointer overflow-hidden text-[#484848]"
       style={{
-        borderColor: themeColor(colors[orderInfo.color], 60),
+        borderColor: CARD_COLORS[orderInfo.color].border,
         ...grayscale
       }}
       {...props}
     >
-      <div className="flex p-2 overflow-hidden" style={{ background: themeColor(colors[orderInfo.color], 95) }}>
+      <div className="flex p-2 overflow-hidden items-center" style={{ background: CARD_COLORS[orderInfo.color].bg }}>
         <Avatar
           size={40}
-          style={{ backgroundColor: themeColor(colors[orderInfo.color], 60) }}
+          style={{ backgroundColor: CARD_COLORS[orderInfo.color].border }}
         >
           {orderInfo['company_name']?.[0]}
         </Avatar>
         <div className="ml-2 flex-1 w-1" >
           <div className="truncate text-[22px] flex items-center w-full">
             <span className="mr-auto">{orderInfo[~~(tab) === ORDER_TAB_STATUS_ACL ? 'doc_cut':'cy_cut']?.substring(5)}</span>
-            <span className="text-[14px]" style={{ color: themeColor(colors[orderInfo.color], 60) }}>
+            <span className="text-[14px]" style={{ color: CARD_COLORS[orderInfo.color].text }}>
               {~~tab === ORDER_TAB_STATUS_ACL ?'DOC CUT': 'CY CUT'}
             </span>
           </div>
@@ -77,10 +87,13 @@ function Card({
   );
 }
 
-const OrderGroup = ({ title, list, loading, children }) => {
+const OrderGroup = ({ title, list, loading, filter, children }) => {
   return (
     <div className="bg-white mb-[20px] rounded-lg shadow p-4">
-      <div>{title}</div>
+      <div className="flex justify-between">
+        <div>{title}</div>
+        <div>{filter}</div>
+      </div>
       <div className="grid grid-cols-4 lg:grid-cols-6 gap-8 flex-wrap mt-4 [&:has(.ant-empty)]:!grid-cols-1">
         <SkeletonList
           empty={<Empty></Empty>}
@@ -96,7 +109,8 @@ const OrderGroup = ({ title, list, loading, children }) => {
 
 function OrderList() {
   const { tab } = useParams()
-  const { list, reload, loading } = useTabOrderList(tab)
+  const [filterForm] = Form.useForm()
+  const { list, reload, loading } = useTabOrderList(tab, filterForm)
   const [compList, loadingComp] = useCompleteList(tab)
   const order = useRef(null)
   const navigate = useNavigate()
@@ -152,6 +166,7 @@ function OrderList() {
         title="未完成"
         loading={loading}
         list={list}
+        filter={<OrderFilter form={filterForm} onSearch={reload} />}
       >
         {item => (
           <Card

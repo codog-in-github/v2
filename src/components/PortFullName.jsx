@@ -10,7 +10,7 @@ const PortFullName = ({
   }
   const countryName =  country?.split('/')?.[1] ?? ''
   return (
-    <span {...props}>{countryName + portAbbr}</span>
+    <span {...props}>{`${countryName} ${portAbbr}`}</span>
   )
 }
 

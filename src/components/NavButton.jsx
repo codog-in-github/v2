@@ -16,7 +16,7 @@ export function NavButton(props) {
       <div className={classNames('nav-button-bg', props.bgClass)}></div>
       {props.badge > 0 && (
          <div
-          className='rounded-full bg-danger-500 absolute top-0 right-0 flex justify-center items-center text-white text-[10px] w-4 h-4'
+          className='rounded-full bg-[#FD7556] absolute top-0 right-0 flex justify-center items-center text-white text-[10px] w-[20px] h-[20px]'
         >{props.badge}</div>
       )}
       <div className='nav-button-text'>{props.children}</div>
