@@ -80,7 +80,8 @@ function MainContent() {
   return (
     <div className="no-padding flex h-full overflow-auto">
       <div className={classNames(c('main-content'), 'flex-1', 'overflow-auto', 'p-[20px]')}>
-        <div className='text-right mb-[20px]'>
+        <div className='flex justify-between items-center mb-[20px]'>
+          <h2 className="text-xl font-semibold">進行中</h2>
           <OrderFilter form={form} onSearch={refresh} />
         </div>
         <div
