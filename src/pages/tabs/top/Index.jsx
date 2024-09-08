@@ -17,6 +17,8 @@ import SkeletonList from '@/components/SkeletonList';
 import { ORDER_TAB_STATUS_TOP } from '@/constant';
 import dayjs from 'dayjs';
 import pubSub from '@/helpers/pubSub';
+import { Form } from 'antd';
+import OrderFilter from '@/components/OrderFilter';
 
 const c = namespaceClass('page-top')
 const saveOrder = (data) => {
@@ -38,7 +40,8 @@ const useSaveOrder = (next) => {
   return saveHandle
 }
 function MainContent() {
-  const { orders, loading, refresh } = useTopOrderList()
+  const [form] = Form.useForm()
+  const { orders, loading, refresh } = useTopOrderList(form)
   const [modalOpen, setModalOpen] = useState(false)
   const navigate = useNavigate()
   const [completeList, completeLoading] = useCompleteList(ORDER_TAB_STATUS_TOP)
@@ -77,6 +80,10 @@ function MainContent() {
   return (
     <div className="no-padding flex h-full overflow-auto">
       <div className={classNames(c('main-content'), 'flex-1', 'overflow-auto', 'p-[20px]')}>
+        <div className='flex justify-between items-center mb-[20px]'>
+          <h2 className="text-xl font-semibold">進行中</h2>
+          <OrderFilter form={form} onSearch={refresh} />
+        </div>
         <div
           className="grid min-[1800px]:grid-cols-4 grid-cols-3 [&>*]:!h-[160px] gap-4 flex-wrap"
         >

@@ -21,6 +21,7 @@ import { useState } from "react"
 import FileTabs from "@/components/FileTabs"
 import { Space } from "antd/lib"
 import { Select } from "antd"
+import { Modal } from "antd"
 
 const costTypes = [
   COST_PART_CUSTOMS,
@@ -138,13 +139,10 @@ const saveDataFormat = (formData) => {
       continue
     }
     for(const detail of saveData['details'][group]) {
-      const row = {
+      details.push({
         ...detail,
         type: group
-      }
-      row.detail = row.detail + (row.currencyUnit || '')
-      delete row.currencyUnit
-      details.push(row)
+      })
     }
   }
   saveData['details'] = details
@@ -338,6 +336,7 @@ const CostTable = ({ value }) => {
 
 const detailPart = (type, i) => {
   let partName = getPartName(type)
+  // eslint-disable-next-line react/display-name
   return (list) => {
     if(!list?.length) {
       return null
@@ -448,6 +447,24 @@ const EditForm = () => {
   const extraItems = useItemList(SELECT_ID_RB_EXTRA_ITEM)
   const detailItems = useItemList(SELECT_ID_RB_DETAIL_ITEM)
   const units = useItemList(SELECT_ID_RB_DETAIL_UNIT)
+
+  const [booksOpen, setBooksOpen] = useState(false)
+  const [books, setBooks] =  useState([])
+  const [openCopy, setOpenCopy] = useState(false)
+  const [copyForm] = Form.useForm()
+  const [findBooks, finding] = useAsyncCallback(async () => {
+    const data = await copyForm.validateFields()
+    const list = await request('/admin/request_book/cp_list').get(data).send()
+    if(list.length === 1) {
+      navigate(`/rb/copy/${list[0]['id']}/order/${orderId}/type/${list[0]['type']}`, { replace: true })
+      return
+    }
+    copyForm.resetFields()
+    setOpenCopy(false)
+    setBooks(list)
+    setBooksOpen(true)
+  })
+
   const banks = useBankList()
   const bankOptions = useMemo(() => {
     return banks.map(item => ({
@@ -455,6 +472,7 @@ const EditForm = () => {
       style: { width: 180 }
     }))
   }, [banks])
+
   const departments = useDepartmentList()
   const departmentOptions = useMemo(() => {
     return departments.map(item => ({
@@ -465,14 +483,16 @@ const EditForm = () => {
 
   const [submit, submiting] = useAsyncCallback(async () => {
     const data = saveDataFormat(form.getFieldsValue())
+    if(copyId) {
+      data.copy = 1
+    }
     const rep = await request('/admin/request_book/save').data(data).send()
     pubSub.publish('Info.Toast', '保存成功！', 'success')
     navigate(`/rb/edit/${rep['id']}/order/${rep['order_id']}/type/${rep['type']}`, { replace: true })
   })
 
-
   useEffect(() => {
-    const bookId = id ?? copyId
+    const bookId = id || copyId
     form.setFieldsValue({
       'order_id': orderId,
       type: bookType
@@ -485,12 +505,12 @@ const EditForm = () => {
   }, [orderId, id, copyId, form, bookType])
 
   useEffect(() => {
-    const bookId = id ?? copyId
+    const bookId = id || copyId
     if(bookId) {
       form.resetFields()
-      request('/admin/request_book/detail').get({ id }).send()
+      request('/admin/request_book/detail').get({ id: bookId }).send()
         .then(rep => {
-          form.setFieldsValue(formDataFormat(rep ,bookType))
+          form.setFieldsValue(formDataFormat(rep, bookType))
           setDisabled(id && rep['is_send'])
         })
     }
@@ -542,7 +562,7 @@ const EditForm = () => {
           <Row className="px-16 mt-6">
             <Col span={8}>
               <Form.Item label="請求番号" name="no" labelCol={{ span: 6 }} >
-                <Input></Input>
+                <Input readOnly></Input>
               </Form.Item>
             </Col>
             <Col span={8}>
@@ -628,7 +648,14 @@ const EditForm = () => {
 
           <div className="flex gap-2 justify-end px-16">
             <Button className="w-32" disabled={!id} type="primary" onClick={() => navigate(`/rb/add/${orderId}/type/${type}`, { replace: true })}>追加請求書</Button>
-            {/* <Button className="w-32" type="primary">参照入力</Button> */}
+            <Button
+              className="w-32"
+              type="primary"
+              onClick={() =>{
+                copyForm.setFieldValue('name', 'bkg_no')
+                setOpenCopy(true)
+              }}
+            >参照入力</Button>
             <Button className="w-32" type="primary" disabled={disabled || !id} loading={exporting} onClick={doExport}>出力</Button>
             <Button className="w-32" loading={submiting} type="primary" onClick={submit}>保存</Button>
             <Button className="w-32" disabled={false} onClick={() => navigate(-1)}>戻る</Button>
@@ -646,6 +673,44 @@ const EditForm = () => {
           </Form.Item>
         </div>
       </Form>
+      <Modal
+        title="参照入力"
+        open={openCopy}
+        onCancel={() => {
+          setOpenCopy(false)
+          copyForm.resetFields()
+        }}
+        okButtonProps={{ loading: finding }}
+        onOk={findBooks}
+      >
+        <Form form={copyForm} className="mt-4">
+          <Space.Compact className="w-full">
+            <Form.Item noStyle name="name">
+              <Select
+                options={[
+                  { value: 'bkg_no', label: 'BKG NO.'},
+                  { value: 'order_no', label: '社内番号' },
+                ]}
+              ></Select>
+            </Form.Item>
+            <Form.Item noStyle name="value" rules={[{ required: true }]}>
+              <Input></Input>
+            </Form.Item>
+          </Space.Compact>
+        </Form>
+      </Modal>
+      <Modal title="选择" open={booksOpen} footer={null} onCancel={() => setBooksOpen(false)}>
+        <div className="flex flex-wrap gap-2">
+          { books.map(book => {
+            return (
+              <Button
+                key={book.id}
+                onClick={() => navigate(`/rb/copy/${book['id']}/order/${orderId}/type/${book['type']}`)}
+              >{book.name}</Button>
+            )
+          }) }
+        </div>
+      </Modal>
     </EditFormContext.Provider>
   )
 }

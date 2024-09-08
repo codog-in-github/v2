@@ -73,6 +73,7 @@ const CopyModal = ({
     instance.current = {
       open: () => {
         form.resetFields()
+        form.setFieldValue('field', 'bkg_no')
         setOpen(true)
       },
       close: () => setOpen(false)

@@ -10,15 +10,23 @@ import { useParams } from "react-router-dom";
 import SkeletonList from "@/components/SkeletonList";
 import classNames from "classnames";
 import PortFullName from "@/components/PortFullName";
-const useTabOrderList = (type) => {
+import OrderFilter from "@/components/OrderFilter";
+import { Form } from "antd";
+import { CARD_COLORS } from "./common";
+const useTabOrderList = (type, form) => {
   const [list, setList] = useState([]);
   const [reload, loading] = useAsyncCallback(async () => {
     const res = await request('/admin/order/container_list').get({
-      'node_status': type
+      'node_status': type,
+      ...form.getFieldsValue()
     }).send()
     setList(res)
   })
   useEffect(() => {
+    form.setFieldsValue({
+      'filter_key': 'bkg_no',
+      'filter_value': '',
+    })
     reload()
   }, [type])
   return { list, reload, loading }
@@ -47,7 +55,7 @@ function Card({
     <div
       className="border-2 border-t-[6px] rounded cursor-pointer overflow-hidden"
       style={{
-        borderColor: themeColor(colors[type], 60),
+        borderColor: CARD_COLORS[type].border,
         ...grayscale
       }}
       {...props}
@@ -55,10 +63,10 @@ function Card({
 
       <div className="flex p-2 overflow-hidden">
         <div
-          className="rounded-full w-8 h-8 leading-8 text-center text-white flex-shrink-0"
-          style={{ backgroundColor: themeColor(colors[type], 60) }}
+          className="rounded-full w-6 h-6 leading-8 text-center text-white flex-shrink-0"
+          style={{ backgroundColor: CARD_COLORS[type].border }}
         ></div>
-        <div className="ml-2 flex-1 w-1">
+        <div className="ml-2 flex-1 w-1 text-[#484848]">
           <div className="truncate">{address || 'VAN場所'}</div>
           <div className="truncate">
             <PortFullName country={pol[0]} port={pol[1]} placeholder="POL" />
@@ -68,8 +76,8 @@ function Card({
         </div>
       </div>
       <div className="flex">
-        <div className="flex-1 flex flex-col items-center  p-2">
-          <div className="flex text-lg font-bold">
+        <div className="flex-1 flex flex-col items-center">
+          <div className="flex text-[24px] font-bold text-[#2E2D2D]">
             <div>{customer[0]}</div>
             <div className="w-0.5 h-full bg-gray-300 mx-4"></div>
             <div>{transCom?.[0]}</div>
@@ -78,7 +86,7 @@ function Card({
         </div>
         <div
           className="flex justify-center items-center flex-col px-2"
-          style={{ background: themeColor(colors[type], 90) }}
+          style={{ background: CARD_COLORS[type].bg }}
         >
           <div>{md}</div>
           <div>{hm}</div>
@@ -92,11 +100,15 @@ const OrderGroup = ({
   loading,
   list,
   title,
+  filter,
   children = () => null
 }) => {
   return (
     <div className="bg-white mb-[20px] rounded-lg shadow p-4">
-      <div>{title}</div>
+      <div className="flex justify-between">
+        <div>{title}</div>
+        {filter}
+      </div>
       <div
         className={classNames(
           'grid grid-cols-4 lg:grid-cols-5 gap-8 flex-wrap mt-4 [&>*]:!h-[140px]',
@@ -116,18 +128,20 @@ const OrderGroup = ({
 
 function Po() {
   const { tab } = useParams()
-  const { list, reload, loading } = useTabOrderList(tab)
+  const [filterForm] = Form.useForm()
+  const { list, reload, loading } = useTabOrderList(tab, filterForm)
   const [compList, loadingComp] = useCompleteList(tab)
   const order = useRef(null)
   const navigate = useNavigate()
   const [topNode, topNodeLoading] = useAsyncCallback(async () => {
     await request('/admin/order/change_top').data({
       'id': order.current['order_id'],
-      'node_status': tab,
+      'node_status': tab
     }).send()
     pubSub.publish('Info.Toast', '已置顶任务', 'success')
     reload()
   })
+
 
   const [menu, open] = useContextMenu(
     <div
@@ -171,6 +185,7 @@ function Po() {
         title="未完成"
         loading={loading}
         list={list}
+        filter={<OrderFilter form={filterForm} onSearch={reload} />}
       >
         {item => (
           <Card

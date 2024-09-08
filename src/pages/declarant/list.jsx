@@ -10,6 +10,7 @@ import { Spin } from "antd";
 import pubSub from "@/helpers/pubSub";
 import { createContext } from "react";
 import { useContext } from "react";
+import PortFullName from "@/components/PortFullName";
 
 const statusNames = '未,申,質,査,許'.split(',')
 const ListContext = createContext({ setStatus: async () => {} })
@@ -33,7 +34,8 @@ const getList = async (filters) => {
         id: order.id,
         name: order.company_name,
         kou: order.order_type === ORDER_TYPE_EXPORT ? "出" : "入",
-        pol: `${order.loading_port_name?.split('/')[1] ?? ''}-${order.delivery_country_name?.split('/')[1] ?? ''}`,
+        pol: [order.loading_country_name, order.loading_port_name],
+        pod: [order.delivery_country_name, order.delivery_port_name],
         fan: order.order_no,
         status: order.customs_status,
         disabled: !order.is_confirm
@@ -51,7 +53,7 @@ const DeclarantItem = ({ el }) => {
     setStatus(el.status)
   }, [el.status])
   return (
-    <div className="grid grid-cols-[1fr_1fr_1fr_1fr_2fr] [&>*]:mx-auto bg-white text-[14px]  h-[50px] items-center even:bg-gray-100">
+    <div className="grid grid-cols-[1fr_1fr_2fr_2fr_3fr] [&>*]:mx-auto bg-white text-[14px]  h-[50px] items-center even:bg-gray-100">
       <Avatar
         size={30}
         style={{ backgroundColor: "#484848", fontSize: "14px" }}
@@ -59,7 +61,19 @@ const DeclarantItem = ({ el }) => {
         {el.name.at(0)}
       </Avatar>
       <div>{el.kou}</div>
-      <div>{el.pol}</div>
+      <div>
+        <PortFullName
+          country={el.pol[0]}
+          port={el.pol[1]}
+          placeholder="POL"
+        />
+        {' - '}
+        <PortFullName
+          country={el.pod[0]}
+          port={el.pod[1]}
+          placeholder="POD"
+        />
+      </div>
       <div>{el.fan}</div>
       {!el.disabled && (
         <div className="w-[180px] flex justify-around bg-gray-200 rounded-lg text-[15px] ">
@@ -105,14 +119,14 @@ const DeclarantCard = ({ item }) => {
       </div>
       <div
         className={classnames(
-          "grid grid-cols-[1fr_1fr_1fr_1fr_2fr] [&>*]:mx-auto bg-blue-200 text-[16px] py-[8px] h-[40px]",
+          "grid grid-cols-[1fr_1fr_2fr_2fr_3fr] [&>*]:mx-auto bg-blue-200 text-[16px] py-[8px] h-[40px]",
           curCardId === item.id && "bg-blue-500 text-white"
         )}
       >
         <div>お客様</div>
         <div>入/出口</div>
         <div>POL-POD</div>
-        <div>管理番号</div>
+        <div>社内番号</div>
         <div className="w-[180px] flex justify-around">
           {statusNames.map((name, i) => (
             <span key={i}>{name}</span>

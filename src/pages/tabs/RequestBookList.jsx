@@ -6,31 +6,52 @@ import { useNavigate } from "react-router-dom";
 import { LoadingOutlined } from "@ant-design/icons";
 import pubSub from "@/helpers/pubSub";
 import SkeletonList from "@/components/SkeletonList";
-import { ORDER_NODE_TYPE_REQUEST, ORDER_TAB_STATUS_REQUEST } from "@/constant";
+import { ORDER_TAB_STATUS_REQUEST } from "@/constant";
 import { Avatar } from "antd";
+import { Form } from "antd";
+import OrderFilter from "@/components/OrderFilter";
+import PortFullName from "@/components/PortFullName";
+import { CARD_COLORS } from "./common";
 
-const useReqList = () => {
+const useReqList = (form) => {
   const [list, setList] = useState({});
   const [reload, loading] = useAsyncCallback(async () => {
-    const res = await request('/admin/order/req_list').get().send()
+    const res = await request('/admin/order/req_list')
+      .get(form.getFieldsValue()).send()
     setList(res)
   })
-  useEffect(() => { reload() }, [])
+  useEffect(() => {
+    form.setFieldsValue({
+      'filter_key': 'bkg_no',
+      'filter_value': '',
+    })
+    reload()
+  }, [])
   return { list, reload, loading }
 }
 
 const groups = [
-  { color: 'danger', title: '作成待', key: 'undo' },
-  { color: 'success', title: '発送待', key: 'unsend' },
-  { color: 'success', title: '入金待', key: 'unentry' },
+  { color: 0, title: '作成待', key: 'undo' },
+  { color: 2, title: '発送待', key: 'unsend' },
+  { color: 2, title: '入金待', key: 'unentry' },
 ]
 
-const ListGroup = ({ title, color, list, onContextMenu, loading }) => {
+const ListGroup = ({
+  title,
+  color,
+  list,
+  onContextMenu,
+  loading,
+  filter
+}) => {
   const navigate = useNavigate()
   return (
 
     <div className="bg-white mb-[20px] rounded-lg shadow p-4">
-      <div>{title}</div>
+      <div className="flex justify-between">
+        <div>{title}</div>
+        <div>{filter}</div>
+      </div>
       <div className="grid grid-cols-4 lg:grid-cols-6 gap-8 flex-wrap mt-4 [&:has(.ant-empty)]:!grid-cols-1">
         <SkeletonList
           list={list}
@@ -65,24 +86,36 @@ function Card({
     <div
       className="border-2 border-t-[6px] rounded h-[120px] cursor-pointer overflow-hidden text-[#484848]"
       style={{
-        borderColor: themeColor(color, 60),
+        borderColor: CARD_COLORS[color].border,
         ...grayscale
       }}
       {...props}
     >
-      <div className="flex p-2 overflow-hidden" style={{ background: themeColor(color, 95) }}>
+      <div className="flex p-2 overflow-hidden" style={{ background: CARD_COLORS[color].bg }}>
         <Avatar
           size={40}
-          style={{ backgroundColor: themeColor(color, 60) }}
+          style={{ backgroundColor: CARD_COLORS[color].border }}
         >
           {orderInfo['company_name']?.[0]}
         </Avatar>
         <div className="ml-2 flex-1 w-1" >
           <div className="truncate text-[22px] flex items-center w-full">
             <span className="mr-auto">{orderInfo['cy_cut']?.substring(5)}</span>
-            <span className="text-[14px]" style={{ color: themeColor(color, 60) }}>CY CUT</span>
+            <span className="text-[14px]" style={{ color: CARD_COLORS[color].text }}>CY CUT</span>
           </div>
-          <div className="truncate">{orderInfo['loading_port_name']?.split('/')[0]}-{orderInfo['delivery_port_name']?.split('/')[0]}</div>
+          <div className="truncate">
+            <PortFullName
+              country={orderInfo['loading_country_name']}
+              port={orderInfo['loading_port_name']}
+              placeholder="POL"
+            />
+            {' - '}
+            <PortFullName
+              country={orderInfo['delivery_country_name']}
+              port={orderInfo['delivery_port_name']}
+              placeholder="POD"
+            />
+          </div>
         </div>
       </div>
       <div className="flex justify-between p-2">
@@ -94,7 +127,8 @@ function Card({
 }
 
 function RequestBookPage() {
-  const { list, reload, loading } = useReqList()
+  const [filterForm] = Form.useForm()
+  const { list, reload, loading } = useReqList(filterForm)
   const order = useRef(null)
   const [topNode, topNodeLoading] = useAsyncCallback(async () => {
     await request('/admin/order/change_top').data({
@@ -144,9 +178,10 @@ function RequestBookPage() {
   }
   return (
     <div className="flex-1">
-      { groups.map(item => (
+      { groups.map((item, i) => (
         list[item.key] && (
           <ListGroup
+            filter={ i === 0 && <OrderFilter form={filterForm} onSearch={reload} /> }
             key={item.key}
             list={list[item.key]}
             title={item.title}
