@@ -1,10 +1,8 @@
-import { themeColor } from "@/helpers/color";
 import { request } from "@/apis/requestBuilder";
 import { useEffect, useState, useRef } from "react";
 import { useAsyncCallback, useCompleteList, useContextMenu } from "@/hooks";
 import { useNavigate } from "react-router-dom";
 import { LoadingOutlined } from "@ant-design/icons";
-import dayjs from "dayjs";
 import pubSub from "@/helpers/pubSub";
 import { useParams } from "react-router-dom";
 import SkeletonList from "@/components/SkeletonList";
@@ -31,7 +29,7 @@ const useTabOrderList = (type, form) => {
   }, [type])
   return { list, reload, loading }
 }
-const colors = ['danger', 'warning', 'success']
+
 function Card({
   end,
   type = 0,
@@ -53,7 +51,7 @@ function Card({
   const hm = time.split('-')[0] || '00:00';
   return (
     <div
-      className="border-2 border-t-[6px] rounded cursor-pointer overflow-hidden"
+      className="flex flex-col border-2 border-t-[6px] rounded cursor-pointer overflow-hidden"
       style={{
         borderColor: CARD_COLORS[type].border,
         ...grayscale
@@ -75,11 +73,11 @@ function Card({
           </div>
         </div>
       </div>
-      <div className="flex">
+      <div className="flex flex-1">
         <div className="flex-1 flex flex-col items-center">
-          <div className="flex text-[24px] font-bold text-[#2E2D2D]">
+          <div className="flex items-center text-[24px] font-bold text-[#2E2D2D]">
             <div>{customer[0]}</div>
-            <div className="w-0.5 h-full bg-gray-300 mx-4"></div>
+            <div className="w-[2px] h-[24px] bg-gray-300 mx-4"></div>
             <div>{transCom?.[0]}</div>
           </div>
           <div className="text-sm text-gray-400 mt-2">{bkgNo}</div>
@@ -111,7 +109,7 @@ const OrderGroup = ({
       </div>
       <div
         className={classNames(
-          'grid grid-cols-4 lg:grid-cols-5 gap-8 flex-wrap mt-4 [&>*]:!h-[140px]',
+          'grid grid-cols-4 2xl:grid-cols-5 gap-8 flex-wrap mt-4 [&>*]:!h-[140px]',
           '[&:has(.ant-empty)]:!grid-cols-1'
         )}
       >
