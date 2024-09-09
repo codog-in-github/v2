@@ -11,6 +11,8 @@ import PortFullName from "@/components/PortFullName";
 import OrderFilter from "@/components/OrderFilter";
 import { Form } from "antd";
 import { CARD_COLORS } from "./common";
+import TopBadge from "@/components/TopBadge";
+import { EXPORT_NODE_NAMES } from "@/constant";
 const useTabOrderList = (type, form) => {
   const [list, setList] = useState([]);
   const [reload, loading] = useAsyncCallback(async () => {
@@ -32,6 +34,7 @@ const useTabOrderList = (type, form) => {
 
 function Card({
   end,
+  top,
   type = 0,
   transCom = '',
   customer = '',
@@ -51,14 +54,14 @@ function Card({
   const hm = time.split('-')[0] || '00:00';
   return (
     <div
-      className="flex flex-col border-2 border-t-[6px] rounded cursor-pointer overflow-hidden"
+      className="flex flex-col border-2 border-t-[6px] rounded cursor-pointer overflow-hidden relative"
       style={{
         borderColor: CARD_COLORS[type].border,
         ...grayscale
       }}
       {...props}
     >
-
+      {top && <TopBadge>{top}</TopBadge>}
       <div className="flex p-2 overflow-hidden">
         <div
           className="rounded-full w-6 h-6 leading-8 text-center text-white flex-shrink-0"
@@ -124,7 +127,7 @@ const OrderGroup = ({
   )
 }
 
-function Po() {
+function ContainerListContent() {
   const { tab } = useParams()
   const [filterForm] = Form.useForm()
   const { list, reload, loading } = useTabOrderList(tab, filterForm)
@@ -134,6 +137,7 @@ function Po() {
   const [topNode, topNodeLoading] = useAsyncCallback(async () => {
     await request('/admin/order/change_top').data({
       'id': order.current['order_id'],
+      'is_top': 1,
       'node_status': tab
     }).send()
     pubSub.publish('Info.Toast', '已置顶任务', 'success')
@@ -191,6 +195,7 @@ function Po() {
             onClick={() => navigate(`/orderDetail/${item['order_id']}`)}
             customer={item['company_name']}
             transCom={item['trans_com_name']}
+            top={item['is_top'] ? EXPORT_NODE_NAMES[item['node_id']] : null}
             key={item['id']}
             pol={[item['loading_country_name'], item['loading_port_name']]}
             pod={[item['delivery_country_name'], item['delivery_port_name']]}
@@ -229,4 +234,4 @@ function Po() {
   );
 }
 
-export default Po;
+export default ContainerListContent;

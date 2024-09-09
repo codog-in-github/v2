@@ -8,11 +8,12 @@ import pubSub from "@/helpers/pubSub";
 import { useParams } from "react-router-dom";
 import SkeletonList from "@/components/SkeletonList";
 import { Empty, Avatar } from "antd";
-import { ORDER_TAB_STATUS_ACL } from "@/constant";
+import { EXPORT_NODE_NAMES, ORDER_TAB_STATUS_ACL } from "@/constant";
 import PortFullName from "@/components/PortFullName";
 import OrderFilter from "@/components/OrderFilter";
 import { Form } from "antd";
 import { CARD_COLORS } from "./common";
+import TopBadge from "@/components/TopBadge";
 
 const useTabOrderList = (type, form) => {
   const [list, setList] = useState([]);
@@ -25,7 +26,8 @@ const useTabOrderList = (type, form) => {
     for(const item of res) {
       orders.push({
         ...item.order,
-        color: item.color
+        color: item.color,
+        top: item.is_top ? EXPORT_NODE_NAMES[item.node_id] : null,
       })
     }
     setList(orders)
@@ -39,7 +41,6 @@ const useTabOrderList = (type, form) => {
   }, [type])
   return { list, reload, loading }
 }
-const colors = ['danger', 'warning', 'success']
 function Card({
   tab,
   orderInfo = {},
@@ -51,13 +52,14 @@ function Card({
   }
   return (
     <div
-      className="border-2 border-t-[6px] rounded h-[120px] cursor-pointer overflow-hidden text-[#484848]"
+      className="border-2 border-t-[6px] rounded h-[120px] cursor-pointer overflow-hidden text-[#484848] relative"
       style={{
         borderColor: CARD_COLORS[orderInfo.color].border,
         ...grayscale
       }}
       {...props}
     >
+      {orderInfo.top && <TopBadge>{orderInfo.top}</TopBadge>}
       <div className="flex p-2 overflow-hidden items-center" style={{ background: CARD_COLORS[orderInfo.color].bg }}>
         <Avatar
           size={40}
@@ -67,7 +69,7 @@ function Card({
         </Avatar>
         <div className="ml-2 flex-1 w-1" >
           <div className="truncate text-[22px] flex items-center w-full">
-            <span className="mr-auto">{orderInfo[~~(tab) === ORDER_TAB_STATUS_ACL ? 'doc_cut':'cy_cut']?.substring(5)}</span>
+            <span className="mr-auto font-bold">{orderInfo[~~(tab) === ORDER_TAB_STATUS_ACL ? 'doc_cut':'cy_cut']?.substring(5)}</span>
             <span className="text-[14px]" style={{ color: CARD_COLORS[orderInfo.color].text }}>
               {~~tab === ORDER_TAB_STATUS_ACL ?'DOC CUT': 'CY CUT'}
             </span>

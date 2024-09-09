@@ -1,4 +1,3 @@
-import { Skeleton } from 'antd';
 import Card from './Card';
 import './top.scss'
 import AddCard from './AddCard';

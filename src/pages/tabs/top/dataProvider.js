@@ -1,5 +1,5 @@
 import { request } from "@/apis/requestBuilder"
-import { TOP_TAG_NAME } from "@/constant"
+import { EXPORT_NODE_NAMES, TOP_TAG_NAME } from "@/constant"
 import { useAsyncCallback } from "@/hooks"
 import Color from "color"
 import dayjs from "dayjs"
@@ -17,7 +17,7 @@ const ordersSort = (orders) => {
       top: true,
       renderKey: `top-${item['order']['id']}`,
       avatarColor: Color(item['order']['company_color']).toString(),
-      topName: TOP_TAG_NAME[item['node_id']],
+      topName: EXPORT_NODE_NAMES[item['node_id']],
       id: item['order']['id'],
       expiredAt: dayjs(item['top_finish_time']),
       remark: item['remark'],
