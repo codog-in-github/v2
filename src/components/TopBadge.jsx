@@ -4,8 +4,8 @@ const TopBadge = ({ children, className, ...props }) => {
     <div
       {...props}
       className={classNames(
-        'absolute top-1 -right-8 rotate-45 bg-red-500',
-        'text-white w-24 text-center',
+        'absolute top-2 -right-8 rotate-45 bg-red-500',
+        'text-white w-24 text-center text-sm',
         className
       )}
     >
