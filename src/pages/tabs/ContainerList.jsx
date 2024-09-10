@@ -13,6 +13,7 @@ import { Form } from "antd";
 import { CARD_COLORS } from "./common";
 import TopBadge from "@/components/TopBadge";
 import { EXPORT_NODE_NAMES } from "@/constant";
+import * as Icon from '@/components/Icon'
 const useTabOrderList = (type, form) => {
   const [list, setList] = useState([]);
   const [reload, loading] = useAsyncCallback(async () => {
@@ -62,11 +63,8 @@ function Card({
       {...props}
     >
       {top && <TopBadge>{top}</TopBadge>}
-      <div className="flex p-2 overflow-hidden">
-        <div
-          className="rounded-full w-6 h-6 leading-8 text-center text-white flex-shrink-0"
-          style={{ backgroundColor: CARD_COLORS[type].border }}
-        ></div>
+      <div className="flex p-2 overflow-hidden items-center">
+        <Icon.Exit color={CARD_COLORS[type].border} className="text-[20px]" /> 
         <div className="ml-2 flex-1 w-1 text-[#484848]">
           <div className="truncate">{address || 'VAN場所'}</div>
           <div className="truncate">
