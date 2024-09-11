@@ -226,7 +226,7 @@ const CustomerList = () => {
   };
 
   return (
-    <div className="main-content overflow-x-auto">
+    <div className="no-padding m-[20px] p-[20px] bg-white rounded">
       <div className="flex items-center justify-between">
         <div>
           <Button type="primary" icon={<PlusOutlined />} onClick={add}>

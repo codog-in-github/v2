@@ -8,9 +8,9 @@ const PortFullName = ({
   if(!portAbbr) {
     return <span className="text-gray-400">{placeholder}</span>
   }
-  const countryName =  country?.split('/')?.[1] ?? ''
+  const countryAbbr =  country?.split('/')?.[1] ?? ''
   return (
-    <span {...props}>{`${countryName} ${portAbbr}`}</span>
+    <span {...props}>{`${countryAbbr} ${portAbbr}`}</span>
   )
 }
 

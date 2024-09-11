@@ -114,8 +114,9 @@ export const downloadBlob = (blob, fileName, preview = false) => {
     a.download = fileName;
   }
   a.click();
-  URL.revokeObjectURL(url);
-  a.remove()
+  if(!preview) {
+    URL.revokeObjectURL(url);
+  }
 }
 
 export const fileNameParse = (contentDisposition) => {
