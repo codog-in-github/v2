@@ -12,6 +12,7 @@ import { Form } from "antd";
 import OrderFilter from "@/components/OrderFilter";
 import PortFullName from "@/components/PortFullName";
 import { CARD_COLORS } from "./common";
+import TopBadge from "@/components/TopBadge";
 
 const useReqList = (form) => {
   const [list, setList] = useState({});
@@ -84,13 +85,14 @@ function Card({
   }
   return (
     <div
-      className="border-2 border-t-[6px] rounded h-[120px] cursor-pointer overflow-hidden text-[#484848]"
+      className="border-2 border-t-[6px] rounded h-[120px] cursor-pointer overflow-hidden text-[#484848] relative"
       style={{
         borderColor: CARD_COLORS[color].border,
         ...grayscale
       }}
       {...props}
     >
+      {!!orderInfo.request_book_node.is_top && <TopBadge>请</TopBadge>}
       <div className="flex p-2 overflow-hidden" style={{ background: CARD_COLORS[color].bg }}>
         <Avatar
           size={40}

@@ -4,10 +4,8 @@ import classNames from 'classnames';
 import CompanyAvatar from '@/components/CompanyAvatar';
 import { themeColor } from '@/helpers/color';
 import dayjs from 'dayjs';
+import TopBadge from '@/components/TopBadge';
 
-const topNameAbbrs = {
-  'BL COPY': 'B/C'
-}
 /**
  * 
  * @param {Date} start 
@@ -87,13 +85,7 @@ function Card({
       onClick={() => onToDetail(orderInfo.id)}
       {...props}
     >
-      { top && (
-        <div
-          className='absolute top-2 -right-4 rotate-45 bg-red-500 text-xs text-white w-16 text-center'
-        >
-          {topNameAbbrs[orderInfo.topName] ?? orderInfo.topName}
-        </div>
-      ) }
+      { top && <TopBadge>{orderInfo.topName}</TopBadge> }
       { orderInfo.isTempOrder ? (
         <div className='flex flex-1'>
           <CompanyAvatar className="!text-[10px]" bg="#D46DE0" text="REMARK"></CompanyAvatar>

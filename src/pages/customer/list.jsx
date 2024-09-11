@@ -11,6 +11,8 @@ import SkeletonList from "@/components/SkeletonList";
 import { useCallback } from "react";
 import pubSub from "@/helpers/pubSub";
 import TagInput from "@/components/TagInput";
+import * as Icon from '@/components/Icon'
+import { themeColor } from "@/helpers/color";
 
 const CustomerAddModal = ({ modal, onSuccess }) => {
   const [open, setOpen] = useState(false)
@@ -147,13 +149,10 @@ const avatarColors = ['#f37053', '#3e66e8', '#d46de0']
 const CustomerCard = ({ item, ...props }) => {
   return (
     <div
-      className="border-2  px-2 pt-4 mb-2 relative rounded-lg cursor-pointer hover:border-primary duration-150"
+      className="border-2 p-5 pb-3 mb-2 relative rounded-lg cursor-pointer hover:border-primary duration-150 overflow-hidden"
       {...props}
     >
-      <div className="absolute top-0 right-0 text-[12px] bg-primary text-white px-[10px] py-[4px] rounded leading-none">
-        情報編集
-        <RightOutlined className="ml-1" />
-      </div>
+      <Icon.CustomerBadge className="absolute top-0 -right-[1px] text-[150px] text-primary"></Icon.CustomerBadge>
       <div className="font-bold truncate">{item.title}</div>
       <div className="flex items-center justify-between">
         <div className="flex-1 flex items-center  border-r border-dashed border-gray-400 ">
@@ -173,7 +172,7 @@ const CustomerCard = ({ item, ...props }) => {
           </div>
         </div>
 
-        <div className="w-[120px] pl-2 flex flex-col">
+        <div className="w-[120px] pl-5 flex flex-col">
           <div className="flex items-center justify-between">
             <div className="text-[12px] text-gray-500">全部案件</div>
             <div className="text-[12px] text-gray-500">進行中</div>
@@ -188,7 +187,8 @@ const CustomerCard = ({ item, ...props }) => {
 
           <Progress
             size="small"
-            percent={(item.do / item.all) * 100}
+            strokeColor={themeColor('primary')}
+            percent={item.all ? (item.do / item.all) * 100 : 0}
             showInfo={false}
           />
         </div>
@@ -226,7 +226,7 @@ const CustomerList = () => {
   };
 
   return (
-    <div className="main-content overflow-x-auto">
+    <div className="no-padding m-[20px] p-[20px] bg-white rounded">
       <div className="flex items-center justify-between">
         <div>
           <Button type="primary" icon={<PlusOutlined />} onClick={add}>

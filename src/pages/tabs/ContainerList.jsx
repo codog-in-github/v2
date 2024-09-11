@@ -1,10 +1,8 @@
-import { themeColor } from "@/helpers/color";
 import { request } from "@/apis/requestBuilder";
 import { useEffect, useState, useRef } from "react";
 import { useAsyncCallback, useCompleteList, useContextMenu } from "@/hooks";
 import { useNavigate } from "react-router-dom";
 import { LoadingOutlined } from "@ant-design/icons";
-import dayjs from "dayjs";
 import pubSub from "@/helpers/pubSub";
 import { useParams } from "react-router-dom";
 import SkeletonList from "@/components/SkeletonList";
@@ -13,6 +11,9 @@ import PortFullName from "@/components/PortFullName";
 import OrderFilter from "@/components/OrderFilter";
 import { Form } from "antd";
 import { CARD_COLORS } from "./common";
+import TopBadge from "@/components/TopBadge";
+import { EXPORT_NODE_NAMES } from "@/constant";
+import * as Icon from '@/components/Icon'
 const useTabOrderList = (type, form) => {
   const [list, setList] = useState([]);
   const [reload, loading] = useAsyncCallback(async () => {
@@ -31,9 +32,10 @@ const useTabOrderList = (type, form) => {
   }, [type])
   return { list, reload, loading }
 }
-const colors = ['danger', 'warning', 'success']
+
 function Card({
   end,
+  top,
   type = 0,
   transCom = '',
   customer = '',
@@ -53,19 +55,16 @@ function Card({
   const hm = time.split('-')[0] || '00:00';
   return (
     <div
-      className="border-2 border-t-[6px] rounded cursor-pointer overflow-hidden"
+      className="flex flex-col border-2 border-t-[6px] rounded cursor-pointer overflow-hidden relative"
       style={{
         borderColor: CARD_COLORS[type].border,
         ...grayscale
       }}
       {...props}
     >
-
+      {top && <TopBadge>{top}</TopBadge>}
       <div className="flex p-2 overflow-hidden">
-        <div
-          className="rounded-full w-6 h-6 leading-8 text-center text-white flex-shrink-0"
-          style={{ backgroundColor: CARD_COLORS[type].border }}
-        ></div>
+        <Icon.Exit color={CARD_COLORS[type].border} className="text-[24px] mt-1" /> 
         <div className="ml-2 flex-1 w-1 text-[#484848]">
           <div className="truncate">{address || 'VAN場所'}</div>
           <div className="truncate">
@@ -75,11 +74,11 @@ function Card({
           </div>
         </div>
       </div>
-      <div className="flex">
+      <div className="flex flex-1">
         <div className="flex-1 flex flex-col items-center">
-          <div className="flex text-[24px] font-bold text-[#2E2D2D]">
+          <div className="flex items-center text-[24px] font-bold text-[#2E2D2D]">
             <div>{customer[0]}</div>
-            <div className="w-0.5 h-full bg-gray-300 mx-4"></div>
+            <div className="w-[2px] h-[24px] bg-gray-300 mx-4"></div>
             <div>{transCom?.[0]}</div>
           </div>
           <div className="text-sm text-gray-400 mt-2">{bkgNo}</div>
@@ -111,7 +110,7 @@ const OrderGroup = ({
       </div>
       <div
         className={classNames(
-          'grid grid-cols-4 lg:grid-cols-5 gap-8 flex-wrap mt-4 [&>*]:!h-[140px]',
+          'grid grid-cols-4 2xl:grid-cols-5 gap-8 flex-wrap mt-4 [&>*]:!h-[140px]',
           '[&:has(.ant-empty)]:!grid-cols-1'
         )}
       >
@@ -126,7 +125,7 @@ const OrderGroup = ({
   )
 }
 
-function Po() {
+function ContainerListContent() {
   const { tab } = useParams()
   const [filterForm] = Form.useForm()
   const { list, reload, loading } = useTabOrderList(tab, filterForm)
@@ -136,6 +135,7 @@ function Po() {
   const [topNode, topNodeLoading] = useAsyncCallback(async () => {
     await request('/admin/order/change_top').data({
       'id': order.current['order_id'],
+      'is_top': 1,
       'node_status': tab
     }).send()
     pubSub.publish('Info.Toast', '已置顶任务', 'success')
@@ -193,6 +193,7 @@ function Po() {
             onClick={() => navigate(`/orderDetail/${item['order_id']}`)}
             customer={item['company_name']}
             transCom={item['trans_com_name']}
+            top={item['is_top'] ? EXPORT_NODE_NAMES[item['node_id']] : null}
             key={item['id']}
             pol={[item['loading_country_name'], item['loading_port_name']]}
             pod={[item['delivery_country_name'], item['delivery_port_name']]}
@@ -231,4 +232,4 @@ function Po() {
   );
 }
 
-export default Po;
+export default ContainerListContent;
