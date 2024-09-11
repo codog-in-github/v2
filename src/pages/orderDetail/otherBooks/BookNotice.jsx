@@ -29,9 +29,13 @@ const BookingNotice = ({ instance }) => {
         delete formData[field]
       }
     }
-    const bookName = `BOOKING NOTICE ${detailForm.getFieldValue('blNo')}`
+    const bookName = encodeURI(`BOOKING NOTICE ${detailForm.getFieldValue('blNo')}`)
+    const qs = QueryString.stringify({
+      ...formData,
+      token: localStorage.getItem('token')
+    })
     window.open(
-      `${getBaseUrl()}/admin/book/booking_notice/export/${encodeURI(bookName)}?${QueryString.stringify(formData)}`
+      `${getBaseUrl()}/admin/book/booking_notice/export/${bookName}?${qs}`
     )
     setOpen(false)
   })
