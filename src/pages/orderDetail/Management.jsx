@@ -175,6 +175,7 @@ const Management = ({ className }) => {
               showSearch
               options={options}
               loading={loading}
+              optionFilterProp="label"
               onChange={onModifyChange}
               getPopupContainer={() => rootRef.current}
               dropdownAlign={{
@@ -212,7 +213,7 @@ const Management = ({ className }) => {
             navigate(-1)
           }}
         >戻る</Button>
-        <Button type="primary"  onClick={() => { copyModalInstance.current.open() }}>類似事件</Button>
+        <Button type="primary"  onClick={() => { copyModalInstance.current.open() }}>類似案件</Button>
         <Button type="primary" disabled={isCopy} onClick={() => { bookSelectModalInstance.current.open() }}>各種書類作成</Button>
         <Button type="primary" disabled={isCopy} onClick={() => { requestBookModalInstance.current.open() }}>請求書</Button>
       </div>

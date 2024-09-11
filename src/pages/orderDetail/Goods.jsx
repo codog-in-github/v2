@@ -12,10 +12,9 @@ import { SELECT_ID_CONTAINER_TYPE } from "@/constant"
 import { createContext } from "react"
 import { useContext } from "react"
 import { AutoComplete } from "antd"
-import { useRef } from "react"
 import { useEffect } from "react"
 import { request } from "@/apis/requestBuilder"
-import dayjs from "dayjs"
+import { InputNumber } from "antd"
 
 const usePage = (list) => {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -135,7 +134,7 @@ const ContainerList = ({
                   name={[props.name, 'quantity']}
                   rules={[{ required: true, message: 'quantity 必填' }]}
                 >
-                  <Input />
+                  <InputNumber className="w-full" min={1} onChange={onModifyChange} />
                 </Form.Item>
                 {list.length > 1 ? (
                   <>
@@ -192,10 +191,10 @@ const CarList = ({
   onRemoveCar
 }) => {
   const {
-    page, onWheelHandle, movePage, movePageForce
+    page, movePage, movePageForce
   } = usePage(list)
-  const { rootRef, onModifyChange, form } = useContext(DetailDataContext)
-  const { carOptions } = useContext(GoodsContext)
+  const { rootRef, onModifyChange } = useContext(DetailDataContext)
+  const { containerTypes, carOptions } = useContext(GoodsContext)
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       <div className="flex w-full h-full" >
@@ -210,7 +209,14 @@ const CarList = ({
                 <Input onChange={onModifyChange} />
               </Form.Item>
               <Form.Item className="w-32" label="TYPE" name={[props.name, 'vanType']}>
-                <Input onChange={onModifyChange} />
+                <AutoComplete
+                  options={containerTypes}
+                  onChange={onModifyChange}
+                  getPopupContainer={() => rootRef.current}
+                  dropdownAlign={{
+                    overflow: { adjustY: false }
+                  }}
+                />
               </Form.Item>
             </div>
             <div className="flex gap-2 items-end">

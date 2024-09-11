@@ -210,7 +210,13 @@ const ProcessStatus = ({className}) => {
       <div className="p-2 flex items-center gap-2">
         <div>状態</div>
         <Space.Compact className="flex-1">
-          <Select mode="multiple" className="w-full" getPopupContainer={() => rootRef.current}></Select>
+          <Select
+            className="w-full"
+            getPopupContainer={() => rootRef.current}
+            dropdownAlign={{
+              overflow: { adjustY: false }
+            }}
+          ></Select>
           <Button type="primary" className="bg-success hover:!bg-success-400">送信</Button>
         </Space.Compact>
       </div>
