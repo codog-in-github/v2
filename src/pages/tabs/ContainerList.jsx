@@ -63,8 +63,8 @@ function Card({
       {...props}
     >
       {top && <TopBadge>{top}</TopBadge>}
-      <div className="flex p-2 overflow-hidden items-center">
-        <Icon.Exit color={CARD_COLORS[type].border} className="text-[20px]" /> 
+      <div className="flex p-2 overflow-hidden">
+        <Icon.Exit color={CARD_COLORS[type].border} className="text-[24px] mt-1" /> 
         <div className="ml-2 flex-1 w-1 text-[#484848]">
           <div className="truncate">{address || 'VAN場所'}</div>
           <div className="truncate">

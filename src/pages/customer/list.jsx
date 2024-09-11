@@ -12,6 +12,7 @@ import { useCallback } from "react";
 import pubSub from "@/helpers/pubSub";
 import TagInput from "@/components/TagInput";
 import * as Icon from '@/components/Icon'
+import { themeColor } from "@/helpers/color";
 
 const CustomerAddModal = ({ modal, onSuccess }) => {
   const [open, setOpen] = useState(false)
@@ -186,6 +187,7 @@ const CustomerCard = ({ item, ...props }) => {
 
           <Progress
             size="small"
+            strokeColor={themeColor('primary')}
             percent={item.all ? (item.do / item.all) * 100 : 0}
             showInfo={false}
           />
