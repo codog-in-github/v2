@@ -175,7 +175,7 @@ const Management = ({ className }) => {
               showSearch
               options={options}
               loading={loading}
-              optionFilterProp="label"
+              optionFilterProp="filterValue"
               onChange={onModifyChange}
               getPopupContainer={() => rootRef.current}
               dropdownAlign={{
