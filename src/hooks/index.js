@@ -197,14 +197,17 @@ export const useGateCompanyOptions = (showSelf = true) => {
         setLoading(false)
         const options = []
         if(showSelf) {
-          options.push(
-            { label: createElement('div', { className: 'font-bold' }, '春海组 株式会社'), value: -1 }
-          )
+          options.push({
+            label: createElement('div', { className: 'font-bold' }, '春海组 株式会社'),
+            value: -1,
+            filterValue: '春海组 株式会社',
+          })
         }
         setOptions(
           options.concat(data.map(item => ({
             label: item.name,
-            value: item.id
+            value: item.id,
+            filterValue: item.name,
           })))
         )
       })
