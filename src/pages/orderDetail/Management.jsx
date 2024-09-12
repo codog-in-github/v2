@@ -126,9 +126,9 @@ const Management = ({ className }) => {
   const navigate = useNavigate()
   const copyModalInstance = useRef(null)
   const [modal, modalContent] = Modal.useModal()
-  const setDefaultNumber = () => {
-    const bkgNo = form.getFieldValue('bkgNo')
-    if(bkgNo) {
+  const setDefaultBlNo = () => {
+    const { bkgNo, blNo } = form.getFieldsValue()
+    if(bkgNo && !blNo) {
       form.setFieldValue('blNo', bkgNo)
     }
   }
@@ -146,7 +146,7 @@ const Management = ({ className }) => {
           </Form.Item>
           <Form.Item name="id" hidden />
           <Form.Item label="BKG NO." name="bkgNo" className="[&_label]:!font-bold" rules={[{ required: true, message: 'BKG NO.を入力してください' }]}>
-            <Input onBlur={setDefaultNumber} onChange={onModifyChange} />
+            <Input onBlur={setDefaultBlNo} onChange={onModifyChange} />
           </Form.Item>
           <Form.Item label="B/L NO." name="blNo">
             <Input onChange={onModifyChange} />
