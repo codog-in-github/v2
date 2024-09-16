@@ -193,7 +193,7 @@ const CarList = ({
   const {
     page, movePage, movePageForce
   } = usePage(list)
-  const { rootRef, onModifyChange } = useContext(DetailDataContext)
+  const { rootRef, onModifyChange, form } = useContext(DetailDataContext)
   const { containerTypes, carOptions } = useContext(GoodsContext)
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
@@ -264,10 +264,13 @@ const CarList = ({
             </div>
             <div className="border-t border-gray-400 border-dashed my-2" />
             <div className="flex gap-2">
-            <Form.Item noStyle name={[props.name, 'transComId']}></Form.Item>
-            <Form.Item className="flex-1" label="運送会社" name={[props.name, 'transComName']}>
-                <AutoComplete
-                  onChange={onModifyChange}
+            <Form.Item noStyle name={[props.name, 'transComName']}></Form.Item>
+            <Form.Item className="flex-1" label="運送会社" name={[props.name, 'transComId']}>
+                <Select
+                  onChange={(_, option) => {
+                    form.setFieldValue(['cars', props.name, 'transComName'], option.name)
+                    onModifyChange()
+                  }}
                   getPopupContainer={() => rootRef.current}
                   options={carOptions}
                   maxCount={5}
@@ -277,8 +280,10 @@ const CarList = ({
                   filterOption={(value, option) => {
                     return option.name.toLowerCase().includes(value.toLowerCase())
                   }}
+                  optionFilterProp="name"
                   fieldNames={{
-                    value: 'name'
+                    value: 'id',
+                    label: 'name'
                   }}
                 />
               </Form.Item>
