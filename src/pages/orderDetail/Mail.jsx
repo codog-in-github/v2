@@ -94,6 +94,11 @@ const Mail = ({ mail, onSuccess = () => {} }) => {
         subject: item.subject,
         content: item.content,
       })
+      if(!item.contact) {
+        cc.push([])
+        to.push([])
+        continue
+      }
       if(simple) {
         to.push(
           item.contact.map(item => ({
