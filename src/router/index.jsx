@@ -124,6 +124,10 @@ const router = createBrowserRouter([
               {
                 path: "/petition",
                 element: <LazyPage load={() => import('@/pages/petition/list')} />,
+              },
+              {
+                path: "/partner",
+                element: <LazyPage load={() => import('@/pages/sys/partnerList')} />,
               }
             ],
           },

@@ -129,13 +129,13 @@ const formDataGenerator = (isCopy) => (rep) => {
 
   /**
    * * ship 船社信息
-   * $table->string('carrier')->default('')->comment('船社');
+   * $table->string('carrier_name')->default('')->comment('船社');
    * $table->string('c_staff')->default('')->comment('c_staff');
    * $table->string('service')->default('')->comment('service');
    * $table->string('vessel_name')->default('')->comment('船名');
    * $table->string('voyage')->default('')->comment('航线');
    */
-  setIfExist('carrier', 'carrier')
+  setIfExist('carrierName', 'carrier_name')
   setIfExist('carrier_id', 'carrier_id')
   setIfExist('vesselName', 'vessel_name')
   setIfExist('voyage', 'voyage')
