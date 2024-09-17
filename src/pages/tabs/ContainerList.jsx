@@ -221,8 +221,8 @@ function ContainerListContent() {
               bkgNo={item['order']['bkg_no']}
               type={item['order']['color']}
               address={item['order']['details'][0]['van_place']}
-              date={item['order']['deliver_time']}
-              time={item['order']['deliver_time_range']}
+              date={item['order']['details'][0]['deliver_date']}
+              time={item['order']['details'][0]['deliver_time_range']}
               end
             />
         )}
