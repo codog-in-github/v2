@@ -41,6 +41,9 @@ const AddModal = ({ modal, onSuccess }) => {
     if(rep.cc) {
       rep.cc = rep.cc.split('|')
     }
+    if(!rep.contacts || !rep.contacts.length) {
+      rep.contacts = [{}];
+    }
     form.setFieldsValue(rep)
   })
   
