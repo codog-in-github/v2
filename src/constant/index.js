@@ -173,3 +173,9 @@ export const MAIL_LOG_TYPE_CHANGE_ORDER = 4; //日志类型 改单申请
 export const MAIL_LOG_TYPE_ACC_PAY = 5; //会计付钱
 
 export const GATE_SELF = -1;
+
+
+export const PARTNER_TYPE_CUSTOMER = 1;
+export const PARTNER_TYPE_SHIP = 2;
+export const PARTNER_TYPE_CAR = 3;
+export const PARTNER_TYPE_CUSTOMS = 4;

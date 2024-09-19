@@ -28,6 +28,10 @@ function Sidebar({ className }) {
       {/* <NavButton to="/petition" className="mb-2">
         請求書変更
       </NavButton> */}
+      <NavButton to="/partner" className="mb-2">
+        <Icon.OrderCalendar className="text-lg mr-2" />
+        協力会社名簿
+      </NavButton>
     </NavButtonGroup>
   );
 }

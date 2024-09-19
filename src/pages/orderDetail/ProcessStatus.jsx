@@ -1,9 +1,9 @@
 import Label from "@/components/Label"
 import { Form, Space, Select, Button, Input } from "antd"
 import classNames from "classnames"
-import { useContext } from "react"
+import {useContext, useEffect, useState} from "react"
 import { DetailDataContext } from "./dataProvider"
-import { 
+import {
   EXPORT_NODE_NAMES, MAIL_TO_CUSTOMER, MAIL_TO_CUSTOMS_COMPANY, MAIL_TO_SHIP, SUR_STEP_PAYED,
   ORDER_NODE_TYPE_ACL, ORDER_NODE_TYPE_BL_COPY, ORDER_NODE_TYPE_CUSTOMER_DOCUMENTS, ORDER_NODE_TYPE_SUR,
   SUR_STEP_WAIT_PAY, MAIL_TO_ACC, SUR_STEP_WAIT_CUSTOMER_CONFIRMED,
@@ -73,7 +73,7 @@ const ProcessBar = ({
   } else if(isEnd) {
     const mailData = {
       nodeType,
-      nodeId,
+      nodeId: [nodeId],
       type: MAIL_TYPE_REDO,
       file: [FILE_TYPE_OPERATIONS],
       title: `${EXPORT_NODE_NAMES[nodeType]} - BL訂正`,
@@ -119,7 +119,7 @@ const ProcessBarButtons = ({ nodeId, nodeType, step, mail, sended, redo }) => {
   const form = Form.useFormInstance()
   const mailData = {
     nodeType,
-    nodeId,
+    nodeId: [nodeId],
     step,
     type: MAIL_TYPE_NORMAL,
     to: getMailTo(nodeType, step),
@@ -196,14 +196,27 @@ const ProcessBarButtons = ({ nodeId, nodeType, step, mail, sended, redo }) => {
 }
 
 const ProcessStatus = ({className}) => {
-  const { nodes, refreshNodes, isCopy, rootRef, onModifyChange } = useContext(DetailDataContext)
+  const { nodes, refreshNodes, isCopy, rootRef, onModifyChange, multiMails } = useContext(DetailDataContext)
+  const [multiValue, setMultiValue] = useState(null)
   const detailRef = useRef(null)
-  // const multiSendOptions = nodes
-  //   .filter(item => item.canDo && !item.isEnd)
-  //   .map(item => ({
-  //     value: item.typeId
-  //   }))
   const mail = useRef(null)
+  useEffect(() => {
+    setMultiValue(null)
+  }, [multiMails]);
+  const openMail = () => {
+    console.log('openMail', multiValue)
+    if(!multiValue) {
+      return
+    }
+    mail.current.open({
+      nodeType: null,
+      nodeId: multiValue.ids,
+      type: MAIL_TYPE_NORMAL,
+      file: [FILE_TYPE_OPERATIONS],
+      title: `${multiValue.label} - 送信`,
+      to: MAIL_TO_CUSTOMER
+    })
+  }
   return (
     <div className={className}>
       <Label>進捗状況</Label>
@@ -212,12 +225,15 @@ const ProcessStatus = ({className}) => {
         <Space.Compact className="flex-1">
           <Select
             className="w-full"
+            value={multiValue?.value}
+            onChange={(_, option) => setMultiValue(option)}
             getPopupContainer={() => rootRef.current}
             dropdownAlign={{
               overflow: { adjustY: false }
             }}
+            options={multiMails}
           ></Select>
-          <Button type="primary" className="bg-success hover:!bg-success-400">送信</Button>
+          <Button type="primary" className="bg-success hover:!bg-success-400" onClick={openMail}>送信</Button>
         </Space.Compact>
       </div>
       <div lang="p-2" className="flex flex-col gap-2 p-2">

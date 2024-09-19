@@ -229,7 +229,7 @@ const Ship = ({ className }) => {
       <div className="px-2">
       <div className="flex items-end gap-1">
           <Input name="id" hidden />
-          <Form.Item name="carrier" noStyle></Form.Item>
+          <Form.Item name="carrierName" noStyle></Form.Item>
           <Form.Item className="flex-1" label="CARRIER" name="carrier_id">
             <Select 
               options={carriers}
@@ -240,7 +240,7 @@ const Ship = ({ className }) => {
               }}
               getPopupContainer={() => rootRef.current}
               onSelect={(_, item) => {
-                form.setFieldValue('carrier', item.label)
+                form.setFieldValue('carrierName', item.label)
                 onModifyChange()
               }}
               notFoundContent={(

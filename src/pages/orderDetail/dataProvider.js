@@ -6,6 +6,12 @@ import { useAsyncCallback } from "@/hooks"
 import { useState, useEffect, useCallback, createContext, useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import pubSub from "@/helpers/pubSub"
+import {
+  EXPORT_NODE_NAMES,
+  ORDER_NODE_TYPE_ACL,
+  ORDER_NODE_TYPE_CUSTOMS_CLEARANCE,
+  ORDER_NODE_TYPE_REQUEST
+} from "@/constant/index.js";
 
 export const DetailDataContext = createContext()
 
@@ -39,6 +45,28 @@ const orderNodesGenerator = ({ nodes = []}) => {
   return data
 }
 
+const multiMailGenerator = ({ nodes }) => {
+  const multiMailNodes = [
+      [ORDER_NODE_TYPE_ACL, ORDER_NODE_TYPE_CUSTOMS_CLEARANCE],
+      [ORDER_NODE_TYPE_CUSTOMS_CLEARANCE, ORDER_NODE_TYPE_REQUEST]
+  ]
+  const options = [];
+  for(const key in multiMailNodes) {
+    const searchedNode = multiMailNodes[key].map(nodeType => {
+      return nodes.find(node =>
+        node.node_id === nodeType && node.is_enable === 1 && node.is_confirm === 0
+      )
+    })
+    if(searchedNode.every(node => node)) {
+      options.push({
+        value: key,
+        ids: searchedNode.map(item => item.id),
+        label: searchedNode.map(item => EXPORT_NODE_NAMES[item.node_id]).join('+')
+      })
+    }
+  }
+  return options
+}
 
 const formDataGenerator = (isCopy) => (rep) => {
   const result = {}
@@ -101,13 +129,13 @@ const formDataGenerator = (isCopy) => (rep) => {
 
   /**
    * * ship 船社信息
-   * $table->string('carrier')->default('')->comment('船社');
+   * $table->string('carrier_name')->default('')->comment('船社');
    * $table->string('c_staff')->default('')->comment('c_staff');
    * $table->string('service')->default('')->comment('service');
    * $table->string('vessel_name')->default('')->comment('船名');
    * $table->string('voyage')->default('')->comment('航线');
    */
-  setIfExist('carrier', 'carrier')
+  setIfExist('carrierName', 'carrier_name')
   setIfExist('carrier_id', 'carrier_id')
   setIfExist('vesselName', 'vessel_name')
   setIfExist('voyage', 'voyage')
@@ -131,7 +159,7 @@ const formDataGenerator = (isCopy) => (rep) => {
   setIfExist('cyCut', 'cy_cut', dayjs)
   setIfExist('docCut', 'doc_cut', dayjs)
 
-  /** 
+  /**
    * * delivery
    * $table->integer('delivery_country_id')->default(0)->comment('抵达国家id');
    * $table->string('delivery_country_name')->default('')->comment('抵达国家名');
@@ -208,7 +236,7 @@ const formDataGenerator = (isCopy) => (rep) => {
           carType: item['bearing_type'] || void 0,
           date: item['deliver_date'] !== '0000-00-00' ? dayjs(item['deliver_date']) : null,
           time,
-          transComId: item['trans_com_id'],
+          transComId: item['trans_com_id'] || null,
           transComName: item['trans_com_name'],
           driver: item['driver'],
           tel: item['tel'],
@@ -286,7 +314,7 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
   setValue('cyCut', 'cy_cut', (dayjs) => dayjs?.format('YYYY-MM-DD HH:mm:ss'))
   setValue('docCut', 'doc_cut', (dayjs) => dayjs?.format('YYYY-MM-DD HH:mm:ss'))
 
-  /** 
+  /**
    * * delivery
    */
   setValue('deliveryCountry', 'delivery_country_id', val => val || 0)
@@ -323,6 +351,7 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
     */
   const details = []
   result['details'] = details
+  console.log(formData.cars)
   for(const item of formData.cars) {
     const detail = {
       'id' : item.id ?? '',
@@ -333,7 +362,7 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
       'deliver_date': item.date?.format('YYYY-MM-DD') ?? '',
       'deliver_time_range': item.time?.map(item => item?.format('HH:mm') ?? '').join('-') ?? '',
       'trans_com_name': item.transComName ?? '',
-      'trans_com_id': item.transComId ?? '',
+      'trans_com_id': item.transComId ?? 0,
       'driver': item.driver ?? '',
       'tel': item.tel ?? '',
       'car': item.carCode ?? '',
@@ -394,7 +423,7 @@ export const useDetailData = () => {
   const [messages, setMessages] = useState([])
   const [files, setFiles] = useState({})
   const modified = useRef(false)
-
+  const [multiMails, setMultiMails] = useState(null)
   const isCopy = Boolean(copyId)
   const isTempOrder = nodes.length === 0
 
@@ -429,7 +458,7 @@ export const useDetailData = () => {
       })
       .catch(fail)
   }, [])
-  
+
   const [onDownloadFiles, downloading] = useAsyncCallback((downloadFiles, success, fail) => {
     return Promise.all(Object.values(downloadFiles).flat().map(file => {
       return request(file).get().download(file.split('/').pop()).send()
@@ -474,6 +503,10 @@ export const useDetailData = () => {
     .then(touch(pipe(
       requestBookGenerator,
       setRequestBooks,
+    )))
+    .then(touch(pipe(
+        multiMailGenerator,
+        setMultiMails
     )))
   })
 
@@ -530,6 +563,10 @@ export const useDetailData = () => {
         orderNodesGenerator,
         setNodes
       )))
+      .then(touch(pipe(
+          multiMailGenerator,
+          setMultiMails
+      )))
   })
 
   const [sendMessage, sending] = useAsyncCallback(async ({msg, at}) => {
@@ -537,7 +574,7 @@ export const useDetailData = () => {
     if(at) {
       data['receive_id'] = at
     }
-    const res = await request('/admin/order/send_message').data(data).send() 
+    const res = await request('/admin/order/send_message').data(data).send()
     setMessages([
       ...messages,
       toMessageProps(res)
@@ -574,6 +611,7 @@ export const useDetailData = () => {
     sendMessage,
     sending,
     files,
+    multiMails,
     saveOrderFile,
     onDeleteFiles,
     onDownloadFiles,
