@@ -115,8 +115,7 @@ const PortSelect = ({ tree, bindId, bindName, ...props }) => {
   )
 }
 
-// eslint-disable-next-line react/display-name
-const AddCarrierModal = forwardRef(({ onSuccess }, ref) => {
+const AddCarrierModal = forwardRef(function AddCarrierModal({ onSuccess }, ref) {
   const [open, setOpen] = useState(false)
   const [form] = Form.useForm()
   const [add, loading] = useAsyncCallback(async () => {
@@ -151,8 +150,7 @@ const AddCarrierModal = forwardRef(({ onSuccess }, ref) => {
   )
 })
 
-// eslint-disable-next-line react/display-name
-const AddPortModal = forwardRef(({ onSuccess }, ref) => {
+const AddPortModal = forwardRef(function AddPortModal ({ onSuccess }, ref) {
   const [open, setOpen] = useState(false)
   const [form] = Form.useForm()
   const [add, loading] = useAsyncCallback(async () => {

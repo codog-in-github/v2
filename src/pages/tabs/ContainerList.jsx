@@ -14,6 +14,7 @@ import { CARD_COLORS } from "./common";
 import TopBadge from "@/components/TopBadge";
 import { EXPORT_NODE_NAMES } from "@/constant";
 import * as Icon from '@/components/Icon'
+import UserPicker from "@/components/UserPicker.jsx";
 const useTabOrderList = (type, form) => {
   const [list, setList] = useState([]);
   const [reload, loading] = useAsyncCallback(async () => {
@@ -64,7 +65,7 @@ function Card({
     >
       {top && <TopBadge>{top}</TopBadge>}
       <div className="flex p-2 overflow-hidden">
-        <Icon.Exit color={CARD_COLORS[type].border} className="text-[24px] mt-1" /> 
+        <Icon.Exit color={CARD_COLORS[type].border} className="text-[24px] mt-1" />
         <div className="ml-2 flex-1 w-1 text-[#484848]">
           <div className="truncate">{address || 'VAN場所'}</div>
           <div className="truncate">
@@ -132,7 +133,9 @@ function ContainerListContent() {
   const [compList, loadingComp] = useCompleteList(tab)
   const order = useRef(null)
   const navigate = useNavigate()
+  const userPicker = useRef(null);
   const [topNode, topNodeLoading] = useAsyncCallback(async () => {
+    close()
     await request('/admin/order/change_top').data({
       'id': order.current['order_id'],
       'is_top': 1,
@@ -142,8 +145,7 @@ function ContainerListContent() {
     reload()
   })
 
-
-  const [menu, open] = useContextMenu(
+  const [menu, open, close] = useContextMenu(
     <div
       className="
         fixed w-32 z-50 border cursor-pointer
@@ -152,13 +154,21 @@ function ContainerListContent() {
       "
       onClick={e => e.stopPropagation()}
     >
-      {/* <div
-        type='primary'
-        className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
-        onClick={() => { }}
-      >指派任务</div> */}
       <div
-        type='primary'
+        className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
+        onClick={async () => {
+          close()
+          const user = await userPicker.current.pick()
+          const params = {
+            'order_id': order.current.order_id,
+            'node_id': order.current.order_node_id,
+            'user_id': user
+          }
+          await request('admin/order/dispatch').data(params).send()
+          pubSub.publish('Info.Toast', '已指派', 'success')
+        }}
+      >指派任务</div>
+      <div
         className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
         onClick={topNode}
       >
@@ -168,8 +178,8 @@ function ContainerListContent() {
     </div>
   )
   /**
-   * 
-   * @param {Event} e 
+   *
+   * @param {Event} e
    */
   const contextMenuHandle = (e, item) => {
     e.preventDefault()
@@ -227,6 +237,7 @@ function ContainerListContent() {
             />
         )}
       </OrderGroup>
+      <UserPicker ref={userPicker} />
       {menu}
     </div>
   );

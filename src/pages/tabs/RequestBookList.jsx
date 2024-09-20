@@ -13,6 +13,7 @@ import OrderFilter from "@/components/OrderFilter";
 import PortFullName from "@/components/PortFullName";
 import { CARD_COLORS } from "./common";
 import TopBadge from "@/components/TopBadge";
+import UserPicker from "@/components/UserPicker.jsx";
 
 const useReqList = (form) => {
   const [list, setList] = useState({});
@@ -131,8 +132,10 @@ function Card({
 function RequestBookPage() {
   const [filterForm] = Form.useForm()
   const { list, reload, loading } = useReqList(filterForm)
+  const userPicker = useRef(null);
   const order = useRef(null)
   const [topNode, topNodeLoading] = useAsyncCallback(async () => {
+    close()
     await request('/admin/order/change_top').data({
       'id': order.current['id'],
       'node_status': ORDER_TAB_STATUS_REQUEST,
@@ -142,7 +145,7 @@ function RequestBookPage() {
     reload()
   })
 
-  const [menu, open] = useContextMenu(
+  const [menu, open, close] = useContextMenu(
     <div
       className="
         fixed w-32 z-50 border cursor-OrderListinter
@@ -151,24 +154,33 @@ function RequestBookPage() {
       "
       onClick={e => e.stopPropagation()}
     >
-      {/* <div
-        type='primary'
-        className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
-        onClick={() => { }}
-      >指派任务</div> */}
       <div
-        type='primary'
+        className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
+        onClick={async () => {
+          close()
+          const user = await userPicker.current.pick()
+          const params = {
+            'order_id': order.current.id,
+            'node_id': order.current.request_book_node.id,
+            'user_id': user
+          }
+          await request('admin/order/dispatch').data(params).send()
+          pubSub.publish('Info.Toast', '已指派', 'success')
+        }}
+      >指派任务
+      </div>
+      <div
         className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
         onClick={topNode}
       >
-        {topNodeLoading && <LoadingOutlined className="mr-2" />}
+        {topNodeLoading && <LoadingOutlined className="mr-2"/>}
         置顶任务
       </div>
     </div>
   )
   /**
-   * 
-   * @param {Event} e 
+   *
+   * @param {Event} e
    */
   const contextMenuHandle = (e, item) => {
     e.preventDefault()
@@ -194,6 +206,7 @@ function RequestBookPage() {
         )
       )) }
       {menu}
+      <UserPicker ref={userPicker} />
     </div>
   );
 }

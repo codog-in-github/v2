@@ -14,6 +14,7 @@ import OrderFilter from "@/components/OrderFilter";
 import { Form } from "antd";
 import { CARD_COLORS } from "./common";
 import TopBadge from "@/components/TopBadge";
+import UserPicker from "@/components/UserPicker.jsx";
 
 const useTabOrderList = (type, form) => {
   const [list, setList] = useState([]);
@@ -26,6 +27,7 @@ const useTabOrderList = (type, form) => {
     for(const item of res) {
       orders.push({
         ...item.order,
+        node: item,
         color: item.color,
         top: item.is_top ? EXPORT_NODE_NAMES[item.node_id] : null,
       })
@@ -54,23 +56,23 @@ function Card({
     <div
       className="border-2 border-t-[6px] rounded h-[120px] cursor-pointer overflow-hidden text-[#484848] relative"
       style={{
-        borderColor: CARD_COLORS[orderInfo.color].border,
+        borderColor: CARD_COLORS[orderInfo.color]?.border,
         ...grayscale
       }}
       {...props}
     >
       {orderInfo.top && <TopBadge>{orderInfo.top}</TopBadge>}
-      <div className="flex p-2 overflow-hidden items-center" style={{ background: CARD_COLORS[orderInfo.color].bg }}>
+      <div className="flex p-2 overflow-hidden items-center" style={{ background: CARD_COLORS[orderInfo.color]?.bg }}>
         <Avatar
           size={40}
-          style={{ backgroundColor: CARD_COLORS[orderInfo.color].border }}
+          style={{ backgroundColor: CARD_COLORS[orderInfo.color]?.border }}
         >
           {orderInfo['company_name']?.[0]}
         </Avatar>
         <div className="ml-2 flex-1 w-1" >
           <div className="truncate text-[22px] flex items-center w-full">
             <span className="mr-auto font-bold">{orderInfo[~~(tab) === ORDER_TAB_STATUS_ACL ? 'doc_cut':'cy_cut']?.substring(5)}</span>
-            <span className="text-[14px]" style={{ color: CARD_COLORS[orderInfo.color].text }}>
+            <span className="text-[14px]" style={{ color: CARD_COLORS[orderInfo.color]?.text }}>
               {~~tab === ORDER_TAB_STATUS_ACL ?'DOC CUT': 'CY CUT'}
             </span>
           </div>
@@ -116,6 +118,7 @@ function OrderList() {
   const [compList, loadingComp] = useCompleteList(tab)
   const order = useRef(null)
   const navigate = useNavigate()
+  const userPicker = useRef(null);
   const [topNode, topNodeLoading] = useAsyncCallback(async () => {
     await request('/admin/order/change_top').data({
       'id': order.current['id'],
@@ -126,7 +129,7 @@ function OrderList() {
     reload()
   })
 
-  const [menu, open] = useContextMenu(
+  const [menu, open, close] = useContextMenu(
     <div
       className="
         fixed w-32 z-50 border cursor-OrderListinter
@@ -135,24 +138,33 @@ function OrderList() {
       "
       onClick={e => e.stopPropagation()}
     >
-      {/* <div
-        type='primary'
-        className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
-        onClick={() => {}}
-      >指派任务</div> */}
       <div
-        type='primary'
+        className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
+        onClick={async () => {
+          close()
+          const user = await userPicker.current.pick()
+          const params = {
+            'order_id': order.current.id,
+            'node_id': order.current.node.id,
+            'user_id': user
+          }
+          await request('admin/order/dispatch').data(params).send()
+          pubSub.publish('Info.Toast', '已指派', 'success')
+        }}
+      >指派任务
+      </div>
+      <div
         className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
         onClick={topNode}
       >
-        {topNodeLoading && <LoadingOutlined className="mr-2" />}
+        {topNodeLoading && <LoadingOutlined className="mr-2"/>}
         置顶任务
       </div>
     </div>
   )
   /**
-   * 
-   * @param {Event} e 
+   *
+   * @param {Event} e
    */
   const contextMenuHandle = (e, item) => {
     e.preventDefault()
@@ -195,6 +207,7 @@ function OrderList() {
         )}
       </OrderGroup>
       {menu}
+      <UserPicker ref={userPicker} />
     </div>
   );
 }

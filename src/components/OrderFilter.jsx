@@ -2,10 +2,10 @@ import { Form, Space, Select, Input } from 'antd';
 import { useEffect } from 'react';
 
 /**
- * 
+ *
  * @param {Object} param0 props
  * @param {import('antd').FormInstance} param0.form
- * @returns 
+ * @returns
  */
 const OrderFilter = ({ form, onSearch }) => {
   return (
@@ -16,6 +16,7 @@ const OrderFilter = ({ form, onSearch }) => {
             options={[
               { value: 'bkg_no', label: 'BKG NO.' },
               { value: 'order_no', label: '社内番号' },
+              { value: 'company_name', label: 'お客様' },
             ]}
           />
         </Form.Item>

@@ -5,7 +5,7 @@ import { Modal } from "antd"
 import { useEffect, useState } from "react"
 import classNames from "classnames"
 import { basename } from "@/helpers"
-import { EXPORT_NODE_NAMES, MAIL_LOG_TYPE_ACC_PAY, MAIL_LOG_TYPE_MAIL, MAIL_LOG_TYPE_NODE_CONFIRM } from "@/constant"
+import { EXPORT_NODE_NAMES, MAIL_LOG_TYPE_ACC_PAY, MAIL_LOG_TYPE_NODE_CONFIRM } from "@/constant"
 
 const stepName = (item) => {
   switch (item.type) {
