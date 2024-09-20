@@ -25,7 +25,7 @@ const usePorts = () => {
   const [fetch, loading] = useAsyncCallback(async () => {
     const rep = await getPorts()
     setPortTree(rep)
-  }, [])
+  })
   useEffect(() => {
     fetch()
   }, [])
@@ -231,7 +231,7 @@ const Ship = ({ className }) => {
           <Input name="id" hidden />
           <Form.Item name="carrierName" noStyle></Form.Item>
           <Form.Item className="flex-1" label="CARRIER" name="carrier_id">
-            <Select 
+            <Select
               options={carriers}
               showSearch
               optionFilterProp="label"
@@ -410,7 +410,7 @@ const Ship = ({ className }) => {
               />
             </Form.Item>
             <Form.Item className="col-span-2" label="ETA" name="eta">
-              <DatePicker onChange={onModifyChange} />
+              <DatePicker onChange={onModifyChange} className="w-full" />
             </Form.Item>
             <Form.Item  label="FREE TIME DEM" name="freeTimeDem">
               <Input onChange={onModifyChange} />
@@ -491,7 +491,7 @@ const Ship = ({ className }) => {
           reloadCarrier()
         }}
       ></AddCarrierModal>
-      
+
       <AddPortModal
         ref={addPortModalRef}
         onSuccess={(rep) => onPortAdd.current(rep)}

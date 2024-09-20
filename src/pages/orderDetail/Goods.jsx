@@ -125,7 +125,11 @@ const ContainerList = ({
                     placement="bottomRight"
                     options={containerTypes}
                     getPopupContainer={() => rootRef.current}
-                    onSelect={(value) => form.setFieldValue(['cars', 0, 'vanType'], value)}
+                    onSelect={(value) => {
+                      if(!form.getFieldValue(['cars', 0, 'vanType'])) {
+                        form.setFieldValue(['cars', 0, 'vanType'], value)
+                      }
+                    }}
                   />
                 </Form.Item>
                 <Form.Item

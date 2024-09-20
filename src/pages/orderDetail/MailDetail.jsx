@@ -56,25 +56,27 @@ const MailRecord = ({ record }) => {
       )
     default:
       return (
-        <>
-          <div className="mb-2">收件人：{data.to?.join(',')}</div>
-          {data.cc && <div className="mb-2">cc：{data.cc}</div>}
-          {
+          <>
+            <div className="mb-2"><span className="w-16 inline-block">收件人：</span>{data.to?.join(',')}</div>
+            {data.cc && data.cc.length > 0 && <div className="mb-2"><span className="w-16 inline-block">cc：</span>{data.cc}
+            </div>}
+            <div className="mb-2"><span className="w-16 inline-block">件名：</span>{data.subject}</div>
+            {
             data.files && data.files.length > 0 && (
-              <div className="bg-gray-200 py-2 px-4 text-gray-800">
-                {data.files.map(basename)}
-              </div>
-            )
-          }
-        </>
+                    <div className="bg-gray-200 py-2 px-4 text-gray-800">
+                      {data.files.map(basename)}
+                    </div>
+                )
+            }
+          </>
       )
   }
-  
+
 }
 
 const MailDetail = ({
-  modal
-}) => {
+                      modal
+                    }) => {
   const [nodeId, setNodeId] = useState(null)
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState('')
