@@ -115,7 +115,7 @@ const DeclarantCard = ({ item }) => {
 
   const data = item.data || [];
   return (
-    <div className="w-[600px] flex-none mr-[50px] border  h-full">
+    <div className="w-[600px] flex-none mr-[25px] border h-full">
       <div
         className={classnames(
           "text-center py-[5px] text-[18px] border-b border-indigo-300 bg-blue-200 h-[40px]",
