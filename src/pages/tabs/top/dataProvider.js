@@ -25,7 +25,7 @@ const ordersSort = (orders) => {
       contactPerson: item['order']['header'],
       bkgNo: item['order']['bkg_no'],
       contactPhone: item['order']['mobile'],
-      avatarText: item['order']['short_name'],
+      avatarText: item['order']['short_name'][0],
       companyName: item['order']['company_name'],
     })
   }
@@ -49,7 +49,7 @@ const ordersSort = (orders) => {
       remark: item['remark'],
       contactPerson: item['order']['header'],
       contactPhone: item['order']['mobile'],
-      avatarText: item['order']['short_name'],
+      avatarText: item['order']['short_name'][0],
       bkgNo: item['order']['bkg_no'],
       companyName: item['order']['company_name'],
     })
