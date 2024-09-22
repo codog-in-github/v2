@@ -11,7 +11,8 @@ function CompanyAvatar ({
   if(!bg && text) {
     bg = colors[text.charCodeAt(0) % colors.length]
   }
-  const fontSize = 28 / (text.length || 1)
+  text = text[0] ?? ''
+  const fontSize = 28
   const baseClass = 'flex justify-center items-center w-[56px] h-[56px]'
   const textColor = 'text-white'
   const round = circle ? 'rounded-full' : 'rounded-md'
