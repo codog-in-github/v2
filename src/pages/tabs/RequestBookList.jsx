@@ -1,4 +1,3 @@
-import { themeColor } from "@/helpers/color";
 import { request } from "@/apis/requestBuilder";
 import { useEffect, useState, useRef } from "react";
 import { useAsyncCallback, useContextMenu } from "@/hooks";
@@ -6,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { LoadingOutlined } from "@ant-design/icons";
 import pubSub from "@/helpers/pubSub";
 import SkeletonList from "@/components/SkeletonList";
-import { ORDER_TAB_STATUS_REQUEST } from "@/constant";
+import { ORDER_TAB_STATUS_REQUEST} from "@/constant";
 import { Avatar } from "antd";
 import { Form } from "antd";
 import OrderFilter from "@/components/OrderFilter";
@@ -99,12 +98,17 @@ function Card({
           size={40}
           style={{ backgroundColor: CARD_COLORS[color].border }}
         >
-          {orderInfo['company_name']?.[0]}
+          {orderInfo['short_name']?.[0]}
         </Avatar>
         <div className="ml-2 flex-1 w-1" >
           <div className="truncate text-[22px] flex items-center w-full">
-            <span className="mr-auto">{orderInfo['cy_cut']?.substring(5)}</span>
-            <span className="text-[14px]" style={{ color: CARD_COLORS[color].text }}>CY CUT</span>
+            <span className="mr-auto">
+              {orderInfo['cy_cut']?.substring(5)}
+              <span className={'text-[16px] font-normal mx-2'}>{
+                orderInfo['cy_cut_time'] ? 'PM' : 'AM'
+              }</span>
+            </span>
+            <span className="text-[14px]" style={{color: CARD_COLORS[color].text}}>CY CUT</span>
           </div>
           <div className="truncate">
             <PortFullName

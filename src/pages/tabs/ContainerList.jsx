@@ -201,8 +201,8 @@ function ContainerListContent() {
           <Card
             onContextMenu={e => contextMenuHandle(e, item)}
             onClick={() => navigate(`/orderDetail/${item['order_id']}`)}
-            customer={item['company_name']}
-            transCom={item['trans_com_name']}
+            customer={item['customer_abbr']}
+            transCom={item['trans_company_abbr']}
             top={item['is_top'] ? EXPORT_NODE_NAMES[item['node_id']] : null}
             key={item['id']}
             pol={[item['loading_country_name'], item['loading_port_name']]}

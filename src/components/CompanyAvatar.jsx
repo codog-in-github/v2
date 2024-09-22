@@ -11,15 +11,15 @@ function CompanyAvatar ({
   if(!bg && text) {
     bg = colors[text.charCodeAt(0) % colors.length]
   }
-  const baseClass = 'flex justify-center items-center w-12 h-12 text-lg'
-  // const isDeepBg = Color(bg).isDark()
-  // const textColor = isDeepBg ? 'text-white' : 'text-black'
+  const fontSize = 28 / (text.length || 1)
+  const baseClass = 'flex justify-center items-center w-[56px] h-[56px]'
   const textColor = 'text-white'
   const round = circle ? 'rounded-full' : 'rounded-md'
   return <div
     className={classNames(baseClass, textColor, round, className)}
     style={{
-      backgroundColor: bg
+      backgroundColor: bg,
+      fontSize
     }}
   >{children ?? text}</div>
 }

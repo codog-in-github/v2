@@ -18,7 +18,6 @@ const ordersSort = (orders) => {
       renderKey: `top-${item['id']}`,
       orderId: item['order']['id'],
       nodeId: item['id'],
-      avatarColor: Color(item['order']['company_color']).toString(),
       topName: EXPORT_NODE_NAMES[item['node_id']],
       id: item['order']['id'],
       expiredAt: dayjs(item['top_finish_time']),
@@ -26,7 +25,7 @@ const ordersSort = (orders) => {
       contactPerson: item['order']['header'],
       bkgNo: item['order']['bkg_no'],
       contactPhone: item['order']['mobile'],
-      avatarText: item['order']['company_name'][0],
+      avatarText: item['order']['short_name'],
       companyName: item['order']['company_name'],
     })
   }
@@ -50,7 +49,7 @@ const ordersSort = (orders) => {
       remark: item['remark'],
       contactPerson: item['order']['header'],
       contactPhone: item['order']['mobile'],
-      avatarText: item['order']['company_name'][0] ?? '',
+      avatarText: item['order']['short_name'],
       bkgNo: item['order']['bkg_no'],
       companyName: item['order']['company_name'],
     })

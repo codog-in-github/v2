@@ -44,6 +44,7 @@ const UserPicker = forwardRef(function UserPicker(_, ref) {
     <Modal
       title="選択してください"
       open={open}
+      width={600}
       onOk={() => {
         if(!selected) {
           return
@@ -56,12 +57,14 @@ const UserPicker = forwardRef(function UserPicker(_, ref) {
         pickerCallbacks.current.reject()
       }}
     >
-      <Radio.Group
-        className="mt-4"
-        value={selected}
-        options={users}
-        onChange={e => setSelected(e.target.value)}
-      ></Radio.Group>
+      <div className={'min-h-[94px] flex  items-center [&_.ant-radio-wrapper]:text-[16px] [&_.ant-radio-wrapper]:mr-[30px]'}>
+        <Radio.Group
+          className="mt-4"
+          value={selected}
+          options={users}
+          onChange={e => setSelected(e.target.value)}
+        ></Radio.Group>
+      </div>
     </Modal>
   )
 })

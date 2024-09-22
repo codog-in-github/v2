@@ -67,11 +67,16 @@ function Card({
           size={40}
           style={{ backgroundColor: CARD_COLORS[orderInfo.color]?.border }}
         >
-          {orderInfo['company_name']?.[0]}
+          {orderInfo['short_name']?.[0]}
         </Avatar>
         <div className="ml-2 flex-1 w-1" >
           <div className="truncate text-[22px] flex items-center w-full">
-            <span className="mr-auto font-bold">{orderInfo[~~(tab) === ORDER_TAB_STATUS_ACL ? 'doc_cut':'cy_cut']?.substring(5)}</span>
+            <span className="mr-auto font-bold">
+              {orderInfo[~~(tab) === ORDER_TAB_STATUS_ACL ? 'doc_cut':'cy_cut']?.substring(5)}
+              <span className={'text-[16px] font-normal mx-2'}>{
+                orderInfo[~~(tab) === ORDER_TAB_STATUS_ACL ? 'doc_cut_time':'cy_cut_time'] ? 'PM' : 'AM'
+              }</span>
+            </span>
             <span className="text-[14px]" style={{ color: CARD_COLORS[orderInfo.color]?.text }}>
               {~~tab === ORDER_TAB_STATUS_ACL ?'DOC CUT': 'CY CUT'}
             </span>

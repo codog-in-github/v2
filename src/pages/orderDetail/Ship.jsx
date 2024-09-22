@@ -2,7 +2,7 @@ import { request } from "@/apis/requestBuilder"
 import Label from "@/components/Label"
 import { SELECT_ID_SHIP_CONPANY } from "@/constant"
 import { useAsyncCallback, useOptions } from "@/hooks"
-import { Form, Input, Select, DatePicker, Button } from "antd"
+import {Form, Input, Select, DatePicker, Button, Space} from "antd"
 import { useContext } from "react"
 import { useState, useEffect } from "react"
 import { DetailDataContext } from "./dataProvider"
@@ -15,6 +15,7 @@ import { useImperativeHandle } from "react"
 import { forwardRef } from "react"
 import FormItem from "antd/lib/form/FormItem"
 import pubSub from "@/helpers/pubSub"
+import classNames from "classnames";
 
 const getPorts = () => {
   return request('admin/country/tree').get().send()
@@ -191,6 +192,20 @@ const AddPortModal = forwardRef(function AddPortModal ({ onSuccess }, ref) {
   )
 })
 
+const AmPmSelect = ({ value, onChange }) => {
+  const activeClass = 'bg-[#194114] text-white'
+  return (
+    <div className={'flex w-16 text-center bg-white text-[#B4B4B4] cursor-pointer text-xs h-4 rounded overflow-hidden'}>
+      <div className={classNames('flex-1', {
+        [activeClass]: value === 0,
+      })} onClick={() => onChange(0)}>AM</div>
+      <div className={classNames('flex-1', {
+        [activeClass]: value === 1,
+      })} onClick={() => onChange(1)}>PM</div>
+    </div>
+  )
+}
+
 
 const useCarrierOptions = () => {
   const [list, setList] = useState([])
@@ -296,12 +311,12 @@ const Ship = ({ className }) => {
                       }
                       addPortModalRef.current.open()
                     }}
-                  ><PlusCircleFilled />ADD</Button>
+                  ><PlusCircleFilled/>ADD</Button>
                 )}
                 getPopupContainer={() => rootRef.current}
               />
             </Form.Item>
-            <Form.Item name="loadingPortName" noStyle />
+            <Form.Item name="loadingPortName" noStyle/>
             <Form.Item label="Port" name="loadingPort">
               <PortSelect
                 loading={portLoading}
@@ -315,7 +330,7 @@ const Ship = ({ className }) => {
                     className="w-full"
                     onClick={() => {
                       const pid = form.getFieldValue('loadingCountry')
-                      if(!pid) {
+                      if (!pid) {
                         return pubSub.publish('Info.Toast', '请先选择 Country/Region', 'error')
                       }
                       onPortAdd.current = (rep) => {
@@ -327,27 +342,50 @@ const Ship = ({ className }) => {
                       }
                       addPortModalRef.current.open(pid)
                     }}
-                  ><PlusCircleFilled />ADD</Button>
+                  ><PlusCircleFilled/>ADD</Button>
                 )}
                 getPopupContainer={() => rootRef.current}
               />
             </Form.Item>
             <Form.Item className="col-span-2" label="ETD" name="etd">
-              <DatePicker className="w-full" onChange={onModifyChange} />
+              <DatePicker className="w-full" onChange={onModifyChange}/>
             </Form.Item>
             <Form.Item className="col-span-2" label="CY OPEN" name="cyOpen">
-              <DatePicker className="w-full" onChange={onModifyChange} />
+              <DatePicker className="w-full" onChange={onModifyChange}/>
             </Form.Item>
-            <Form.Item label="CY CUT" rules={[{ required: true }]} name="cyCut">
-              <DatePicker className="w-full" onChange={onModifyChange} />
-            </Form.Item>
-            <Form.Item label="DOC CUT" name="docCut">
-              <DatePicker className="w-full" onChange={onModifyChange} />
-            </Form.Item>
+
+            <div>
+              <div className={'flex justify-between w-full flex-1 items-center'}>
+                <div><span className={'mr-1 text-red-500'}>*</span>CY CUT</div>
+                <Form.Item noStyle name="cyCutTime">
+                  <AmPmSelect onChange={onModifyChange}/>
+                </Form.Item>
+              </div>
+              <div>
+                <Form.Item noStyle rules={[{required: true}]} name="cyCut">
+                  <DatePicker className="w-full" onChange={onModifyChange}/>
+                </Form.Item>
+              </div>
+            </div>
+
+            <div>
+              <div className={'flex justify-between w-full flex-1 items-center'}>
+                <div>DOC CUT</div>
+                <Form.Item noStyle name="docCutTime">
+                  <AmPmSelect onChange={onModifyChange}/>
+                </Form.Item>
+              </div>
+              <div>
+                <Form.Item noStyle rules={[{required: true}]} name="docCut">
+                  <DatePicker className="w-full" onChange={onModifyChange}/>
+                </Form.Item>
+              </div>
+            </div>
           </div>
+
           <div className="grid grid-cols-2 flex-1 bg-[#abdae0] p-2 gap-x-2">
             <div className="col-span-2">PORT OF DELIVERY</div>
-            <Form.Item name="deliveryCountryName" noStyle />
+            <Form.Item name="deliveryCountryName" noStyle/>
             <Form.Item label="Country/Region" name="deliveryCountry">
               <CountrySelect
                 loading={portLoading}
