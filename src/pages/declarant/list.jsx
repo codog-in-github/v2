@@ -11,6 +11,7 @@ import pubSub from "@/helpers/pubSub";
 import { createContext } from "react";
 import { useContext } from "react";
 import PortFullName from "@/components/PortFullName";
+import {useNavigate} from "react-router-dom";
 
 const statusNames = '未,申,質,査,許'.split(',')
 const ListContext = createContext({ setStatus: async () => {} })
@@ -46,14 +47,20 @@ const getList = async (filters) => {
   return list
 }
 const DeclarantItem = ({ el }) => {
-  const [status, setStatus] = useState(el.status) 
+  const [status, setStatus] = useState(el.status)
   const { setStatus: setStatusApi } = useContext(ListContext)
+  const navigate = useNavigate()
 
   useEffect(() => {
     setStatus(el.status)
   }, [el.status])
   return (
-    <div className="grid grid-cols-[1fr_1fr_2fr_2fr_3fr] [&>*]:mx-auto bg-white text-[14px]  h-[50px] items-center even:bg-gray-100">
+    <div
+      className="grid grid-cols-[1fr_1fr_2fr_2fr_3fr] [&>*]:mx-auto bg-white text-[14px]  h-[50px] items-center even:bg-gray-100"
+      onClick={() => {
+        navigate('/declarant/detail/' + el.id)
+      }}
+    >
       <Avatar
         size={30}
         style={{ backgroundColor: "#484848", fontSize: "14px" }}
@@ -76,7 +83,10 @@ const DeclarantItem = ({ el }) => {
       </div>
       <div>{el.fan}</div>
       {!el.disabled && (
-        <div className="w-[180px] flex justify-around bg-gray-200 rounded-lg text-[15px] ">
+        <div
+          className="w-[180px] flex justify-around bg-gray-200 rounded-lg text-[15px]"
+          onClick={e => e.stopPropagation()}
+        >
           {statusNames.map((name, i) => (
             <span
               key={i}
@@ -87,12 +97,12 @@ const DeclarantItem = ({ el }) => {
               onClick={() => {
                 if(i <= status){
                   return
-                } 
+                }
                 setStatusApi(el.id, i).then(() => {
                   setStatus(i)
                 })
               }}
-            >{name}</span> 
+            >{name}</span>
           ))}
         </div>
       )}
