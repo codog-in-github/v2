@@ -1,7 +1,7 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { namespaceClass } from "@/helpers/style";
 import { CaretDownOutlined } from "@ant-design/icons";
-import { DatePicker, Dropdown, Radio, Form } from "antd";
+import { DatePicker, Dropdown, Radio, Form, Button } from "antd";
 import { useSelector } from "react-redux";
 import { useCallback, useMemo } from "react";
 import classnames from "classnames";
@@ -9,6 +9,7 @@ import Avatar from "./Avatar";
 import dayjs from "dayjs";
 import pubSub from "@/helpers/pubSub";
 import logo from "@/assets/images/icons/chz_logo.webp";
+import {chooseFile} from "@/helpers/file.js";
 
 const CustomsListFilter = () => {
   const [form] = Form.useForm()
@@ -53,6 +54,20 @@ const CustomsListFilter = () => {
   )
 }
 
+const ExcelUploadButton = () => {
+  const onChooseFile = () => {
+    chooseFile({
+      accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      onChoose: (file) => {
+        pubSub.publish("None.Customs.Detail.Upload", file)
+      }
+    })
+  }
+  return (
+    <Button type="primary" onClick={onChooseFile}>実績参照</Button>
+  )
+}
+
 const c = namespaceClass("nav-top-bar");
 export const DeclarantLayout = () => {
   return (
@@ -75,14 +90,14 @@ const DeclarantTopbar = ({ className }) => {
 
   const { pathname } = useLocation()
   const customEle = useMemo(() => {
-    switch (pathname) {
-      case '/declarant':
-        return <CustomsListFilter />
-    }
+    if(pathname === '/declarant')
+      return <CustomsListFilter />
+    if(pathname.startsWith('/declarant/detail'))
+      return <ExcelUploadButton />
   }, [pathname])
 
   return (
-    <div className={classnames(c(""), "bg-white flex items-center", className)}>
+    <div className={classnames(c(""), "!h-[70px] bg-white flex items-center", className)}>
       <img className={classnames(c("logo"))} src={logo} alt=""></img>
       <div className={classnames(c("title"))}>春海組システム</div>
       <div className="ml-auto pr-4 flex gap-4 items-center">

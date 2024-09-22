@@ -9,6 +9,7 @@ import Label from "@/components/Label.jsx";
 import Chat from "./Chat.jsx";
 import Files from "./Files.jsx";
 import {useAsyncCallback} from "@/hooks/index.js";
+import pubSub from "@/helpers/pubSub.js";
 function MainContent () {
   const detailData = useDetailData()
   const [allData, setData] = useState(null);
@@ -17,6 +18,19 @@ function MainContent () {
   const [activeSheet, setActiveSheet] = useState(-1);
   const tableContainer = useRef(null);
   const { id } = useParams()
+  const [exportTemplate, setExportTemplate] = useState(null)
+  const templates = 'ACL,ECR,EDA,VAE'.split(',')
+
+  useEffect(() => {
+    const onFile = async (file) => {
+      const data = await request('admin/customs/read').form({ file }).send()
+      setData(data)
+    }
+    pubSub.subscribe('None.Customs.Detail.Upload', onFile)
+    return () => {
+      pubSub.unsubscribe('None.Customs.Detail.Upload', onFile)
+    }
+  }, [])
 
   useEffect(() => {
     request('/admin/customs/detail').get({ id }).send().then(([data, styleObj]) => {
@@ -30,20 +44,22 @@ function MainContent () {
       setActiveSheet(sheets[0]?.value)
     })
   }, [id])
-  const [exportTxt, exporting] = useAsyncCallback(async (template) => (
-    request('/admin/customs/export').post({
+
+  const [exportTxt, exporting] = useAsyncCallback(async (template) => {
+    setExportTemplate(template)
+    return request('/admin/customs/export').post({
+      order_id: id,
       template,
       data: allData
-    }
-  )).download().send())
+    }).download().send()
+  })
 
   return (
     <div className="flex-1 flex flex-col">
       <div className="mb-2">
-        <Button onClick={() => exportTxt('ACL')}>ACL</Button>
-        <Button className="ml-2" onClick={() => exportTxt('ECR')}>ECR</Button>
-        <Button className="ml-2" onClick={() => exportTxt('EDA')}>EDA</Button>
-        <Button className="ml-2" onClick={() => exportTxt('VAE')}>VAE</Button>
+        {templates.map(item => (
+          <Button loading={exporting && exportTemplate === item} key={item} className="mr-2" onClick={() => exportTxt(item)}>{item}</Button>
+        ))}
       </div>
       <div className="flex-1 h-full flex overflow-hidden">
         <div className="w-[500px] flex-shrink-0 flex flex-col">
