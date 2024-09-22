@@ -5,6 +5,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import ScrollView from "@/components/ScrollView";
 import MessageParse from "@/components/MessageParse";
+import {forwardRef, useImperativeHandle} from "react";
 
 function At ({ children }) {
   return (
@@ -46,34 +47,35 @@ function Message({ id, from, at, datetime, content, isReaded, orderId, isAtMe })
   );
 }
 
-const MessageList = ({ className }) => {
-  const { messages, toggleAtMe, isAtMe, load, loading} = useMessages();
-  return (
-    <>
-      <div className="flex mb-4">
-        <div className='mr-auto'>社内伝達</div>
-        <div className='mr-1'>@ME</div>
-        <Switch loading={loading} onChange={toggleAtMe} value={isAtMe}></Switch>
-      </div>
-      <ScrollView
-        scrollY
-        className={classNames(
-          'gap-4 flex flex-col flex-1 pr-2',
-          className
-        )}
-        onScrollBottom={() => load()}
-      >
-        {messages.map(item => (
-          <Message key={item.id} {...item} />
-        ))}
-        {loading && (
-          <div className="text-center">
-            <LoadingOutlined className="text-4xl text-gray-400" />
-          </div>
-        )}
-      </ScrollView>
-    </>
-  )
-}
-
+const MessageList = forwardRef(function MessageList({ className }, ref) {
+    const { messages, toggleAtMe, isAtMe, loadTop, load, loading} = useMessages();
+    useImperativeHandle(ref, () => ({ loadTop }), [loadTop])
+    return (
+      <>
+        <div className="flex mb-4">
+          <div className='mr-auto'>社内伝達</div>
+          <div className='mr-1'>@ME</div>
+          <Switch loading={loading} onChange={toggleAtMe} value={isAtMe}></Switch>
+        </div>
+        <ScrollView
+          scrollY
+          className={classNames(
+            'gap-4 flex flex-col flex-1 pr-2',
+            className
+          )}
+          onScrollBottom={() => load()}
+        >
+          {messages.map(item => (
+            <Message key={item.id} {...item} />
+          ))}
+          {loading && (
+            <div className="text-center">
+              <LoadingOutlined className="text-4xl text-gray-400" />
+            </div>
+          )}
+        </ScrollView>
+      </>
+    )
+  }
+)
 export default MessageList;

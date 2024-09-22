@@ -15,8 +15,9 @@ const ordersSort = (orders) => {
   for(const item of orders['top']) {
     newOrders.push({
       top: true,
-      renderKey: `top-${item['order']['id']}`,
-      avatarColor: Color(item['order']['company_color']).toString(),
+      renderKey: `top-${item['id']}`,
+      orderId: item['order']['id'],
+      nodeId: item['id'],
       topName: EXPORT_NODE_NAMES[item['node_id']],
       id: item['order']['id'],
       expiredAt: dayjs(item['top_finish_time']),
@@ -24,7 +25,7 @@ const ordersSort = (orders) => {
       contactPerson: item['order']['header'],
       bkgNo: item['order']['bkg_no'],
       contactPhone: item['order']['mobile'],
-      avatarText: item['order']['company_name'][0],
+      avatarText: item['order']['short_name'][0],
       companyName: item['order']['company_name'],
     })
   }
@@ -32,6 +33,7 @@ const ordersSort = (orders) => {
     newOrders.push({
       isTempOrder: true,
       id: item['id'],
+      orderId: item['id'],
       renderKey: `tmp-${item['id']}`,
       expiredAt: dayjs(item['created_at']).add(1, 'hour'),
       remark: item['remark'],
@@ -41,12 +43,13 @@ const ordersSort = (orders) => {
   for(const item of orders['no_send']) {
     newOrders.push({
       id: item['order']['id'],
+      orderId: item['order']['id'],
       renderKey: `no_send-${item['order']['id']}`,
       expiredAt: dayjs(item['created_at']).add(1, 'hour'),
       remark: item['remark'],
       contactPerson: item['order']['header'],
       contactPhone: item['order']['mobile'],
-      avatarText: item['order']['company_name'][0] ?? '',
+      avatarText: item['order']['short_name'][0],
       bkgNo: item['order']['bkg_no'],
       companyName: item['order']['company_name'],
     })
@@ -55,7 +58,7 @@ const ordersSort = (orders) => {
   return newOrders
 }
 
-export const useTopOrderList = (form) => { 
+export const useTopOrderList = (form) => {
   const [orders, setOrders] = useState([])
 
   const [refresh, loading] = useAsyncCallback(async () => {
@@ -83,8 +86,9 @@ const toMessageProps = item => {
     id: item['id'],
     orderId: item['order_id'],
     isAtMe: item['at_me'] === 1,
-    isReaded: item['is_read'] === 1, 
+    isReaded: item['is_read'] === 1,
     content: item['content'],
+    datetime: dayjs(item['created_at']).format('YYYY-MM-DD HH:mm:ss'),
     at: item['receiver'],
     from: item['sender']
   }
@@ -120,18 +124,24 @@ export const useMessages = () => {
     setMessages(lastMessages.concat(rep.map(toMessageProps)))
   })
 
-  const  [LoadTop] = useAsyncCallback(async () => {
+  const  [loadTop] = useAsyncCallback(async () => {
+    const data = {
+      'page_size': 10,
+      'at_me': isAtMe ? 1 : 0,
+      'min_id': messages[0]?.id
+    }
+    const rep = await request('admin/order/message_list')
+      .get(data).send()
+    setMessages(rep.map(toMessageProps).concat(messages))
   })
 
-  const [toggleAtMe] = useAsyncCallback(async () => {
-    await load(!isAtMe)
-  }) 
+  const [toggleAtMe] = useAsyncCallback(() => load(!isAtMe))
 
   useEffect(() => {
     load()
   }, [])
 
-  return { messages, loading, load, LoadTop, isAtMe, toggleAtMe }
+  return { messages, loading, load, loadTop, isAtMe, toggleAtMe }
 }
 
 export const useReadMessage =  (id) => {

@@ -50,9 +50,9 @@ class Request {
   }
 
   /**
-   * 
-   * @param {import('axios').AxiosRequestConfig} configObj 
-   * @returns 
+   *
+   * @param {import('axios').AxiosRequestConfig} configObj
+   * @returns
    */
   config (configObj) {
     this._config = Object.assign(this._config, configObj);
@@ -75,8 +75,8 @@ class Request {
   }
 
   /**
-   * @param {FormData|Record<string, any>} formData 
-   * @returns 
+   * @param {FormData|Record<string, any>} formData
+   * @returns
    */
   form(formData) {
     if (formData) {
@@ -182,7 +182,7 @@ class Request {
     return this
   }
 
-  download(filename, preview = false) {
+  download(filename = '', preview = false) {
     this.config({
       responseType: 'blob'
     })

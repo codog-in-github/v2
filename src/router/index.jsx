@@ -182,7 +182,6 @@ const router = createBrowserRouter([
     //报关员端
     routeGuarder((_, next) => {
       const role = store.getState().user.userInfo.role
-      console.log(role)
       if([USER_ROLE_ADMIN, USER_ROLE_BOOS, USER_ROLE_CUSTOMS].includes(role)) {
         next()
       } else {
@@ -195,6 +194,9 @@ const router = createBrowserRouter([
           {
             path: "/declarant",
             element: <LazyPage load={() => import('@/pages/declarant/list')} />,
+          },{
+            path: "/declarant/detail/:id",
+            element: <LazyPage load={() => import('@/pages/declarant/detail')} />,
           },
         ],
       },

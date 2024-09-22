@@ -3,7 +3,7 @@ import './top.scss'
 import AddCard from './AddCard';
 import { namespaceClass } from '@/helpers/style';
 import classNames from 'classnames';
-import { useState } from 'react';
+import {useRef, useState} from 'react';
 import AddModal from './AddModal';
 import { useNavigate } from 'react-router-dom';
 import { useCallback } from 'react';
@@ -18,6 +18,7 @@ import dayjs from 'dayjs';
 import pubSub from '@/helpers/pubSub';
 import { Form } from 'antd';
 import OrderFilter from '@/components/OrderFilter';
+import UserPicker from "@/components/UserPicker.jsx";
 
 const c = namespaceClass('page-top')
 const saveOrder = (data) => {
@@ -38,13 +39,16 @@ const useSaveOrder = (next) => {
   }, [next, orderType])
   return saveHandle
 }
+
 function MainContent() {
   const [form] = Form.useForm()
+  const userPicker = useRef(null)
   const { orders, loading, refresh } = useTopOrderList(form)
   const [modalOpen, setModalOpen] = useState(false)
   const navigate = useNavigate()
   const [completeList, completeLoading] = useCompleteList(ORDER_TAB_STATUS_TOP)
-
+  const [onContextOrder, setOnContextOrder] = useState(null)
+  const messageList = useRef(null);
   const toDetail = useCallback(({ id }) => {
     navigate('/orderDetail/' + id)
   }, [navigate])
@@ -60,25 +64,44 @@ function MainContent() {
     closeAddModal()
   })
 
-  const [menu, show] = useContextMenu(
+  const [menu, show, close] = useContextMenu(
     <div
       onClick={e => e.stopPropagation()}
-      className="
-        fixed w-24 z-50 border
-        text-center bg-white shadow-md
-        leading-8 rounded-md overflow-hidden
-      "
+      className={classNames([
+        'fixed w-24 z-50 border',
+        'text-center bg-white shadow-md',
+        'leading-8 rounded-md overflow-hidden'
+      ])}
     >
+      {/*{onContextOrder && onContextOrder.isTempOrder && (*/}
+      {/*  <div*/}
+      {/*    className={classNames([*/}
+      {/*      'text-danger-500 hover:text-white hover:bg-danger-500 border-t active:bg-danger-700'*/}
+      {/*    ])}*/}
+      {/*  >终止任务</div>*/}
+      {/*)}*/}
+
       <div
-        type='primary'
-        className='text-danger-500 hover:text-white hover:bg-danger-500 border-t active:bg-danger-700'
-      >终止任务</div>
+        className='text-primary-500 hover:text-white hover:bg-primary-500 border-t active:bg-danger-700'
+        onClick={async () => {
+          close()
+          const user = await userPicker.current.pick()
+          const params = {
+            'order_id': onContextOrder.orderId,
+            'node_id': onContextOrder.nodeId,
+            'user_id': user
+          }
+          await request('admin/order/dispatch').data(params).send()
+          pubSub.publish('Info.Toast', '已指派', 'success')
+          messageList.current.loadTop()
+        }}
+      >指派任务</div>
     </div>
   )
 
   return (
-    <div className="no-padding flex h-full overflow-auto">
-      <div className={classNames(c('main-content'), 'flex-1', 'overflow-auto', 'p-[20px]')}>
+      <div className="no-padding flex h-full overflow-auto">
+        <div className={classNames(c('main-content'), 'flex-1', 'overflow-auto', 'p-[20px]')}>
         <div className='flex justify-between items-center mb-[20px]'>
           <h2 className="text-xl font-semibold">進行中</h2>
           <OrderFilter form={form} onSearch={refresh} />
@@ -101,9 +124,8 @@ function MainContent() {
                 onToDetail={id => navigate(`/orderDetail/${id}`)}
                 onContextMenu={e => {
                   e.preventDefault()
-                  if(order.isTempOrder){
-                    show({ x: e.clientX, y: e.clientY })
-                  }
+                  setOnContextOrder(order)
+                  show({ x: e.clientX, y: e.clientY })
                 }}
               />
             )}
@@ -111,7 +133,7 @@ function MainContent() {
         </div>
         <div className="mt-8">
           <h2 className="text-xl font-semibold mb-4">直近完了</h2>
-          <div 
+          <div
             className="grid min-[1800px]:grid-cols-4 grid-cols-3 [&>*]:!h-[160px] gap-4 flex-wrap [&:has(.ant-empty)]:!grid-cols-1"
           >
           <SkeletonList
@@ -121,7 +143,7 @@ function MainContent() {
             loading={completeLoading}
           >
             {item => (
-              <Card 
+              <Card
                 orderInfo={{
                   avatarText: item.order?.company_name?.[0],
                   companyName: item.order?.company_name,
@@ -138,7 +160,7 @@ function MainContent() {
         </div>
       </div>
       <div className={classNames(c('message-bar'), 'px-2 py-[22px] bg-white h-full flex flex-col overflow-hidden border-l')}>
-        <MessageList />
+        <MessageList ref={messageList} />
       </div>
       <AddModal
         open={modalOpen}
@@ -147,6 +169,7 @@ function MainContent() {
         onOkEdit={onOkEditHandle}
       />
       {menu}
+      <UserPicker ref={userPicker} />
     </div>
   );
 }
