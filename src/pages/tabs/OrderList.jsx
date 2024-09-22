@@ -46,26 +46,25 @@ const useTabOrderList = (type, form) => {
 function Card({
   tab,
   orderInfo = {},
+  end = false,
   ...props
 }) {
-  const grayscale = {};
-  if (orderInfo.end) {
-    grayscale.filter = "grayscale(100%)";
-  }
   return (
     <div
       className="border-2 border-t-[6px] rounded h-[120px] cursor-pointer overflow-hidden text-[#484848] relative"
       style={{
-        borderColor: CARD_COLORS[orderInfo.color]?.border,
-        ...grayscale
+        borderColor: end ? '#C0C0C0' : CARD_COLORS[orderInfo.color].border,
       }}
       {...props}
     >
       {orderInfo.top && <TopBadge>{orderInfo.top}</TopBadge>}
-      <div className="flex p-2 overflow-hidden items-center" style={{ background: CARD_COLORS[orderInfo.color]?.bg }}>
+      <div
+        className="flex p-2 overflow-hidden items-center"
+        style={{ background: end ? '#f1f1f1' : CARD_COLORS[orderInfo.color].bg }}
+      >
         <Avatar
           size={40}
-          style={{ backgroundColor: CARD_COLORS[orderInfo.color]?.border }}
+          style={{ backgroundColor: end ? '#C0C0C0' : CARD_COLORS[orderInfo.color].border }}
         >
           {orderInfo['short_name']?.[0]}
         </Avatar>
@@ -77,7 +76,7 @@ function Card({
                 orderInfo[~~(tab) === ORDER_TAB_STATUS_ACL ? 'doc_cut_time':'cy_cut_time'] ? 'PM' : 'AM'
               }</span>
             </span>
-            <span className="text-[14px]" style={{ color: CARD_COLORS[orderInfo.color]?.text }}>
+            <span className="text-[14px]" style={{ color: end ? '#C0C0C0' : CARD_COLORS[orderInfo.color].text }}>
               {~~tab === ORDER_TAB_STATUS_ACL ?'DOC CUT': 'CY CUT'}
             </span>
           </div>
@@ -206,6 +205,7 @@ function OrderList() {
         {item => (
           <Card
             tab={tab}
+            end
             key={item['id']}
             onClick={() => navigate(`/orderDetail/${item['id']}`)}
             orderInfo={item.order}

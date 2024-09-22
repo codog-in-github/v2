@@ -157,9 +157,9 @@ const formDataGenerator = (isCopy) => (rep) => {
   setIfExist('etd', 'etd', dayjs)
   setIfExist('cyOpen', 'cy_open', dayjs)
   setIfExist('cyCut', 'cy_cut', dayjs)
-  setIfExist('cyCutTime', 'cy_cut_time')
   setIfExist('docCut', 'doc_cut', dayjs)
-  setIfExist('docCutTime', 'doc_cut_time')
+  result.cyCutTime = rep['cy_cut_time']
+  result.docCutTime = rep['doc_cut_time']
 
   /**
    * * delivery
@@ -314,7 +314,7 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
   setValue('etd', 'etd', (dayjs) => dayjs?.format('YYYY-MM-DD HH:mm:ss'))
   setValue('cyOpen', 'cy_open', (dayjs) => dayjs?.format('YYYY-MM-DD HH:mm:ss'))
   setValue('cyCut', 'cy_cut', (dayjs) => dayjs?.format('YYYY-MM-DD HH:mm:ss'))
-  setValue('cyCutTime', 'doc_open_time')
+  setValue('cyCutTime', 'cy_cut_time')
   setValue('docCut', 'doc_cut', (dayjs) => dayjs?.format('YYYY-MM-DD HH:mm:ss'))
   setValue('docCutTime', 'doc_cut_time')
 
@@ -355,7 +355,6 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
     */
   const details = []
   result['details'] = details
-  console.log(formData.cars)
   for(const item of formData.cars) {
     const detail = {
       'id' : item.id ?? '',
