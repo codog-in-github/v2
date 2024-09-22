@@ -207,7 +207,7 @@ function OrderList() {
             tab={tab}
             end
             key={item['id']}
-            onClick={() => navigate(`/orderDetail/${item['id']}`)}
+            onClick={() => navigate(`/orderDetail/${item['order_id']}`)}
             orderInfo={item.order}
           />
         )}
