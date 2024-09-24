@@ -1,14 +1,14 @@
 import { HotTable } from '@handsontable/react';
 import Handsontable from 'handsontable';
-import {useEffect, useRef, useState} from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { request } from "@/apis/requestBuilder.js";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {Button, DatePicker, Form, Input, Radio} from "antd";
 import {DetailDataContext, useDetailData} from "./dataProvider.js";
 import Label from "@/components/Label.jsx";
 import Chat from "./Chat.jsx";
 import Files from "./Files.jsx";
-import {useAsyncCallback} from "@/hooks/index.js";
+import { useAsyncCallback } from "@/hooks/index.js";
 import pubSub from "@/helpers/pubSub.js";
 function MainContent () {
   const detailData = useDetailData()
@@ -19,7 +19,8 @@ function MainContent () {
   const tableContainer = useRef(null);
   const { id } = useParams()
   const [exportTemplate, setExportTemplate] = useState(null)
-  const templates = 'ACL,ECR,EDA,VAE'.split(',')
+  const templates = 'ECR,EDA,VAE'.split(',')
+  const navigate = useNavigate()
 
   useEffect(() => {
     const onFile = async (file) => {
@@ -56,10 +57,15 @@ function MainContent () {
 
   return (
     <div className="flex-1 flex flex-col">
-      <div className="mb-2">
+      <div className="mb-2 flex">
         {templates.map(item => (
-          <Button loading={exporting && exportTemplate === item} key={item} className="mr-2" onClick={() => exportTxt(item)}>{item}</Button>
+          <Button
+            loading={exporting && exportTemplate === item}
+            key={item}
+            className="mr-2"
+            onClick={() => exportTxt(item)}>{item}</Button>
         ))}
+        <Button className={'ml-auto'} onClick={() => navigate(-1)}>戻る</Button>
       </div>
       <div className="flex-1 h-full flex overflow-hidden">
         <div className="w-[500px] flex-shrink-0 flex flex-col">

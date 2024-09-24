@@ -198,9 +198,9 @@ export const useGateCompanyOptions = (showSelf = true) => {
         const options = []
         if(showSelf) {
           options.push({
-            label: createElement('div', { className: 'font-bold' }, '春海组 株式会社'),
+            label: createElement('div', { className: 'font-bold' }, '株式会社 春海组'),
             value: -1,
-            filterValue: '春海组 株式会社',
+            filterValue: '株式会社 春海组',
           })
         }
         setOptions(

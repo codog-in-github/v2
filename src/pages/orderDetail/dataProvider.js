@@ -39,6 +39,8 @@ const orderNodesGenerator = ({ nodes = []}) => {
       sender: item['sender'],
       step: item['step'],
       mailTimes: item['mail_times'],
+      toggleName: item['toggle_user_name'],
+      toggleAt: item['toggle_at'] && dayjs(item['toggle_at']).format('YYYY-MM-DD HH:mm:ss'),
       redo: item['mail_times'] > item['step'],
     })
   }
@@ -600,10 +602,7 @@ export const useDetailData = () => {
         'is_enable': enable ? 1 : 0
       })
       .send()
-    const newNodes = [...nodes]
-    nodes.find(item => item.nodeId === id).canDo = enable
-    console.log(newNodes)
-    setNodes(newNodes)
+    refreshNodes()
   })
 
   return {

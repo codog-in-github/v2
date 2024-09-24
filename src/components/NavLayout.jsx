@@ -39,12 +39,12 @@ export const SideLayout = () => {
             <div
               className={classNames('cursor-pointer', {'active': orderType === ORDER_TYPE_EXPORT })}
               onClick={() => dispatch(setOrderType(ORDER_TYPE_EXPORT))}
-            >出口</div>
+            >輸出</div>
             <div
               className="cursor-not-allowed"
               // className={classNames({ 'active': orderType === ORDER_TYPE_IMPORT })}
               // onClick={() => dispatch(setOrderType(ORDER_TYPE_IMPORT))}
-            >进口</div>
+            >輸入</div>
         </div>
       </div>
       <div className="nav-layout-main">

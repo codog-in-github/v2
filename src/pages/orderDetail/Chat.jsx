@@ -84,7 +84,7 @@ const MessageInput = ({ onSend, disabled, inSending = false }) => {
         allowClear
       />
       <Input disabled={disabled} value={msg} onChange={e => setMsg(e.target.value)}></Input>
-      <Button disabled={disabled} loading={inSending} className="h-full" onClick={sendBtnClickHandle}>发送</Button>
+      <Button disabled={disabled} loading={inSending} className="h-full" onClick={sendBtnClickHandle}>送信</Button>
     </Space.Compact>
   )
 }

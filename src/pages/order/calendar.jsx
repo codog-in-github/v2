@@ -100,7 +100,7 @@ const CalendarItem = ({ item }) => {
               <PortFullName country={el.loading[0]} port={el.loading[1]} placeholder="POL" />
             </div>
             <div className="text-nowrap">
-              <PortFullName country={el.delivery[0]} port={el.delivery[1]} placeholder="POL" />
+              <PortFullName country={el.delivery[0]} port={el.delivery[1]} placeholder="POD" />
             </div>
           </div>
           <div className="break-words w-16">{el.bkgNo}</div>
