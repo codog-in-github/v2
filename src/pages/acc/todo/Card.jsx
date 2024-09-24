@@ -1,14 +1,14 @@
 import { useEffect } from 'react';
 import { useState } from 'react';
 import classNames from 'classnames';
-import CompanyAvatar from '@/components/CompanyAvatar';
-import { themeColor } from '@/helpers/color';
+import CompanyAvatar from '@/components/CompanyAvatar.jsx';
+import { themeColor } from '@/helpers/color.js';
 
 /**
- * 
- * @param {Date} start 
- * @param {Date} end 
- * @returns 
+ *
+ * @param {Date} start
+ * @param {Date} end
+ * @returns
  */
 function getTimeDistant(start, end) {
   start = Math.floor(start.valueOf() / 1000)
@@ -25,8 +25,8 @@ function getTimeDistant(start, end) {
 }
 /**
  * @param {Object} param0
- * @param {import('dayjs').Dayjs} param0.expiredAt 
- * @returns 
+ * @param {import('dayjs').Dayjs} param0.expiredAt
+ * @returns
  */
 function Timer({ expiredAt }) {
   const [display, setDisplay] = useState(
@@ -81,7 +81,7 @@ function Card({
       onClick={() => onToDetail(jobInfo.id)}
       {...props}
     >
-      
+
       <div className='flex flex-1'>
         <CompanyAvatar  bg={jobInfo.color} text={jobInfo.customer_company_name[0]}></CompanyAvatar>
         <div className='ml-4'>

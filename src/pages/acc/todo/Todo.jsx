@@ -1,15 +1,13 @@
-import { themeColor } from "@/helpers/color";
-import { request } from "@/apis/requestBuilder";
+import { request } from "@/apis/requestBuilder.js";
 import { useEffect, useState, useRef } from "react";
-import { useAsyncCallback, useContextMenu } from "@/hooks";
+import { useAsyncCallback, useContextMenu } from "@/hooks/index.js";
 import { useNavigate } from "react-router-dom";
 import { LoadingOutlined } from "@ant-design/icons";
-import pubSub from "@/helpers/pubSub";
-import SkeletonList from "@/components/SkeletonList";
-import { ACC_JOB_TYPE_BL, ACC_JOB_TYPE_SEA } from "@/constant";
-import Card from "./Card";
+import SkeletonList from "@/components/SkeletonList.jsx";
+import { ACC_JOB_TYPE_BL, ACC_JOB_TYPE_SEA } from "@/constant/index.js";
+import Card from "./Card.jsx";
 import dayjs from "dayjs";
-import CompModal from "./CompModal";
+import CompModal from "./CompModal.jsx";
 const useTodo = () => {
   const [list, setList] = useState({});
   const [reload, loading] = useAsyncCallback(async () => {
@@ -102,8 +100,8 @@ function TodoList() {
     </div>
   )
   /**
-   * 
-   * @param {Event} e 
+   *
+   * @param {Event} e
    */
   const contextMenuHandle = (e, item) => {
     e.preventDefault()
@@ -116,7 +114,7 @@ function TodoList() {
   return (
     <div className="flex-1">
       { groups.map(item => (
-        list[item.key] && (
+        list[item.key] && list[item.key].length > 0 && (
           <ListGroup
             key={item.key}
             list={list[item.key]}
