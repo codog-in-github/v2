@@ -12,6 +12,7 @@ import { createContext } from "react";
 import { useContext } from "react";
 import PortFullName from "@/components/PortFullName";
 import {useNavigate} from "react-router-dom";
+import {useSelector} from "react-redux";
 
 const statusNames = '未,申,質,査,許'.split(',')
 const ListContext = createContext({ setStatus: async () => {} })
@@ -159,13 +160,12 @@ const DeclarantList = () => {
     const data = await getList(filters)
     setData(data)
   })
+
+  const filters = useSelector((state) => state.customs.listFilters)
   useEffect(() => {
-    getListHandle()
-    pubSub.subscribe("None.Customs.List.Filter", getListHandle)
-    return () => {
-      pubSub.unsubscribe("None.Customs.List.Filter", getListHandle)
-    }
-  }, [])
+    getListHandle(filters)
+  }, [filters])
+
   const [setStatus, loadingStatus] = useAsyncCallback(async (id, status) => {
     await request('/admin/customs/set_status').post({ id, status }).send()
     pubSub.publish("Info.Toast", '通关状态修改成功', 'success')
