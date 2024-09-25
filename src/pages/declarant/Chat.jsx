@@ -9,7 +9,7 @@ import MessageParse from "@/components/MessageParse"
 const At = ({ children }) => {
   return (
     <span
-      className="py-1 px-2 rounded-full bg-primary-100 text-primary text-nowrap text-xs inline-block align-baseline"
+      className="ml-1 py-1 px-2 rounded-full bg-primary-100 text-primary text-nowrap text-xs inline-block align-baseline"
     >@{children}</span>
   )
 }
@@ -17,15 +17,15 @@ const At = ({ children }) => {
 const Message = ({ from, at, content, time }) => {
   return (
     <div className="flex gap-2 items-start leading-6" >
-      <div className="leading-6 w-12 text-right text-gray-400">{from}</div>
+      <div className="leading-6 w-12 text-right text-xs text-gray-400">{from}</div>
       <div className="h-6 flex items-center">
         <div className="w-1 h-1 bg-primary rounded-full" />
       </div>
-      <div className="flex-1">
+      <div className="flex-1 [&_.file-node]:text-xs">
         <MessageParse message={content}></MessageParse>
         {at && <At>{at}</At>}
       </div>
-      <div>{time}</div>
+      <div className={'text-xs'}>{time}</div>
     </div>
   )
 }
@@ -47,7 +47,7 @@ const MessageBoard = ({ messages, disabled }) => {
     }
   }
   return (
-    <div id="message-board" className="bg-gray-200 p-2 flex-1 overflow-auto text">
+    <div id="message-board" className="bg-gray-200 p-2 flex-1 overflow-auto text-sm">
       {msgEle}
     </div>
   )
@@ -55,7 +55,6 @@ const MessageBoard = ({ messages, disabled }) => {
 const MessageInput = ({ onSend, disabled, inSending = false }) => {
   const [at, setAt] = useState('')
   const [msg, setMsg] = useState('')
-  const { rootRef } = useContext(DetailDataContext)
   const {
     options: users,
     loading,
@@ -69,7 +68,7 @@ const MessageInput = ({ onSend, disabled, inSending = false }) => {
     setMsg('')
   }
   return (
-    <Space.Compact className="flex h-16 my-4 mt-2">
+    <Space.Compact className="flex h-16 my-4 mt-2 text-sm">
       <Select
         className="h-full w-44"
         value={at}
@@ -81,7 +80,11 @@ const MessageInput = ({ onSend, disabled, inSending = false }) => {
         popupMatchSelectWidth={200}
         allowClear
       />
-      <Input disabled={disabled} value={msg} onChange={e => setMsg(e.target.value)}></Input>
+      <Input
+        value={msg}
+        onChange={e => setMsg(e.target.value)}
+        className={'text-xs'}
+      ></Input>
       <Button disabled={disabled} loading={inSending} className="h-full" onClick={sendBtnClickHandle}>送信</Button>
     </Space.Compact>
   )

@@ -87,7 +87,7 @@ function MainContent () {
                 <Form.Item label="法人番号" name="companyCode">
                   <Input/>
                 </Form.Item>
-                <Form.Item label="船名" name="voyage">
+                <Form.Item label="船名" name="vesselName">
                   <Input/>
                 </Form.Item>
                 <Form.Item label="POL" name="pol">

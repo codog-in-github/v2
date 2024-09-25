@@ -48,7 +48,7 @@ const MessageBoard = ({ messages, disabled }) => {
     }
   }
   return (
-    <div id="message-board" className="bg-gray-200 p-2 flex-1 overflow-auto text-lg">
+    <div id="message-board" className="bg-gray-200 p-2 flex-1 overflow-auto text-base">
       {msgEle}
     </div>
   )

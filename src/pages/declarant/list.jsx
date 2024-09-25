@@ -34,7 +34,7 @@ const getList = async (filters) => {
       }
       data.push({
         id: order.id,
-        name: order.company_name,
+        name: order.short_name,
         kou: order.order_type === ORDER_TYPE_EXPORT ? "出" : "入",
         pol: [order.loading_country_name, order.loading_port_name],
         pod: [order.delivery_country_name, order.delivery_port_name],
@@ -85,7 +85,7 @@ const DeclarantItem = ({ el }) => {
       <div>{el.fan}</div>
       {!el.disabled && (
         <div
-          className="w-[180px] flex justify-around bg-gray-200 rounded-lg text-[15px]"
+          className="w-[180px] flex justify-around bg-gray-200 rounded-full text-[15px]"
           onClick={e => e.stopPropagation()}
         >
           {statusNames.map((name, i) => (

@@ -21,7 +21,7 @@ const formDataGenerator =  (rep) => {
   setIfExist('customerName', 'company_name')
   setIfExist('bkgNo', 'bkg_no')
   setIfExist('companyCode', 'legal_number')
-  setIfExist('voyage', 'voyage')
+  setIfExist('vesselName', 'vessel_name')
   setIfExist('docCut', 'doc_cut', dayjs)
 
   const formatPort = (rawCountry, rawPort) => {
