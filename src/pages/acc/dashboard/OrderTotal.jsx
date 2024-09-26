@@ -10,10 +10,11 @@ import {
   ORDER_TYPE_IMPORT
 } from "@/constant/index.js";
 import classNames from "classnames";
+import {combie} from "@/helpers/index.js";
 
 const departments = [
-  DEPARTMENT_OSAKA,
   DEPARTMENT_KOBE,
+  DEPARTMENT_OSAKA,
   DEPARTMENT_KYUSHU
 ]
 
@@ -62,86 +63,37 @@ const DepartmentItem = ({ department, total = 0, rate = 0 }) => {
   )
 }
 
-const reduce = (data, fn) => {
-  return () => {
-    let total = 0
-    for (const department of departments) {
-      for (const orderType of orderTypes) {
-        total += fn(data, department, orderType)
-      }
-    }
-    return total
+const sum = (data, paths) => {
+  let sum = 0
+  for (const path of paths) {
+    sum += get(data, path, 0)
   }
+  return sum
 }
 
-const reduceByDepartment = (data, department, fn) => {
-  let total = 0
-  for (const orderType of orderTypes) {
-    total += fn(data, department, orderType)
-  }
-  return total
-}
 const OrderTotal = () => {
   const [data, setData] = useState(null)
-  const [departmentDataType, setDepartmentDataType] = useState('total')
+  const [isLastMonthDepartmentData, setIsLastMonthDepartmentData] = useState(false)
 
-  const totalOrderCount = useMemo(reduce(data, (data, department, orderType) => {
-    return get(data, [department, orderType, 'total'], 0)
-  }), [data]);
-
-  const totalDoneCount = useMemo(reduce(data, (data, department, orderType) => {
-    return get(data, [department, orderType, 'done'], 0)
-  }), [data]);
-
+  const total = useMemo(() => sum(data, combie(departments, orderTypes, ['total'])), [data])
+  const done = useMemo(() => sum(data, combie(departments, orderTypes, ['done'])), [data]);
+  const lastMonthTotal = useMemo(() => sum(data, combie(departments, orderTypes, ['lastMonthTotal'])), [data])
+  const lastMonthImport = useMemo(() => sum(data, combie(departments, [ORDER_TYPE_IMPORT], ['lastMonthTotal'])), [data])
+  const importRate = lastMonthTotal ? (lastMonthImport / lastMonthTotal * 100).toFixed(0) : 0
+  const exportRate = lastMonthTotal ? (100 - importRate) : 0
 
   const departmentData = useMemo(() => {
-    const data = {}
-    let doneFn = (data, department, orderType) => 0
-    let totalFn = (data, department, orderType) => 0
-    switch (departmentDataType) {
-      case 'total':
-        totalFn = (data, department, orderType) => get(data, [department, orderType, 'total'], 0)
-        doneFn = (data, department, orderType) => get(data, [department, orderType, 'done'], 0)
-        break
-      case 'import':
-        doneFn = (data, department, orderType) => {
-          if(orderType !== ORDER_TYPE_IMPORT) {
-            return 0
-          }
-          return get(data, [department, orderType, 'lastMonthDone'], 0)
-        }
-        totalFn = (data, department, orderType) => {
-          if(orderType !== ORDER_TYPE_IMPORT) {
-            return 0
-          }
-          get(data, [department, orderType, 'lastMonthTotal'], 0)
-        }
-        break
-      case 'export': {
-
-        doneFn = (data, department, orderType) => {
-          if(orderType !== ORDER_TYPE_EXPORT) {
-            return 0
-          }
-          return get(data, [department, orderType, 'lastMonthDone'], 0)
-        }
-        totalFn = (data, department, orderType) => {
-          if(orderType !== ORDER_TYPE_EXPORT) {
-            return 0
-          }
-          get(data, [department, orderType, 'lastMonthTotal'], 0)
-        }
-        break
-      }
-    }
+    const result = {}
+    let dataKey = isLastMonthDepartmentData ? 'lastMonthTotal' : 'total'
+    const allDepartmentTotal = isLastMonthDepartmentData ? total : lastMonthTotal
     for(const department of departments) {
-      const total = reduceByDepartment(data, department, totalFn)
-      const done = reduceByDepartment(data, department, doneFn)
-      const rate = total ? (done / total).toFixed(0) : 0
-      data[department] = { total, rate }
+      const singleDepartmentTotal = sum(data, combie([department], orderTypes, [dataKey]))
+      const rate = allDepartmentTotal ? (singleDepartmentTotal / allDepartmentTotal * 100).toFixed(0) : 0
+      result[department] = { total: singleDepartmentTotal, rate }
     }
-    return data
-  }, [departmentDataType, data])
+
+    return result
+  }, [isLastMonthDepartmentData, data])
 
   useEffect(() => {
     request('admin/acc/order_total').get().send()
@@ -150,30 +102,34 @@ const OrderTotal = () => {
 
   return (
     <div className={'px-4 pt-[40px] pb-[33px] h-full flex flex-col'}>
-      <div className={'flex'}>
-        <div className={'flex-1 border-r'}>
+      <div className={'flex cursor-pointer'}>
+        <div className={'flex-1 border-r'} onClick={() => setIsLastMonthDepartmentData(false)}>
           <div className={'text-[#585D6E] text-lg'}>总案件数</div>
-          <div className={'text-[40px] font-bold'}>{totalOrderCount}</div>
-          <div>{(totalDoneCount / totalOrderCount * 100).toFixed(0)}% <span className={'text-gray-500'}>完成</span></div>
+          <div className={'text-[40px] font-bold'}>{total}</div>
+          <div>{(done / total * 100).toFixed(0)}% <span className={'text-gray-500'}>完成</span></div>
         </div>
 
-        <div className={'flex-1 pl-[27px]'}>
+        <div className={'flex-1 pl-[27px]'} onClick={() => setIsLastMonthDepartmentData(true)}>
           <div className={'text-[#585D6E] text-lg'}>近一个月</div>
-          <div className={'text-[40px] font-bold'}>324</div>
+          <div className={'text-[40px] font-bold'}>{lastMonthTotal}</div>
           <div className={'text-gray-500 flex justify-between'}>
             <div>
-              <span className={'text-[#37832E]'}>78%</span>
+              <span className={'text-[#37832E]'}>{exportRate}%</span>
               <span>出口</span>
             </div>
             <div>
-              <span className={'text-[#37832E]'}>22%</span>
+              <span className={'text-[#37832E]'}>{importRate}%</span>
               <span>进口</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className={'mt-4 bg-[#f2f4f8] flex-1 flex px-[30px] py-[20px] gap-[20px]'}>
+      <div className={'mt-4 bg-[#f2f4f8] flex-1 flex px-[30px] py-[20px] gap-[20px] relative'}>
+        <div
+          className={'bg-[#f2f4f8] w-4 h-4 absolute -top-2 rotate-45 transition-all'}
+          style={{ left: isLastMonthDepartmentData ? '70%' : '20%' }}
+        ></div>
         {
           departments.map(department => (
             <DepartmentItem

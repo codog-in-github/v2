@@ -1,5 +1,6 @@
 import OrderTotal from "./OrderTotal.jsx";
 import classNames from "classnames";
+import OrderCharts from "@/pages/acc/dashboard/OrderCharts.jsx";
 
 const Card = ({
   className,
@@ -32,8 +33,8 @@ const Dashboard = () => {
         </Card>
       </div>
       <div className={'flex gap-4 flex-1'}>
-        <Card title={'数据名称'} className={'flex-1'}>
-          {/* todo */}
+        <Card title={'案件统计图'} className={'flex-1'}>
+          <OrderCharts />
         </Card>
         <Card title={'数据名称'} className={'flex-1'}>
           {/* todo */}
