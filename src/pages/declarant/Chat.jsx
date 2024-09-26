@@ -25,7 +25,7 @@ const Message = ({ from, at, content, time }) => {
         <MessageParse message={content}></MessageParse>
         {at && <At>{at}</At>}
       </div>
-      <div className={'text-xs'}>{time}</div>
+      <div className={'text-xs text-gray-400'}>{time}</div>
     </div>
   )
 }
@@ -47,7 +47,7 @@ const MessageBoard = ({ messages, disabled }) => {
     }
   }
   return (
-    <div id="message-board" className="bg-gray-200 p-2 flex-1 overflow-auto text-sm">
+    <div id="message-board" className="bg-[#EFF2F4] p-2 flex-1 overflow-auto text-sm">
       {msgEle}
     </div>
   )
@@ -68,7 +68,7 @@ const MessageInput = ({ onSend, disabled, inSending = false }) => {
     setMsg('')
   }
   return (
-    <Space.Compact className="flex h-16 my-4 mt-2 text-sm">
+    <Space.Compact className="flex h-11 mb-4 mt-2 text-sm">
       <Select
         className="h-full w-44"
         value={at}
@@ -76,7 +76,7 @@ const MessageInput = ({ onSend, disabled, inSending = false }) => {
         onChange={setAt}
         loading={loading}
         labelRender={(option) => <span>@{option.label}</span>}
-        optionRender={(option) => <span className="text-lg">{option.label}</span>}
+        optionRender={(option) => <span className="text-base">{option.label}</span>}
         popupMatchSelectWidth={200}
         allowClear
       />
