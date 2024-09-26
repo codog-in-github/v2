@@ -70,7 +70,7 @@ const MessageInput = ({ onSend, disabled, inSending = false }) => {
     setMsg('')
   }
   return (
-    <Space.Compact className="flex h-11 my-4 mt-2">
+    <Space.Compact className="flex h-16 my-4 mt-2">
       <Select
         getPopupContainer={() => rootRef.current}
         className="h-full w-44"
@@ -79,7 +79,7 @@ const MessageInput = ({ onSend, disabled, inSending = false }) => {
         onChange={setAt}
         loading={loading}
         labelRender={(option) => <span>@{option.label}</span>}
-        optionRender={(option) => <span className="text-lg">{option.label}</span>}
+        optionRender={(option) => <span className="text-base">{option.label}</span>}
         popupMatchSelectWidth={200}
         allowClear
       />
