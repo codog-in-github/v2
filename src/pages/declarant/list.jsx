@@ -12,6 +12,7 @@ import { createContext } from "react";
 import { useContext } from "react";
 import PortFullName from "@/components/PortFullName";
 import {useNavigate} from "react-router-dom";
+import {useSelector} from "react-redux";
 
 const statusNames = '未,申,質,査,許'.split(',')
 const ListContext = createContext({ setStatus: async () => {} })
@@ -33,7 +34,7 @@ const getList = async (filters) => {
       }
       data.push({
         id: order.id,
-        name: order.company_name,
+        name: order.short_name,
         kou: order.order_type === ORDER_TYPE_EXPORT ? "出" : "入",
         pol: [order.loading_country_name, order.loading_port_name],
         pod: [order.delivery_country_name, order.delivery_port_name],
@@ -84,7 +85,7 @@ const DeclarantItem = ({ el }) => {
       <div>{el.fan}</div>
       {!el.disabled && (
         <div
-          className="w-[180px] flex justify-around bg-gray-200 rounded-lg text-[15px]"
+          className="w-[180px] flex justify-around bg-gray-200 rounded-full text-[15px]"
           onClick={e => e.stopPropagation()}
         >
           {statusNames.map((name, i) => (
@@ -159,13 +160,12 @@ const DeclarantList = () => {
     const data = await getList(filters)
     setData(data)
   })
+
+  const filters = useSelector((state) => state.customs.listFilters)
   useEffect(() => {
-    getListHandle()
-    pubSub.subscribe("None.Customs.List.Filter", getListHandle)
-    return () => {
-      pubSub.unsubscribe("None.Customs.List.Filter", getListHandle)
-    }
-  }, [])
+    getListHandle(filters)
+  }, [filters])
+
   const [setStatus, loadingStatus] = useAsyncCallback(async (id, status) => {
     await request('/admin/customs/set_status').post({ id, status }).send()
     pubSub.publish("Info.Toast", '通关状态修改成功', 'success')

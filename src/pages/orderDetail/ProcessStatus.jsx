@@ -1,5 +1,5 @@
 import Label from "@/components/Label"
-import { Form, Space, Select, Button, Input } from "antd"
+import {Form, Space, Select, Button, Input, Popconfirm} from "antd"
 import classNames from "classnames"
 import {useContext, useEffect, useState} from "react"
 import { DetailDataContext } from "./dataProvider"
@@ -32,22 +32,30 @@ import pubSub from "@/helpers/pubSub"
 const Light = ({ children, loading, active, className, onToggle = () => {} }) => {
   const activeClassNames = ['!bg-[#ffe3dd]', '!text-[#fd7556]', '!border-[#fd7556]']
   return (
-    <div
-      onClick={() => onToggle(!active)}
-      className={classNames(
-        'flex items-center bg-gray-300 w-fit relative left-3 rounded border-gray-300 border cursor-pointer',
-        className,
-        active && activeClassNames
-      )}
+    <Popconfirm
+      title={'このお仕事は不要ですね？'}
+      onConfirm={() => onToggle(!active)}
+      okText={'はい'}
+      cancelText={'いいえ'}
     >
-      <div className={classNames(
-        'bg-gray-700 w-6 h-6 rounded-full relative right-3 flex items-center justify-center overflow-hidden',
-        active && '!bg-[#fd7556]'
-      )}>
-       { loading ? <LoadingOutlined className="text-white" /> : <Icon.Light className="h-8 w-8" />}
+      <div
+        className={classNames(
+          'flex items-center bg-gray-300 w-fit relative left-3 rounded border-gray-300 border cursor-pointer',
+          className,
+          active && activeClassNames
+        )}
+      >
+        <div className={classNames(
+          'bg-gray-700 w-6 h-6 rounded-full relative right-3 flex items-center justify-center overflow-hidden',
+          active && '!bg-[#fd7556]'
+        )}>
+          {loading ? <LoadingOutlined className="text-white"/> : <Icon.Light className="h-8 w-8"/>}
+        </div>
+        <div className="w-6 text-right mr-2">
+          {children}
+        </div>
       </div>
-      <div className="w-6 text-right mr-2">{children}</div>
-    </div>
+    </Popconfirm>
   )
 }
 
@@ -63,14 +71,16 @@ const ProcessBar = ({
   redo,
   mail,
   mailTimes,
-  onClickDetail
+  onClickDetail,
+  toggleName,
+  toggleAt
 }) => {
-  const { changeNodeStatus, changingNodeStatus } = useContext(DetailDataContext)
+  const {changeNodeStatus, changingNodeStatus} = useContext(DetailDataContext)
   let context = children
 
-  if(!canDo) {
+  if (!canDo) {
     context = null
-  } else if(isEnd) {
+  } else if (isEnd) {
     const mailData = {
       nodeType,
       nodeId: [nodeId],
@@ -88,12 +98,13 @@ const ProcessBar = ({
     context = children
   }
   return (
-    <div className="flex gap-4 items-center h-8 [&:has(button)>.hidden]:block">
+    <div className="flex gap-4 items-center h-8 [&:has(button)>.hidden]:block [&:has(.show-dashed)>.hidden]:block">
       <Light
         onToggle={(status) => { changingNodeStatus || changeNodeStatus(nodeId, status) }}
         active={canDo && !isEnd}
       >{EXPORT_NODE_NAMES[nodeType]}</Light>
       <div className="hidden flex-1 border-dotted border-t border-[#b2b2b2]"></div>
+      {!canDo && toggleName && <div className={'show-dashed'}>{toggleName} {toggleAt}</div>}
       {mailTimes > 0 && <div>{sendTime}  {sender}</div>}
       {context}
       {mailTimes > 0 && <Button onClick={() => onClickDetail(nodeId, nodeType)}>詳細</Button>}

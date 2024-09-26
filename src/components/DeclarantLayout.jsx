@@ -3,16 +3,40 @@ import { namespaceClass } from "@/helpers/style";
 import { CaretDownOutlined } from "@ant-design/icons";
 import { DatePicker, Dropdown, Radio, Form, Button } from "antd";
 import { useSelector } from "react-redux";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import classnames from "classnames";
 import Avatar from "./Avatar";
 import dayjs from "dayjs";
 import pubSub from "@/helpers/pubSub";
 import logo from "@/assets/images/icons/chz_logo.webp";
-import {chooseFile} from "@/helpers/file.js";
+import { chooseFile } from "@/helpers/file.js";
+import { setListFilters } from '@/store/slices/customs.js'
+import { useDispatch } from "react-redux";
 
 const CustomsListFilter = () => {
   const [form] = Form.useForm()
+  const dispatch = useDispatch()
+  const storeFilters = useSelector(state => state.customs.listFilters)
+
+  useEffect(() => {
+    const formData = {
+      date: [],
+      type: 1
+    }
+
+    if(storeFilters.start_date) {
+      formData.date.push(dayjs(storeFilters.start_date))
+
+      if(storeFilters.end_date) {
+        formData.date.push(dayjs(storeFilters.end_date))
+      }
+    }
+
+    if(storeFilters.type) {
+      formData.type = storeFilters.type
+    }
+    form.setFieldsValue(formData)
+  }, []);
 
   const filter = useCallback(() => {
     const values = form.getFieldsValue();
@@ -24,8 +48,8 @@ const CustomsListFilter = () => {
       filters.end_date = values.date[1].format("YYYY-MM-DD")
     }
     filters.type = values.type
-    pubSub.publish("None.Customs.List.Filter", filters);
-  }, [form]);
+    dispatch(setListFilters(filters))
+  }, [form, dispatch]);
 
   return (
     <Form form={form} className="flex ml-auto pr-4 items-center">
@@ -35,7 +59,6 @@ const CustomsListFilter = () => {
           <DatePicker.RangePicker
             format="YYYY/MM/DD"
             allowEmpty={[true, true]}
-            defaultValue={[dayjs()]}
             onChange={filter}
             allowClear={false} />
         </Form.Item>
