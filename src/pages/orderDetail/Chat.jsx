@@ -26,7 +26,7 @@ const Message = ({ from, at, content, time }) => {
         <MessageParse message={content}></MessageParse>
         {at && <At>{at}</At>}
       </div>
-      <div>{time}</div>
+      <div className={'text-gray-400'}>{time}</div>
     </div>
   )
 }
@@ -70,7 +70,7 @@ const MessageInput = ({ onSend, disabled, inSending = false }) => {
     setMsg('')
   }
   return (
-    <Space.Compact className="flex h-16 my-4 mt-2">
+    <Space.Compact className="flex h-11 my-4 mt-2">
       <Select
         getPopupContainer={() => rootRef.current}
         className="h-full w-44"
