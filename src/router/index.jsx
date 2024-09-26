@@ -216,7 +216,10 @@ const router = createBrowserRouter([
         children: [
           {
             path: "/acc/todo",
-            element: <LazyPage load={() => import('@/pages/acc/Todo')} />,
+            element: <LazyPage load={() => import('@/pages/acc/todo/Todo.jsx')} />,
+          },{
+            path: "/acc/dashboard",
+            element: <LazyPage load={() => import('@/pages/acc/dashboard/Dashboard.jsx')} />,
           },
         ],
       },

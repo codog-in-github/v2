@@ -17,35 +17,10 @@ const AccLayout = () => {
 };
 
 const SideLayout = () => {
-  const orderType = useSelector((state) => state.order.type);
-  const dispatch = useDispatch();
   return (
     <>
       <div className="flex flex-col h-full w-[220px] bg-white shadow-lg shadow-gray-300">
         <NavSidebar className="flex-1" />
-        <div
-          className="
-            leading-[40px]
-            flex
-            items-center
-            text-center
-            bg-[#f2f4f8]
-            [&>*]:flex-1
-            [&>*]:cursor-pointer
-            [&>.active]:pointer-events-none
-            [&>.active]:bg-primary
-            [&>.active]:text-white
-          "
-        >
-            <div
-              className={classNames({'active': orderType === ORDER_TYPE_EXPORT })}
-              onClick={() => dispatch(setOrderType(ORDER_TYPE_EXPORT))}
-            >出口</div>
-            <div
-              className={classNames({ 'active': orderType === ORDER_TYPE_IMPORT })}
-              onClick={() => dispatch(setOrderType(ORDER_TYPE_IMPORT))}
-            >进口</div>
-        </div>
       </div>
       <div className="nav-layout-main">
         <Outlet />

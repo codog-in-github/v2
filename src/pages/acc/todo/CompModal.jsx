@@ -1,6 +1,6 @@
-import { request } from "@/apis/requestBuilder";
-import FileInput from "@/components/FileInput";
-import { useAsyncCallback } from "@/hooks";
+import { request } from "@/apis/requestBuilder.js";
+import FileInput from "@/components/FileInput.jsx";
+import { useAsyncCallback } from "@/hooks/index.js";
 import { Modal, Form } from "antd";
 import { useState } from "react";
 
