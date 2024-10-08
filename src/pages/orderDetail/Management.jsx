@@ -14,7 +14,7 @@ import BookSelectModal from "./otherBooks/BookSelectModal"
 const BkgTypeSelect = ({ value, onChange, ...props }) => {
   const [inputValue, setInputValue] = useState('');
   const onChangeRef = useRef(null)
-  onChangeRef.current = onChange 
+  onChangeRef.current = onChange
 
   const options = useMemo(() => {
     return Object.entries(BKG_TYPES)
@@ -59,6 +59,22 @@ const BkgTypeSelect = ({ value, onChange, ...props }) => {
       dropdownAlign={{
         overflow: { adjustY: false }
       }}
+    />
+  )
+}
+
+const GateSelect = ({ value, onChange, ...props }) => {
+  const { options, loading } = useGateCompanyOptions()
+  const type = Form.useWatch('type')
+  const noGate = !type || ![1, 2, 4, 5].includes(~~type.key)
+  return (
+    <Select
+      value={noGate ? 'なし' : value}
+      disabled={noGate}
+      onChange={onChange}
+      options={options}
+      loading={loading}
+      {...props}
     />
   )
 }
@@ -121,11 +137,12 @@ const CopyModal = ({
 }
 
 const Management = ({ className }) => {
-  const { options, loading } = useGateCompanyOptions()
   const { form, saveOrder, savingOrder, delOrder, deletingOrder, isCopy, onModifyChange, rootRef } = useContext(DetailDataContext)
   const navigate = useNavigate()
   const copyModalInstance = useRef(null)
   const [modal, modalContent] = Modal.useModal()
+  const type = Form.useWatch('type')
+  const noGate = !type || ![1, 2, 4, 5].includes(~~type.key)
   const setDefaultBlNo = () => {
     const { bkgNo, blNo } = form.getFieldsValue()
     if(bkgNo && !blNo) {
@@ -144,7 +161,7 @@ const Management = ({ className }) => {
           <Form.Item label="DATE" name="orderDate">
             <DatePicker allowClear={false} />
           </Form.Item>
-          <Form.Item name="id" hidden />
+          <Form.Item name="id" noStyle />
           <Form.Item label="BKG NO." name="bkgNo" className="[&_label]:!font-bold" rules={[{ required: true, message: 'BKG NO.を入力してください' }]}>
             <Input onBlur={setDefaultBlNo} onChange={onModifyChange} />
           </Form.Item>
@@ -160,7 +177,8 @@ const Management = ({ className }) => {
             <BkgTypeSelect
               className="[&_input]:!text-lg"
               getPopupContainer={() => rootRef.current}
-              onChange={onModifyChange} />
+              onChange={onModifyChange}
+            />
           </Form.Item>
           <Form.Item label="社内管理番号" name="orderNo">
             <Input readOnly  />
@@ -169,12 +187,10 @@ const Management = ({ className }) => {
             label="通関"
             name="gateCompany"
             className="w-52 [&_label]:!font-bold"
-            rules={[{ required: true, message: '通関を入力してください' }]}
+            rules={[{ required: !noGate, message: '通関を入力してください' }]}
           >
-            <Select
+            <GateSelect
               showSearch
-              options={options}
-              loading={loading}
               optionFilterProp="filterValue"
               onChange={onModifyChange}
               getPopupContainer={() => rootRef.current}

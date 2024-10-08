@@ -370,7 +370,7 @@ const Ship = ({ className }) => {
 
             <div>
               <div className={'flex justify-between w-full flex-1 items-center'}>
-                <div>DOC CUT</div>
+                <div><span className={'mr-1 text-red-500'}>*</span>DOC CUT</div>
                 <Form.Item noStyle name="docCutTime">
                   <AmPmSelect onChange={onModifyChange}/>
                 </Form.Item>

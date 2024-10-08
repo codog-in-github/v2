@@ -8,9 +8,9 @@ function Sidebar({ className }) {
       rect
       className={classNames("nav-side-bar bg-white p-4 flex-col", className)}
     >
-      {/* <NavButton to="/customer-list" className="mb-2">
-        顧客名簿
-      </NavButton> */}
+      <NavButton to="/acc/dashboard" className="mb-2">
+        统计首页
+      </NavButton>
     </NavButtonGroup>
   );
 }
