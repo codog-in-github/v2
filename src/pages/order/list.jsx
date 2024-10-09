@@ -143,7 +143,7 @@ const columns = [
     ),
   },
   {
-    title: "操作",
+    title: "処理",
     dataIndex: "id",
     key: "option",
     fixed: "right",

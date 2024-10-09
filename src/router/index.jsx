@@ -76,6 +76,10 @@ const router = createBrowserRouter([
         element: <LazyPage load={() => import('@/pages/orderDetail/requestBook/EditForm.jsx')} />,
       },
       {
+        path: "/rb/void/:voidId/order/:orderId/type/:type",
+        element: <LazyPage load={() => import('@/pages/orderDetail/requestBook/EditForm.jsx')} />,
+      },
+      {
         element: <TopLayout />,
         children: [
           {

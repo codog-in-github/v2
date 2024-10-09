@@ -12,6 +12,7 @@ import { basename } from "@/helpers"
 import { useRef } from "react"
 import classNames from "classnames"
 import { Divider } from "antd"
+import {isArray} from "lodash";
 
 const FileSelect = ({ files: originFiles, fileType, value, onChange, vertical }) => {
   if(!value){
@@ -107,11 +108,17 @@ const Mail = ({ mail, onSuccess = () => {} }) => {
           }))
         )
       } else {
-        to.push([{
-          value: item.contact.email
-        }])
-        if(item.contact.cc) {
-          cc.push(item.contact.cc.split(',').map(item => ({ value: item })))
+        let contacts = item.contact
+        if(!isArray(contacts)) {
+          contacts = [contacts]
+        }
+        for(const contact of contacts) {
+          to.push([{
+            value: contact.email
+          }])
+          if(contact.cc) {
+            cc.push(item.contact.cc.split(',').map(item => ({ value: item })))
+          }
         }
       }
     }
@@ -164,7 +171,7 @@ const Mail = ({ mail, onSuccess = () => {} }) => {
             )}
           </Form.Item>
           {!simpleMode && (<Form.Item label="CC" name={[props.name, 'cc']}>
-            <Select mode="tag" options={ccOptions[props.name]} />
+            <Select mode="tags" options={ccOptions[props.name]} />
           </Form.Item>)}
           {!simpleMode && (
             <Form.Item label="件名" name={[props.name, 'subject']} rules={[{ required: true, message: '必須項目です' }]}>

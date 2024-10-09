@@ -4,7 +4,7 @@ import {
 } from "@/constant"
 import {
   Switch, Radio, InputNumber, AutoComplete, Button, DatePicker,
-  Col, Form, Input, Row, Popover
+  Col, Form, Input, Row, Popover, Popconfirm
 } from "antd"
 import { useMemo, useEffect, useContext, createContext, useRef } from "react"
 import { useAsyncCallback, useBankList, useDepartmentList, useOptions } from "@/hooks"
@@ -34,9 +34,9 @@ const getPartName = (type) => {
     case COST_PART_CUSTOMS:
       return '通関部分'
     case COST_PART_SEA:
-      return '海運部分'
+      return '海上部分'
     case COST_PART_LAND:
-      return '陸送部分'
+      return '運送部分'
     default:
       return 'その他'
   }
@@ -92,7 +92,7 @@ const formDataFormat = (book, type = REQUEST_TYPE_NORMAL) => {
   formData['is_stamp'] = book['is_stamp'] === 1
   if(!book['extras'] || book['extras'].length === 0) {
     formData['extras'] = [{}]
-  } 
+  }
   formData['counts'] = {}
   if(book['counts'] && book['counts'].length > 0) {
     const counts = {}
@@ -208,7 +208,7 @@ const DetailRow = ({ partType, partName, props }) => {
     }
     const part = form.getFieldValue(['details', partType])
     form.setFieldValue(['details', partType], part.filter((_, i) => i !== props.key))
-    
+
     const counts = form.getFieldValue('counts')
     counts[partType] = counts[partType].filter((_, i) => i !== props.key)
     form.setFieldValue('counts', {...counts})
@@ -378,7 +378,7 @@ const MiniTotal = () => {
   const detailsOrigin = Form.useWatch('details')
 
   const miniTotal = useMemo(() => {
-    
+
     if(!detailsOrigin) {
       return 0
     }
@@ -439,7 +439,7 @@ const Total = () => {
 const EditForm = () => {
   const [form] = Form.useForm()
   const [disabled, setDisabled] = useState(false)
-  const { id, orderId, copyId, type } = useParams()
+  const { id, orderId, copyId, voidId, type } = useParams()
   const bookType = ~~type
   const [files, setFiles] = useState({})
   const navigate = useNavigate()
@@ -491,6 +491,14 @@ const EditForm = () => {
     navigate(`/rb/edit/${rep['id']}/order/${rep['order_id']}/type/${rep['type']}`, { replace: true })
   })
 
+  const [voidBook] = useAsyncCallback(async () => {
+    await request('/admin/request_book/void').delete().data({ id: voidId }).send()
+    pubSub.publish('Info.Toast', '作废成功！', 'success')
+    setTimeout(() => {
+      navigate(`/rb/add/${orderId}/type/${type}`, { replace: true })
+    }, 500)
+  })
+
   useEffect(() => {
     const bookId = id || copyId
     form.setFieldsValue({
@@ -505,16 +513,16 @@ const EditForm = () => {
   }, [orderId, id, copyId, form, bookType])
 
   useEffect(() => {
-    const bookId = id || copyId
+    const bookId = id || copyId || voidId
     if(bookId) {
       form.resetFields()
       request('/admin/request_book/detail').get({ id: bookId }).send()
         .then(rep => {
           form.setFieldsValue(formDataFormat(rep, bookType))
-          setDisabled(id && rep['is_send'])
+          setDisabled(!!rep['is_send'])
         })
     }
-  }, [form, copyId, id, bookType])
+  }, [form, copyId, id, bookType, voidId])
 
   const details = Form.useWatch('details', form)
 
@@ -544,9 +552,9 @@ const EditForm = () => {
   const [doExport, exporting] = useAsyncCallback(async () => {
     await request('/admin/request_book/export').data({ id }).download(null, true).send()
   })
-  
+
   return (
-    <EditFormContext.Provider value={{ detailItems, extraItems, units, extraDefaultValue }}>
+    <EditFormContext.Provider value={{ detailItems, disabled, extraItems, units, extraDefaultValue }}>
       <Form
         disabled={disabled}
         form={form}
@@ -566,7 +574,7 @@ const EditForm = () => {
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item label="請求日" name="date" labelCol={{ span: 6 }} >
+              <Form.Item label="請求日" name="date"  labelCol={{ span: 6 }} >
                 <DatePicker className="w-full" />
               </Form.Item>
             </Col>
@@ -602,7 +610,7 @@ const EditForm = () => {
                   <td className="w-24"></td>
                   <td className="w-32">明細項目</td>
                   <td className="w-64">詳細</td>
-                  <td className="w-12 text-center">转换</td>
+                  <td className="w-12 text-center">別通貨</td>
                   <td className="w-32">单价</td>
                   <td className="w-16">数量</td>
                   <td className="w-16">单位</td>
@@ -638,7 +646,7 @@ const EditForm = () => {
             <Form.Item label="銀行" name="bank_id">
               <Radio.Group options={bankOptions} />
             </Form.Item>
-            <Form.Item label="地址" name="department_id">
+            <Form.Item label="住所" name="department_id">
               <Radio.Group options={departmentOptions} />
             </Form.Item>
             <Form.Item label="社印" name="is_stamp">
@@ -658,9 +666,27 @@ const EditForm = () => {
             >参照入力</Button>
             <Button className="w-32" type="primary" disabled={disabled || !id} loading={exporting} onClick={doExport}>出力</Button>
             <Button className="w-32" loading={submiting} type="primary" onClick={submit}>保存</Button>
+            { voidId && (
+              <Popconfirm
+                title={'無効にするかどうかを確認する'}
+                onConfirm={voidBook}
+                okButtonProps={{ disabled: false, danger: true }}
+                cancelButtonProps={{ disabled: false }}
+                okText={'はい'}
+                cancelText={'いいえ'}
+              >
+                <Button
+                  className="w-32"
+                  disabled={false}
+                  danger
+                  type="primary"
+                >無効</Button>
+              </Popconfirm>
+
+            )}
             <Button className="w-32" disabled={false} onClick={() => navigate(-1)}>戻る</Button>
           </div>
-      
+
         </div>
         <div
           className="h-full w-[600px] shadow-lg shadow-gray-400 p-8"

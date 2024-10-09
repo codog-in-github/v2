@@ -24,7 +24,7 @@ const ListModal = ({ instance }) => {
   })
   return (
     <Modal
-      title="请求书"
+      title="請求書"
       width={800}
       open={open}
       onCancel={() => setOpen(false)}
@@ -38,8 +38,8 @@ const ListModal = ({ instance }) => {
           pagination={false}
           columns={[
             { dataIndex: 'name', title: '履歴請求書' },
-            { dataIndex: 'created_at', title: '时间' , render: value => dayjs(value).format('YYYY-MM-DD HH:mm:ss')  },
-            { title: '操作',  dataIndex:'id', render: (id, row) =>  (
+            { dataIndex: 'created_at', title: '時間' , render: value => dayjs(value).format('YYYY-MM-DD HH:mm:ss')  },
+            { title: '処理',  dataIndex:'id', render: (id, row) =>  (
               <div className="btn-link-group">
                 {row['is_send'] ? (
                   <>
@@ -53,15 +53,15 @@ const ListModal = ({ instance }) => {
                     <span className="btn-link" onClick={() => {delRequestBook(id)}}>删除</span>
                   </>
                 )}
-                
+
               </div>
             ) },
           ]}
         />
       </div>
       <div className="flex justify-center gap-2">
-        <Button className="w-32" type="primary" onClick={() => navigate(`/rb/add/${form.getFieldValue('id')}/type/${REQUEST_TYPE_NORMAL}`)}>新增请求书</Button>
-        <Button className="w-32" type="primary" onClick={() => navigate(`/rb/add/${form.getFieldValue('id')}/type/${REQUEST_TYPE_ADVANCE}`)}>新增立替请求书</Button>
+        <Button className="w-32" type="primary" onClick={() => navigate(`/rb/add/${form.getFieldValue('id')}/type/${REQUEST_TYPE_NORMAL}`)}>請求書新規作成</Button>
+        <Button className="w-32" type="primary" onClick={() => navigate(`/rb/add/${form.getFieldValue('id')}/type/${REQUEST_TYPE_ADVANCE}`)}>立替金請求書作成</Button>
         <Button className="w-32" onClick={() => setOpen(false)}>取消</Button>
       </div>
     </Modal>

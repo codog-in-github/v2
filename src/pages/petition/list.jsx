@@ -1,235 +1,118 @@
-import { Space, Input, Select, Button, Table, Tag, Avatar } from "antd";
-import { DashOutlined } from "@ant-design/icons";
-import { useState } from "react";
-const ColorTag = ({ color }) => {
-  const colorObj = {
-    red: "#FD7556",
-    yellow: "#FBBB21",
-    gray: "#D3D6DD",
-    green: "#429638",
-  };
-  return color.map((item, index) => (
-    <div
-      className="w-[8px] h-[18px] inline-block rounded mr-[3px]"
-      style={{ backgroundColor: colorObj[item] }}
-      key={index}
-    ></div>
-  ));
-};
-const PetitionList = () => {
-  const selectArr = [
-    { value: "test1", label: "测试1" },
-    { value: "test2", label: "测试2" },
-  ];
-  const dataSource = [
-    {
-      id: 1,
-      name: "三祥贸易株式会社",
-      desi: "2024041081K",
-      bk: "GQF413SK202",
-      cut: "2024-06-06",
-      pol: "KOBE , 06/03",
-      pod: "BANGKOK , 07/09",
-      quantity: "40HQ , 6 ; 20HQ , 6",
-      status: 2,
-      color: [],
-    },
-    {
-      id: 2,
-      name: "鹤丸海运株式会社",
-      desi: "2024041081K",
-      bk: "GQF413SK202",
-      cut: "2024-06-06",
-      pol: "KOBE , 06/03",
-      pod: "BANGKOK , 07/09",
-      quantity: "20HQ , 2",
-      status: 2,
-      color: [],
-    },
-    {
-      id: 3,
-      name: "鹤丸海运株式会社",
-      desi: "2024041081K",
-      bk: "GQF413SK202",
-      cut: "2024-06-06",
-      pol: "KOBE , 06/03",
-      pod: "BANGKOK , 07/09",
-      quantity: "20HQ , 2",
-      status: 3,
-      color: [],
-    },
-  ];
+import {Input,  Avatar} from "antd";
+import { Form } from "antd";
+import { useMemo } from "react";
+import dayjs from "dayjs";
+import List from "@/components/List.jsx";
+import { Link } from "react-router-dom";
 
-  const columns = [
+const StatusTag = ({ isCompete }) => {
+  return (
+    <div
+      className={'flex-center w-20 h-8 rounded-full'}
+      style={{
+        backgroundColor: isCompete ? '#d9e2fd' : '#F5D8D4',
+        color: isCompete ? '#426CF6' : '#ED5836',
+      }}
+    >{isCompete ? '已入账' : '未入账'}</div>
+  )
+};
+
+const PetitionList = () => {
+  const [filters] = Form.useForm()
+  const columns = useMemo(() => [
     {
       title: "お客様",
-      dataIndex: "name",
+      dataIndex: ['order', 'short_name'],
       key: "name",
-      render: (val) => (
-        <Avatar size={30} style={{ backgroundColor: "#484848" }}>
-          {val.at(0)}
-        </Avatar>
-      ),
+      render: (abbr) => (
+        <Avatar className={'bg-black'} >{abbr}</Avatar>
+      )
     },
     {
-      title: "番号",
-      dataIndex: "desi",
-      key: "desi",
-      sorter: (a, b) => a.age - b.age,
-    },
-    {
-      title: "BK号",
-      dataIndex: "bk",
-      key: "bk",
-      sorter: (a, b) => a.age - b.age,
+      title: '番号',
+      dataIndex: ['order', 'order_no'],
+      key: "number",
+    },{
+      title: 'BKG NO.',
+      dataIndex: ['order', 'bkg_no'],
+      key: "number",
     },
     {
       title: "CUT",
-      dataIndex: "cut",
-      key: "cut",
-      sorter: (a, b) => a.age - b.age,
+      dataIndex: ['order', 'cy_cut'],
+      key: "cyCut",
     },
     {
       title: "POL , ETD",
-      dataIndex: "pol",
       key: "pol",
-      sorter: (a, b) => a.age - b.age,
+      render: (row) => {
+        const date = row.order.etd ? dayjs(row.order.etd).format('MM/DD') : '00/00'
+        const pol = row.order.loading_port_name?.split('/')[1] ?? 'N/A'
+        return `${pol}, ${date}`
+      }
     },
     {
       title: "POD , ETA",
-      dataIndex: "pod",
       key: "pod",
-      sorter: (a, b) => a.age - b.age,
+      render: (row) => {
+        const date = row.order.eta ? dayjs(row.order.eta).format('MM/DD') : '00/00'
+        const pol = row.order.delivery_port_name?.split('/')[1] ?? 'N/A'
+        return `${pol}, ${date}`
+      }
     },
     {
       title: "数量",
-      dataIndex: "quantity",
       key: "quantity",
-      sorter: (a, b) => a.age - b.age,
+      render: (row) => row.order
+        .containers.map(item => `${item.quantity}, ${item.container_type}`)
+        .join(';')
     },
     {
       title: "状態",
-      dataIndex: "status",
+      dataIndex: 'is_entry',
       key: "status",
-      render: (status, row) => (
-        <div>
-          {status === 1 && <ColorTag color={row.color} />}
-          {status === 2 && <Tag color="red">未入账</Tag>}
-          {status === 3 && <Tag color="blue">已入账</Tag>}
-        </div>
+      render: (isEntry) => (
+        <StatusTag isCompete={isEntry === 1} />
       ),
     },
     {
-      title: "操作",
+      title: "処理",
       key: "option",
       fixed: "right",
       width: 160,
-      render: () => (
-        <div>
-          <span className="text-blue-500">
-            <a>変更申請</a>
-          </span>
+      render: (row) => (
+        <div className="btn-link-group">
+          <Link className="btn-link"  to={`/rb/void/${row.id}/order/${row.order_id}/type/${row.type}`}>変更申請</Link>
         </div>
       ),
     },
-  ];
-  const [form, setForm] = useState({
-    name: "",
-    desi: "",
-    bk: "",
-    pol: null,
-    pod: null,
-  });
-  const [page, setPage] = useState({
-    current: 1,
-    pageSize: 20,
-    total: 50,
-  });
-
-  const updateForm = (newData) => {
-    setForm({ ...form, ...newData });
-  };
-
-  const search = () => {
-    console.log(form);
-  };
-  const reset = () => {
-    const resetForm = {
-      name: "",
-      desi: "",
-      bk: "",
-      pol: null,
-      pod: null,
-    };
-    setForm(resetForm);
-  };
-
-  const pageChange = ({ current, pageSize, total }) => {
-    setPage({ ...page, current, pageSize, total });
-  };
-
-  const showTotal = (total) => `共有 ${total} 条`;
+  ], []);
 
   return (
-    <div className="main-content">
-      <Space size={[10, 16]} wrap>
-        <Input
-          placeholder="お客様"
-          style={{ width: 200 }}
-          value={form.name}
-          onChange={(e) => updateForm({ name: e.target.value })}
-        />
-        <Input
-          placeholder="番号"
-          style={{ width: 160 }}
-          value={form.desi}
-          onChange={(e) => updateForm({ desi: e.target.value })}
-        />
-        <Input
-          placeholder="BK号"
-          style={{ width: 160 }}
-          value={form.bk}
-          onChange={(e) => updateForm({ bk: e.target.value })}
-        />
-
-        <Select
-          options={selectArr}
-          placeholder="POL"
-          style={{ width: 160 }}
-          value={form.pol}
-          onChange={(val) => updateForm({ pol: val })}
-        />
-        <DashOutlined className="text-gray-500" />
-        <Select
-          options={selectArr}
-          placeholder="POD"
-          style={{ width: 160 }}
-          value={form.pod}
-          onChange={(val) => updateForm({ pod: val })}
-        />
-
-        <Button type="primary" onClick={search}>
-          搜索
-        </Button>
-        <Button onClick={reset}>重置</Button>
-      </Space>
-      <Table
-        rowKey="id"
-        className="mt-5"
-        dataSource={dataSource}
-        columns={columns}
-        pagination={{
-          showSizeChanger: true,
-          showQuickJumper: true,
-          total: page.total,
-          pageSize: page.pageSize,
-          showTotal: showTotal,
-        }}
-        onChange={(page) => {
-          pageChange(page);
-        }}
-      />
-    </div>
+    <List
+      url={'/admin/request_book/list'}
+      filters={filters}
+      columns={columns}
+      filterItems={(
+        <>
+          <Form.Item name="company_name" noStyle>
+            <Input placeholder="お客様" style={{ width: 200 }} />
+          </Form.Item>
+          <Form.Item name="order_no" noStyle>
+            <Input placeholder="番号" style={{ width: 200 }} />
+          </Form.Item>
+          <Form.Item name="bkg_no" noStyle>
+            <Input placeholder="BKG NO." style={{ width: 200 }} />
+          </Form.Item>
+          <Form.Item name="pol" noStyle>
+            <Input placeholder="POL" style={{ width: 200 }} />
+          </Form.Item>
+          <Form.Item name="pod" noStyle>
+            <Input placeholder="POD" style={{ width: 200 }} />
+          </Form.Item>
+        </>
+      )}
+    />
   );
 };
 export default PetitionList;

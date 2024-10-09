@@ -141,7 +141,7 @@ function ContainerListContent() {
       'is_top': 1,
       'node_status': tab
     }).send()
-    pubSub.publish('Info.Toast', '已置顶任务', 'success')
+    pubSub.publish('Info.Toast', 'TOP PAGEに', 'success')
     reload()
   })
 
@@ -165,15 +165,15 @@ function ContainerListContent() {
             'user_id': user
           }
           await request('admin/order/dispatch').data(params).send()
-          pubSub.publish('Info.Toast', '已指派', 'success')
+          pubSub.publish('Info.Toast', '仲間に協力', 'success')
         }}
-      >指派任务</div>
+      >仲間に協力</div>
       <div
         className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
         onClick={topNode}
       >
         {topNodeLoading && <LoadingOutlined className="mr-2" />}
-        置顶任务
+        TOP PAGEに
       </div>
     </div>
   )

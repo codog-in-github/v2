@@ -66,3 +66,7 @@ body {
 svg.current-color {
   fill: currentColor;
 }
+
+.flex-center {
+  @apply flex justify-center items-center;
+}
