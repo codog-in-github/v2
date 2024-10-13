@@ -57,7 +57,7 @@ const router = createBrowserRouter([
   }, [
     routeGuarder((_, next) => {
       const role = store.getState().user.userInfo.role
-      if([USER_ROLE_ADMIN, USER_ROLE_BOOS, USER_ROLE_NORMAL].includes(role)) {
+      if([USER_ROLE_ADMIN, USER_ROLE_BOOS, USER_ROLE_NORMAL, USER_ROLE_ACC].includes(role)) {
         next()
       } else {
         next(redirectUrl(role))
@@ -76,9 +76,17 @@ const router = createBrowserRouter([
         element: <LazyPage load={() => import('@/pages/orderDetail/requestBook/EditForm.jsx')} />,
       },
       {
-        path: "/rb/void/:voidId/order/:orderId/type/:type",
+        path: "/rb/void/:voidFrom/order/:orderId/type/:type",
         element: <LazyPage load={() => import('@/pages/orderDetail/requestBook/EditForm.jsx')} />,
       },
+      routeGuarder((_, next) => {
+        const role = store.getState().user.userInfo.role
+        if([USER_ROLE_ADMIN, USER_ROLE_BOOS, USER_ROLE_NORMAL].includes(role)) {
+          next()
+        } else {
+          next(redirectUrl(role))
+        }
+      }, [
       {
         element: <TopLayout />,
         children: [
@@ -137,6 +145,7 @@ const router = createBrowserRouter([
           },
         ],
       },
+      ]),
       //员工端
       {
         element: <CustomerLayout />,
@@ -208,7 +217,6 @@ const router = createBrowserRouter([
     //会计端
     routeGuarder((_, next) => {
       const role = store.getState().user.userInfo.role
-      console.log(role)
       if([USER_ROLE_ADMIN, USER_ROLE_BOOS, USER_ROLE_ACC].includes(role)) {
         next()
       } else {
@@ -224,6 +232,9 @@ const router = createBrowserRouter([
           },{
             path: "/acc/dashboard",
             element: <LazyPage load={() => import('@/pages/acc/dashboard/Dashboard.jsx')} />,
+          },{
+            path: "/acc/reqNotice",
+            element: <LazyPage load={() => import('@/pages/acc/reqNotice/index.jsx')} />,
           },
         ],
       },

@@ -235,3 +235,9 @@ export const DEPARTMENT_OSAKA = 2;
  * @type {3}
  */
 export const DEPARTMENT_KYUSHU = 3;
+
+export const DEPARTMENTS = {
+  [DEPARTMENT_KOBE]: '神户',
+  [DEPARTMENT_OSAKA]: '大阪',
+  [DEPARTMENT_KYUSHU]: '九州',
+};

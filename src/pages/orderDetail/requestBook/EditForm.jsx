@@ -4,24 +4,20 @@ import {
 } from "@/constant"
 import {
   Switch, Radio, InputNumber, AutoComplete, Button, DatePicker,
-  Col, Form, Input, Row, Popover, Popconfirm
+  Col, Form, Input, Row, Popover, Popconfirm, Space, Select, Modal
 } from "antd"
-import { useMemo, useEffect, useContext, createContext, useRef } from "react"
+import { useMemo, useEffect, useContext, createContext, useRef, useState } from "react"
 import { useAsyncCallback, useBankList, useDepartmentList, useOptions } from "@/hooks"
 import { request } from "@/apis/requestBuilder"
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons"
 import Label from "@/components/Label"
 import SingleCheckbox from "@/components/SingleCheckbox"
-import { useParams } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 import dayjs from "dayjs"
 import pubSub from "@/helpers/pubSub"
-import { useNavigate } from "react-router-dom"
 import FormValue from "@/components/FormValue"
-import { useState } from "react"
 import FileTabs from "@/components/FileTabs"
-import { Space } from "antd/lib"
-import { Select } from "antd"
-import { Modal } from "antd"
+import { useSearchParams } from "react-router-dom"
 
 const costTypes = [
   COST_PART_CUSTOMS,
@@ -87,7 +83,7 @@ const ExtraInput = ({ datakey }) => {
 
 
 const formDataFormat = (book, type = REQUEST_TYPE_NORMAL) => {
-  const formData = { ...book }
+  const formData = { ...book, type }
   formData['date'] = dayjs(book['date'])
   formData['is_stamp'] = book['is_stamp'] === 1
   if(!book['extras'] || book['extras'].length === 0) {
@@ -439,7 +435,8 @@ const Total = () => {
 const EditForm = () => {
   const [form] = Form.useForm()
   const [disabled, setDisabled] = useState(false)
-  const { id, orderId, copyId, voidId, type } = useParams()
+  const { id, orderId, copyId, voidFrom, type } = useParams()
+  const [searchParams] = useSearchParams()
   const bookType = ~~type
   const [files, setFiles] = useState({})
   const navigate = useNavigate()
@@ -491,13 +488,9 @@ const EditForm = () => {
     navigate(`/rb/edit/${rep['id']}/order/${rep['order_id']}/type/${rep['type']}`, { replace: true })
   })
 
-  const [voidBook] = useAsyncCallback(async () => {
-    await request('/admin/request_book/void').delete().data({ id: voidId }).send()
-    pubSub.publish('Info.Toast', '作废成功！', 'success')
-    setTimeout(() => {
-      navigate(`/rb/add/${orderId}/type/${type}`, { replace: true })
-    }, 500)
-  })
+  const voidBook = () => {
+    navigate(`/rb/copy/${voidFrom}/order/${orderId}/type/${type}?voidTo=${voidFrom}`, { replace: true })
+  }
 
   useEffect(() => {
     const bookId = id || copyId
@@ -505,24 +498,33 @@ const EditForm = () => {
       'order_id': orderId,
       type: bookType
     })
-    request('/admin/request_book/get_default_value').get({ id: orderId }).send().then((rep) => {
-      bookId || form.setFieldsValue(formDataFormat(rep['book'], bookType))
-      extraDefaultValue.current = rep['extra']
-      setFiles(rep['files'])
-    })
-  }, [orderId, id, copyId, form, bookType])
+    request('/admin/request_book/get_default_value')
+      .get({ id: orderId }).send().then((rep) => {
+        bookId || form.setFieldsValue(formDataFormat(rep['book'], bookType))
+        extraDefaultValue.current = rep['extra']
+        setFiles(rep['files'])
+      })
+  }, [orderId, id, copyId, form, bookType, searchParams.get('voidTo')])
 
   useEffect(() => {
-    const bookId = id || copyId || voidId
+    const bookId = id || copyId || voidFrom
+    form.resetFields()
+    form.setFieldValue('void_id', searchParams.get('voidTo'))
+    setDisabled(false)
     if(bookId) {
-      form.resetFields()
       request('/admin/request_book/detail').get({ id: bookId }).send()
         .then(rep => {
           form.setFieldsValue(formDataFormat(rep, bookType))
-          setDisabled(!!rep['is_send'])
+          setDisabled(
+            (!!rep['is_send'] || !!rep['is_void'] || searchParams.get('d') === '1')
+              && !copyId
+          )
+          if(searchParams.get('voidTo')) {
+            form.setFieldValue('void_id', searchParams.get('voidTo'))
+          }
         })
     }
-  }, [form, copyId, id, bookType, voidId])
+  }, [form, copyId, id, bookType, voidFrom])
 
   const details = Form.useWatch('details', form)
 
@@ -561,6 +563,7 @@ const EditForm = () => {
         className="flex h-screen"
       >
         <Form.Item noStyle name="id" />
+        <Form.Item noStyle name="void_id" />
         <Form.Item noStyle name="order_id" />
         <Form.Item noStyle name="type" />
 
@@ -655,7 +658,7 @@ const EditForm = () => {
           </div>
 
           <div className="flex gap-2 justify-end px-16">
-            <Button className="w-32" disabled={!id} type="primary" onClick={() => navigate(`/rb/add/${orderId}/type/${type}`, { replace: true })}>追加請求書</Button>
+            <Button className="w-32" type="primary" onClick={() => navigate(`/rb/add/${orderId}/type/${type}`, { replace: true })}>追加請求書</Button>
             <Button
               className="w-32"
               type="primary"
@@ -666,7 +669,7 @@ const EditForm = () => {
             >参照入力</Button>
             <Button className="w-32" type="primary" disabled={disabled || !id} loading={exporting} onClick={doExport}>出力</Button>
             <Button className="w-32" loading={submiting} type="primary" onClick={submit}>保存</Button>
-            { voidId && (
+            { voidFrom && (
               <Popconfirm
                 title={'無効にするかどうかを確認する'}
                 onConfirm={voidBook}
@@ -682,7 +685,6 @@ const EditForm = () => {
                   type="primary"
                 >無効</Button>
               </Popconfirm>
-
             )}
             <Button className="w-32" disabled={false} onClick={() => navigate(-1)}>戻る</Button>
           </div>
