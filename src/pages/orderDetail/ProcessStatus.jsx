@@ -1,7 +1,7 @@
 import Label from "@/components/Label"
-import {Form, Space, Select, Button, Input, Popconfirm} from "antd"
+import {Form, Space, Select, Button, Input, Popconfirm, Modal} from "antd"
 import classNames from "classnames"
-import {useContext, useEffect, useState} from "react"
+import {forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState} from "react"
 import { DetailDataContext } from "./dataProvider"
 import {
   EXPORT_NODE_NAMES, MAIL_TO_CUSTOMER, MAIL_TO_CUSTOMS_COMPANY, MAIL_TO_SHIP, SUR_STEP_PAYED,
@@ -22,7 +22,6 @@ import {
   MAIL_TO_CUSTOMS_DECLARANT,
 } from "@/constant"
 import Mail from "./Mail"
-import { useRef } from "react"
 import * as Icon from '@/components/Icon'
 import { LoadingOutlined } from "@ant-design/icons"
 import MailDetail from "./MailDetail"
@@ -59,6 +58,47 @@ const Light = ({ children, loading, active, className, onToggle = () => {} }) =>
   )
 }
 
+const ConfirmModal = forwardRef(function ConfirmModal(_, ref) {
+  const [open, setOpen] = useState(false)
+  const [reason, setReason] = useState('')
+  const callbacks = useRef({
+    resolve: () => {},
+    reject: () => {}
+  });
+
+  useImperativeHandle(ref, () => ({
+    confirm() {
+      setOpen(true)
+      setReason('')
+      return new Promise((resolve, reject) => {
+        callbacks.current = { resolve, reject }
+      })
+    }
+  }), [])
+
+  return (
+    <Modal
+      title={'确认'}
+      open={open}
+      onOk={() => {
+        if(!reason) {
+          return
+        }
+        callbacks.current.resolve(reason)
+        setOpen(false)
+      }}
+      onCancel={() => {
+        callbacks.current.reject()
+        setOpen(false)
+      }}
+    >
+      <Form.Item label={'理由'}>
+        <Input onChange={(e) => setReason(e.target.value)} value={reason} />
+      </Form.Item>
+    </Modal>
+  )
+})
+
 
 const ProcessBar = ({
   nodeId,
@@ -75,8 +115,9 @@ const ProcessBar = ({
   toggleName,
   toggleAt
 }) => {
-  const {changeNodeStatus, changingNodeStatus} = useContext(DetailDataContext)
+  const { changeNodeStatus, changingNodeStatus} = useContext(DetailDataContext)
   let context = children
+  const confirmModalRef = useRef(null);
 
   if (!canDo) {
     context = null
@@ -98,17 +139,31 @@ const ProcessBar = ({
     context = children
   }
   return (
-    <div className="flex gap-4 items-center h-8 [&:has(button)>.hidden]:block [&:has(.show-dashed)>.hidden]:block">
-      <Light
-        onToggle={(status) => { changingNodeStatus || changeNodeStatus(nodeId, status) }}
-        active={canDo && !isEnd}
-      >{EXPORT_NODE_NAMES[nodeType]}</Light>
-      <div className="hidden flex-1 border-dotted border-t border-[#b2b2b2]"></div>
-      {!canDo && toggleName && <div className={'show-dashed'}>{toggleName} {toggleAt}</div>}
-      {mailTimes > 0 && <div>{sendTime}  {sender}</div>}
-      {context}
-      {mailTimes > 0 && <Button onClick={() => onClickDetail(nodeId, nodeType)}>詳細</Button>}
-    </div>
+    <>
+      <div className="flex gap-4 items-center h-8 [&:has(button)>.hidden]:block [&:has(.show-dashed)>.hidden]:block">
+        <Light
+          onToggle={(status) => {
+            if (changingNodeStatus) {
+              return
+            }
+            if(nodeType === ORDER_NODE_TYPE_REQUEST) {
+              confirmModalRef.current?.confirm()
+                .then(reason => changeNodeStatus(nodeId, status, reason))
+                .then(() => pubSub.publish('Info.Toast', '提交成功', 'success'))
+            } else {
+              changeNodeStatus(nodeId, status)
+            }
+          }}
+          active={canDo && !isEnd}
+        >{EXPORT_NODE_NAMES[nodeType]}</Light>
+        <div className="hidden flex-1 border-dotted border-t border-[#b2b2b2]"></div>
+        {!canDo && toggleName && <div className={'show-dashed'}>{toggleName} {toggleAt}</div>}
+        {mailTimes > 0 && <div>{sendTime} {sender}</div>}
+        {context}
+        {mailTimes > 0 && <Button onClick={() => onClickDetail(nodeId, nodeType)}>詳細</Button>}
+      </div>
+      { nodeType === ORDER_NODE_TYPE_REQUEST && <ConfirmModal ref={confirmModalRef} /> }
+    </>
   )
 }
 const getMailTo = (nodeType, step) => {
@@ -116,7 +171,7 @@ const getMailTo = (nodeType, step) => {
     case ORDER_NODE_TYPE_CUSTOMER_DOCUMENTS:
       return MAIL_TO_CUSTOMS_COMPANY
     case ORDER_NODE_TYPE_SUR:
-      if(step === SUR_STEP_WAIT_PAY)
+      if (step === SUR_STEP_WAIT_PAY)
         return MAIL_TO_ACC
       return MAIL_TO_CUSTOMER
     case ORDER_NODE_TYPE_PO:
@@ -125,8 +180,8 @@ const getMailTo = (nodeType, step) => {
       return MAIL_TO_CUSTOMER
   }
 }
-const ProcessBarButtons = ({ nodeId, nodeType, step, mail, sended, redo }) => {
-  const { refreshNodes } = useContext(DetailDataContext)
+const ProcessBarButtons = ({nodeId, nodeType, step, mail, sended, redo}) => {
+  const {refreshNodes} = useContext(DetailDataContext)
   const form = Form.useFormInstance()
   const mailData = {
     nodeType,

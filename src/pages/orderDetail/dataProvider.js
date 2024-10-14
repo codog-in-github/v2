@@ -593,13 +593,14 @@ export const useDetailData = () => {
     setRequestBooks(requestBooks.filter(item => item.id !== id))
   })
 
-  const [changeNodeStatus, changingNodeStatus] = useAsyncCallback(async (id, enable) => {
+  const [changeNodeStatus, changingNodeStatus] = useAsyncCallback(async (id, enable, reason = '') => {
     if(isTempOrder)
       return
     await request('/admin/order/change_node_status')
       .data({
         'id': id,
-        'is_enable': enable ? 1 : 0
+        'is_enable': enable ? 1 : 0,
+        reason
       })
       .send()
     refreshNodes()

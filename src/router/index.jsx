@@ -235,6 +235,9 @@ const router = createBrowserRouter([
           },{
             path: "/acc/reqNotice",
             element: <LazyPage load={() => import('@/pages/acc/reqNotice/index.jsx')} />,
+          },{
+            path: "/acc/reqDoneNotice",
+            element: <LazyPage load={() => import('@/pages/acc/reqDoneNotice/index.jsx')} />,
           },
         ],
       },

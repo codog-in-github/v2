@@ -11,8 +11,8 @@ function Sidebar({ className }) {
       <NavButton to="/acc/dashboard" className="mb-2">
         统计首页
       </NavButton>
-      <NavButton to="/acc/reqNotice" className="mb-2">
-        请求书
+      <NavButton to="/acc/reqDoneNotice" className="mb-2">
+        請求書结束申请
       </NavButton>
     </NavButtonGroup>
   );

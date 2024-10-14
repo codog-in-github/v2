@@ -1,4 +1,4 @@
-import {Input,  Avatar} from "antd";
+import {Input, Avatar, Select} from "antd";
 import { Form } from "antd";
 import { useMemo } from "react";
 import dayjs from "dayjs";
@@ -82,7 +82,15 @@ const PetitionList = () => {
       width: 160,
       render: (row) => (
         <div className="btn-link-group">
-          <Link className="btn-link"  to={`/rb/void/${row.id}/order/${row.order_id}/type/${row.type}`}>変更申請</Link>
+          { row['is_void'] === 1 && (
+            <Link
+              className="btn-link"
+              to={`/rb/edit/${row.replace_book.id}/order/${row.replace_book.order_id}/type/${row.replace_book.type}`}
+            >変更詳情</Link>
+          ) }
+          { row['is_void'] !== 1 && (
+            <Link className="btn-link"  to={`/rb/void/${row.id}/order/${row.order_id}/type/${row.type}`}>変更申请</Link>
+          ) }
         </div>
       ),
     },
@@ -96,19 +104,29 @@ const PetitionList = () => {
       filterItems={(
         <>
           <Form.Item name="company_name" noStyle>
-            <Input placeholder="お客様" style={{ width: 200 }} />
+            <Input placeholder="お客様" className={'w-40'} />
           </Form.Item>
           <Form.Item name="order_no" noStyle>
-            <Input placeholder="番号" style={{ width: 200 }} />
+            <Input placeholder="番号" className={'w-40'} />
           </Form.Item>
           <Form.Item name="bkg_no" noStyle>
-            <Input placeholder="BKG NO." style={{ width: 200 }} />
+            <Input placeholder="BKG NO." className={'w-40'} />
           </Form.Item>
           <Form.Item name="pol" noStyle>
-            <Input placeholder="POL" style={{ width: 200 }} />
+            <Input placeholder="POL" className={'w-40'} />
           </Form.Item>
           <Form.Item name="pod" noStyle>
-            <Input placeholder="POD" style={{ width: 200 }} />
+            <Input placeholder="POD" className={'w-40'} />
+          </Form.Item>
+          <Form.Item name="is_void" noStyle>
+            <Select
+              placeholder={'作废状态'}
+              className={'w-40'}
+              options={[
+                { value: 0, label: '未作废' },
+                { value: 1, label: '已作废' },
+              ]}
+            />
           </Form.Item>
         </>
       )}

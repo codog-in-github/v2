@@ -85,12 +85,12 @@ function Card({
       <div className='flex flex-1'>
         <CompanyAvatar  bg={jobInfo.color} text={jobInfo.customer_company_name[0]}></CompanyAvatar>
         <div className='ml-4'>
-          <div className='font-semibold'><span className='text-xs'>￥</span>{Number(jobInfo.amount).toFixed(2)}</div>
-          <div className="text-sm">{jobInfo.customer_company_name}</div>
+          <div className='font-semibold text-[24px] text-[#1B1B1B]'><span className='text-xs'>￥</span>{Number(jobInfo.amount).toFixed(2)}</div>
+          <div className="text-sm text-[#848484]">{jobInfo.customer_company_name}</div>
         </div>
       </div>
 
-      <div className='flex my-2 items-center text-sm text-gray-600'>
+      <div className='flex my-2 items-center text-sm text-[#484848]'>
         <div className='flex-1 w-1/2'>{jobInfo.order.bkg_no}</div>
         <div className='h-4 border-l border-gray-300'></div>
         <div className='flex-1 w-1/2 text-right'>{jobInfo.order.order_no}</div>

@@ -5,6 +5,7 @@ import { useAsyncCallback } from "@/hooks";
 import { request } from "@/apis/requestBuilder";
 import { Form } from "antd";
 import { PARTNER_TYPE_CAR, PARTNER_TYPE_CUSTOMS, PARTNER_TYPE_SHIP } from "@/constant";
+import classNames from "classnames";
 
 
 const usePaginationRef = () => {
@@ -26,14 +27,18 @@ const usePaginationRef = () => {
   }
   return { pagination, set , get }
 }
-const useList = (url, pagination, filterForm) => {
+const useList = (url, pagination, filterForm, beforeSearch) => {
   const [list, setList] = useState([])
   const [getList, loading] = useAsyncCallback(async () => {
     const rep = await request(url)
-      .get({
-        ...pagination.get(),
-        ...filterForm.getFieldsValue(),
-      }).paginate().send()
+      .get(
+        beforeSearch({
+          ...pagination.get(),
+          ...filterForm.getFieldsValue(),
+        })
+      )
+      .paginate()
+      .send()
     pagination.set({ total: rep.total })
     setList(rep.data)
   })
@@ -67,12 +72,17 @@ const List = forwardRef(function List({
                 /**
                  * @type {(filters: import('antd').FormInstance) => any}
                  */
-                onClear = (filters) => filters.resetFields()
+                onClear = (filters) => filters.resetFields(),
+                /**
+                 * @type {string}
+                 */
+                className,
+                beforeSearch = (filters) => filters,
 }, ref) {
   const page =  usePaginationRef()
   const {
     list: dataSource, getList, loading
-  } = useList(url, page, filters)
+  } = useList(url, page, filters, beforeSearch)
 
   useEffect(() => { getList() }, [url]);
 
@@ -83,7 +93,7 @@ const List = forwardRef(function List({
   }, [])
 
   return (
-    <div className="main-content">
+    <div className={classNames('main-content', className)}>
       <Form form={filters}>
         <Space size={filtersSpaceSize} wrap>
           {filterItems}

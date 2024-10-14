@@ -32,13 +32,16 @@ const NavTopbar = ({ className }) => {
           <Icon.Top classname="w-4 h-4 inline relative bottom-[3px]" />
           <span className='ml-2'>未支出</span>
         </NavButton>
+        <NavButton to="/acc/reqNotice" className="ml-2">
+          変更請求書
+        </NavButton>
       </NavButtonGroup>
       <div className="flex ml-auto pr-4">
         <Dropdown
            menu={{ items: [
             { key: '1', label: <div onClick={logoutHandle}>サインアウト</div> },
            ] }}
-           
+
         >
           <div className='flex gap-2 items-center'>
             <Avatar></Avatar>

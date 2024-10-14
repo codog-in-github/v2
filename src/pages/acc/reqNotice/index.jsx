@@ -1,23 +1,19 @@
-import { themeColor } from "@/helpers/color";
 import { request } from "@/apis/requestBuilder";
 import { useEffect, useState, useRef } from "react";
 import { useAsyncCallback } from "@/hooks";
 import { useNavigate } from "react-router-dom";
 import SkeletonList from "@/components/SkeletonList";
-import { Empty, Avatar, Modal } from "antd";
-import PortFullName from "@/components/PortFullName";
-import OrderFilter from "@/components/OrderFilter";
-import { Form } from "antd";
-import UserPicker from "@/components/UserPicker.jsx";
+import {Button, Empty, Modal} from "antd";
 import { forwardRef } from "react";
 import { useImperativeHandle } from "react";
 import dayjs from "dayjs";
-import classNames from "classnames"; 
+import classNames from "classnames";
 import CompanyAvatar from "@/components/CompanyAvatar";
 import { DEPARTMENTS } from "@/constant";
 import { Link } from "react-router-dom";
+import ListModal from "./ListModal.jsx";
 
-const useTabReqNoticList = () => {
+const useTabReqNoticeList = () => {
   const [list, setList] = useState({
     todo: [],
     done: []
@@ -51,17 +47,17 @@ function Card({
       <div className='flex flex-1'>
         <CompanyAvatar  text={item['order']['short_name'][0]} />
         <div className='ml-4'>
-          <div className='font-semibold'>
+          <div className='font-semibold text-[#1B1B1B]'>
             请求书变更申请-{DEPARTMENTS[item['order']['department']]}-{item['void_by_name']}
           </div>
-          <div className="text-sm flex items-center justify-between">
+          <div className="text-sm flex items-center justify-between text-[#848484] mt-2">
             <div>{dayjs(item['void_at']).format('YYYY-MM-DD')}</div>
             <div>变更日期</div>
           </div>
         </div>
       </div>
 
-      <div className='flex my-2 items-center text-sm text-gray-600'>
+      <div className='flex my-2 items-center text-sm text-[#484848]'>
         <div className='mr-auto'>{item['order']['bkg_no']}</div>
         <div className='h-4 border-l border-gray-300'></div>
         <div className='ml-auto text-right text-nowrap'>{item['name']}</div>
@@ -70,12 +66,12 @@ function Card({
   );
 }
 
-const OrderGroup = ({ title, list, loading, filter, children }) => {
+const OrderGroup = ({ title, list, loading, button, children }) => {
   return (
     <div className="mb-[20px] rounded-lg">
-      <div className="flex justify-between">
+      <div className="flex items-center">
         <div>{title}</div>
-        <div>{filter}</div>
+        <div className={'ml-2'}>{button}</div>
       </div>
       <div className="grid grid-cols-3 lg:grid-cols-5 gap-8 flex-wrap mt-4 [&:has(.ant-empty)]:!grid-cols-1">
         <SkeletonList
@@ -108,7 +104,7 @@ const ConfirmModal = forwardRef(function ConfirmModal({
       setOpen(true)
     }
   }), [])
-  
+
 
   return (
     <Modal
@@ -118,7 +114,7 @@ const ConfirmModal = forwardRef(function ConfirmModal({
       onOk={read}
       okButtonProps={{ loading: reading }}
     >
-      { from && to && (
+      { !!from && !!to && (
         <div>
           <div>
             作废：
@@ -142,11 +138,10 @@ const ConfirmModal = forwardRef(function ConfirmModal({
   )
 })
 
-function ReqNoticList() {
+function ReqNoticeList() {
   const modalRef = useRef(null)
-  const { list, reload, loading } = useTabReqNoticList()
-  const navigate = useNavigate()
-  const userPicker = useRef(null);
+  const { list, reload, loading } = useTabReqNoticeList()
+  const listModalRef = useRef(null);
 
   return (
     <div className="flex-1">
@@ -166,6 +161,7 @@ function ReqNoticList() {
       <OrderGroup
         title="直近完了"
         loading={loading}
+        button={<Button onClick={() => listModalRef.current.open()}>查看全部</Button>}
         list={list.done}
       >
         {item => (
@@ -176,8 +172,9 @@ function ReqNoticList() {
         )}
       </OrderGroup>
       <ConfirmModal onSuccess={reload} ref={modalRef} />
+      <ListModal ref={listModalRef} />
     </div>
   );
 }
 
-export default ReqNoticList;
+export default ReqNoticeList;
