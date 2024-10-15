@@ -70,3 +70,10 @@ svg.current-color {
 .flex-center {
   @apply flex justify-center items-center;
 }
+.ant-input.ant-input-disabled,
+.ant-picker.ant-picker-disabled,
+.ant-input-number.ant-input-number-disabled,
+.ant-select-disabled .ant-select-selector{
+  background: rgba(0 , 0, 0, 0.02) !important;
+  color: #6b6b6b !important;
+}

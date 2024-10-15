@@ -31,7 +31,7 @@ const DetailModal = forwardRef(function DetailModal(props, ref) {
               navigate(`/rb/edit/${row.replace_book.id}/order/${row.replace_book.order_id}/type/${row.replace_book.type}`)
             }}
           >查看新的請求書</Button>
-          <Button className={'ml-2 w-32'}>关闭</Button>
+          <Button onClick={() => setOpen(false)} className={'ml-2 w-32'}>关闭</Button>
         </div>
       )}
     >
@@ -138,7 +138,7 @@ const PetitionList = () => {
             <>
               <Link
                 className="btn-link"
-                to={`/orderDetail/${row.id}`}
+                to={`/rb/edit/${row.id}/order/${row.order_id}/type/${row.type}`}
               >詳情</Link>
               <span
                 className={'btn-link'}

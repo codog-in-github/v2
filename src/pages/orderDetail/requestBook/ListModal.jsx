@@ -37,14 +37,21 @@ const ListModal = ({ instance }) => {
           loading={deletingRequestBook || exporting}
           pagination={false}
           columns={[
-            { dataIndex: 'name', title: '履歴請求書' },
+            { dataIndex: 'name', title: '履歴請求書', render: (value, row) => {
+              return (
+                <div>
+                  {value}
+                  { !!row.is_void && <span className="bg-warning-500 text-white p-1 rounded ml-2">已作废</span> }
+                </div>
+              )
+              } },
             { dataIndex: 'created_at', title: '時間' , render: value => dayjs(value).format('YYYY-MM-DD HH:mm:ss')  },
             { title: '処理',  dataIndex:'id', render: (id, row) =>  (
               <div className="btn-link-group">
                 {row['is_send'] ? (
                   <>
                     <span className="btn-link" onClick={() => navigate(`/rb/edit/${id}/order/${row['order_id']}/type/${row['type']}`)}>预览</span>
-                    <span className="btn-link" onClick={() => doExport(id)}>导出</span>
+                    { !row.is_void && <span className="btn-link" onClick={() => doExport(id)}>导出</span>}
                   </>
                 ): (
                   <>
