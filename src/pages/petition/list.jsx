@@ -34,9 +34,17 @@ const PetitionList = () => {
       key: "number",
     },
     {
-      title: '请求番号.',
+      title: '请求书番号.',
       dataIndex: ['no'],
       key: "number",
+      render: (value, row) => {
+        return (
+            <>
+              {value}
+              {row['is_void'] === 1 && <span className={'p-1 bg-warning-500 text-white rounded ml-2'}>已作废</span>}
+            </>
+        )
+      }
     },
     {
       title: 'BKG NO.',
@@ -88,12 +96,12 @@ const PetitionList = () => {
       width: 160,
       render: (row) => (
         <div className="btn-link-group">
-          { row['is_void'] === 1 && (
-            <Link
-              className="btn-link"
-              to={`/rb/edit/${row.replace_book.id}/order/${row.replace_book.order_id}/type/${row.replace_book.type}`}
-            >変更詳情</Link>
-          ) }
+          {/*{ row['is_void'] === 1 && (*/}
+          {/*  <Link*/}
+          {/*    className="btn-link"*/}
+          {/*    to={`/rb/edit/${row.replace_book.id}/order/${row.replace_book.order_id}/type/${row.replace_book.type}`}*/}
+          {/*  >変更詳情</Link>*/}
+          {/*) }*/}
           { row['is_void'] !== 1 && (
             <Link className="btn-link"  to={`/rb/void/${row.id}/order/${row.order_id}/type/${row.type}`}>変更申请</Link>
           ) }
