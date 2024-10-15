@@ -1,7 +1,6 @@
 import { request } from "@/apis/requestBuilder";
 import { useEffect, useState, useRef } from "react";
 import { useAsyncCallback } from "@/hooks";
-import { useNavigate } from "react-router-dom";
 import SkeletonList from "@/components/SkeletonList";
 import {Button, Empty, Modal} from "antd";
 import { forwardRef } from "react";
