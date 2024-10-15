@@ -29,10 +29,16 @@ const PetitionList = () => {
       )
     },
     {
-      title: '番号',
+      title: '社内管理番号',
       dataIndex: ['order', 'order_no'],
       key: "number",
-    },{
+    },
+    {
+      title: '请求番号.',
+      dataIndex: ['no'],
+      key: "number",
+    },
+    {
       title: 'BKG NO.',
       dataIndex: ['order', 'bkg_no'],
       key: "number",
