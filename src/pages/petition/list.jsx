@@ -34,7 +34,7 @@ const PetitionList = () => {
       key: "number",
     },
     {
-      title: '请求书番号.',
+      title: '请求书番号',
       dataIndex: ['no'],
       key: "number",
       render: (value, row) => {
@@ -52,7 +52,7 @@ const PetitionList = () => {
       key: "number",
     },
     {
-      title: "CUT",
+      title: "CY CUT 日",
       dataIndex: ['order', 'cy_cut'],
       key: "cyCut",
     },
