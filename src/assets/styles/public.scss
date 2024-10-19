@@ -31,7 +31,7 @@ body {
 
 .main-content {
   padding: 15px;
-  @apply h-full flex-1 bg-white;
+  @apply min-h-full flex-1 bg-white;
 }
 
 .staff-title {

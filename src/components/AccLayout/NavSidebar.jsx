@@ -14,6 +14,9 @@ function Sidebar({ className }) {
       <NavButton to="/acc/reqDoneNotice" className="mb-2">
         請求書结束申请
       </NavButton>
+      <NavButton to="/acc/requestbook" className="mb-2">
+        请求书
+      </NavButton>
     </NavButtonGroup>
   );
 }

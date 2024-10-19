@@ -7,24 +7,7 @@ import {
   useState
 } from "react"
 
-/**
- * 使用自定义钩子来管理输入框的状态。
- *
- * 该钩子返回一个数组，包含当前输入值和一个用于更新输入值的函数。
- * 这种模式常用于表单输入组件，以简化状态管理和更新逻辑。
- *
- * @param {string} initialValue - 输入框的初始值。
- * @returns {Array} 返回一个数组，第一个元素是当前的输入值，第二个元素是一个函数，用于更新输入值。
- */
-export function useInput (initialValue) {
-  const [value, setValue] = useState(initialValue)
-  return [
-    value,
-    e => {
-      setValue(e.target.value)
-    }
-  ]
-}
+export * from './modal.jsx'
 
 /**
  * 使用动画钩子。

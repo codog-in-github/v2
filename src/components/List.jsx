@@ -88,7 +88,7 @@ const List = forwardRef(function List({
 
   useImperativeHandle(ref, () => {
     return {
-      getList
+      getList,
     }
   }, [])
 

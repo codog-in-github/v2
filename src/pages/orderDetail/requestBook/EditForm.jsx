@@ -1,13 +1,24 @@
 import {
-  COST_PART_CUSTOMS, COST_PART_LAND, COST_PART_OTHER,
-  COST_PART_SEA, COST_PARTS, FILE_TYPE_COST, FILE_TYPE_REQUEST, REQUEST_TYPE_ADVANCE, REQUEST_TYPE_NORMAL, SELECT_ID_RB_DETAIL_ITEM, SELECT_ID_RB_DETAIL_UNIT, SELECT_ID_RB_EXTRA_ITEM
+  COST_PART_CUSTOMS,
+  COST_PART_LAND,
+  COST_PART_OTHER,
+  COST_PART_SEA,
+  COST_PARTS,
+  FILE_TYPE_COST,
+  FILE_TYPE_REQUEST,
+  REQUEST_TYPE_ADVANCE,
+  REQUEST_TYPE_NORMAL,
+  SELECT_ID_RB_DETAIL_ITEM,
+  SELECT_ID_RB_DETAIL_UNIT,
+  SELECT_ID_RB_EXTRA_ITEM,
+  USER_ROLE_ACC
 } from "@/constant"
 import {
   Switch, Radio, InputNumber, AutoComplete, Button, DatePicker,
   Col, Form, Input, Row, Popover, Popconfirm, Space, Select, Modal
 } from "antd"
 import { useMemo, useEffect, useContext, createContext, useRef, useState } from "react"
-import { useAsyncCallback, useBankList, useDepartmentList, useOptions } from "@/hooks"
+import {useAsyncCallback, useBankList, useConfirm, useDepartmentList, useOptions} from "@/hooks"
 import { request } from "@/apis/requestBuilder"
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons"
 import Label from "@/components/Label"
@@ -18,6 +29,7 @@ import pubSub from "@/helpers/pubSub"
 import FormValue from "@/components/FormValue"
 import FileTabs from "@/components/FileTabs"
 import { useSearchParams } from "react-router-dom"
+import {useSelector} from "react-redux";
 
 const costTypes = [
   COST_PART_CUSTOMS,
@@ -444,6 +456,7 @@ const EditForm = () => {
   const extraItems = useItemList(SELECT_ID_RB_EXTRA_ITEM)
   const detailItems = useItemList(SELECT_ID_RB_DETAIL_ITEM)
   const units = useItemList(SELECT_ID_RB_DETAIL_UNIT)
+  const userRole = useSelector(state => state.user.userInfo.role)
 
   const [booksOpen, setBooksOpen] = useState(false)
   const [books, setBooks] =  useState([])
@@ -479,7 +492,11 @@ const EditForm = () => {
   }, [departments])
 
   const [submit, submiting] = useAsyncCallback(async () => {
-    const data = saveDataFormat(form.getFieldsValue())
+    let data = saveDataFormat(form.getFieldsValue())
+    if(userRole === USER_ROLE_ACC) {
+      const msg = await openAccConrirmModal()
+      data = { ...data, ...msg }
+    }
     if(copyId) {
       data.copy = 1
     }
@@ -527,6 +544,14 @@ const EditForm = () => {
   }, [form, copyId, id, bookType, voidFrom])
 
   const details = Form.useWatch('details', form)
+
+  const [accConfirmModal, openAccConrirmModal] = useConfirm('备注', (
+    <>
+      <Form.Item label={'备注'} name={'acc_comment'} rules={[{ required: true }]}>
+        <Input rows={4} placeholder="备注" />
+      </Form.Item>
+    </>
+  ))
 
   const groupAddButtons = useMemo(() => {
     const buttons = []
@@ -727,6 +752,7 @@ const EditForm = () => {
           </Space.Compact>
         </Form>
       </Modal>
+      {accConfirmModal}
       <Modal title="选择" open={booksOpen} footer={null} onCancel={() => setBooksOpen(false)}>
         <div className="flex flex-wrap gap-2">
           { books.map(book => {
