@@ -26,6 +26,7 @@ function Sidebar({ className }) {
         船期
       </NavButton> */}
       <NavButton to="/petition" className="mb-2">
+        <Icon.RequestBookChange className={'text-sm ml-1 mr-2'}/>
         請求書変更
       </NavButton>
       <NavButton to="/partner" className="mb-2">

@@ -1,7 +1,6 @@
 import { request } from "@/apis/requestBuilder";
 import { useEffect, useState, useRef } from "react";
 import { useAsyncCallback } from "@/hooks";
-import { useNavigate } from "react-router-dom";
 import SkeletonList from "@/components/SkeletonList";
 import {Button, Empty, Modal} from "antd";
 import { forwardRef } from "react";
@@ -75,7 +74,7 @@ const OrderGroup = ({ title, list, loading, button, children }) => {
       </div>
       <div className="grid grid-cols-3 lg:grid-cols-5 gap-8 flex-wrap mt-4 [&:has(.ant-empty)]:!grid-cols-1">
         <SkeletonList
-          empty={<Empty></Empty>}
+          empty={<Empty />}
           list={list}
           loading={loading}
           skeletonCount={8}
@@ -111,11 +110,13 @@ const ConfirmModal = forwardRef(function ConfirmModal({
       title="详细"
       open={open}
       onCancel={() => setOpen(false)}
+      width={340}
       onOk={read}
+      okText={'確認変更'}
       okButtonProps={{ loading: reading }}
     >
       { !!from && !!to && (
-        <div>
+        <div className={'p-5'}>
           <div>
             作废：
             <Link
