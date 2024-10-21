@@ -241,3 +241,6 @@ export const DEPARTMENTS = {
   [DEPARTMENT_OSAKA]: '大阪',
   [DEPARTMENT_KYUSHU]: '九州',
 };
+
+export const MESSAGE_DO_TYPE_ORDER = 1;
+export const MESSAGE_DO_TYPE_REQUEST_BOOK = 2;

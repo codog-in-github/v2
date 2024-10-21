@@ -1,8 +1,9 @@
 import { request } from "@/apis/requestBuilder"
-import { EXPORT_NODE_NAMES } from "@/constant"
+import {EXPORT_NODE_NAMES, MESSAGE_DO_TYPE_ORDER} from "@/constant"
 import { useAsyncCallback } from "@/hooks"
 import dayjs from "dayjs"
 import { useEffect, useState } from "react"
+import QueryString from "qs";
 
 const getOrders = (params) => {
   return request('admin/order/top_list')
@@ -81,6 +82,13 @@ export const useTopOrderList = (form) => {
 }
 
 const toMessageProps = item => {
+  let to
+  if(item['do_type'] === MESSAGE_DO_TYPE_ORDER) {
+    to = `/orderDetail/${item['order_id']}`
+  } else {
+    const qs = QueryString.parse(item['query'])
+    to = `/rb/edit/${qs.id}/order/${qs.order_id}/type/${qs.type}`
+  }
   return {
     id: item['id'],
     orderId: item['order_id'],
@@ -88,6 +96,8 @@ const toMessageProps = item => {
     isReaded: item['is_read'] === 1,
     content: item['content'],
     datetime: dayjs(item['created_at']).format('YYYY-MM-DD HH:mm:ss'),
+    doText: item['do_type'] === MESSAGE_DO_TYPE_ORDER ? '案件処理' : '請求書処理',
+    to,
     at: item['receiver'],
     from: item['sender']
   }

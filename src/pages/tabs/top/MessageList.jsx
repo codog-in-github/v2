@@ -15,7 +15,7 @@ function At ({ children }) {
   );
 }
 
-function Message({ id, from, at, datetime, content, isReaded, orderId, isAtMe }) {
+function Message({ id, from, at, datetime, content, isReaded, isAtMe, to, doText }) {
   const {isReaded: localIsReaded, read, loading} = useReadMessage(id)
   const navigate = useNavigate()
   return (
@@ -39,8 +39,8 @@ function Message({ id, from, at, datetime, content, isReaded, orderId, isAtMe })
           >{loading && <LoadingOutlined className="mr-2" />}既読</button>
           <button
             className='bg-primary flex-1 border-l'
-            onClick={() => navigate(`/orderDetail/${orderId}`)}
-          >案件処理</button>
+            onClick={() => navigate(to)}
+          >{doText}</button>
         </div>
       }
     </div>

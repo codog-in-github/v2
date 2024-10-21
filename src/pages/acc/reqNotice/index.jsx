@@ -57,9 +57,9 @@ function Card({
       </div>
 
       <div className='flex my-2 items-center text-sm text-[#484848]'>
-        <div className='mr-auto'>{item['order']['bkg_no']}</div>
+        <div className='mr-auto w-1/2'>{item['order']['bkg_no']}</div>
         <div className='h-4 border-l border-gray-300'></div>
-        <div className='ml-auto text-right text-nowrap'>{item['name']}</div>
+        <div className='ml-auto w-1/2 text-right text-nowrap'>{item['no']}</div>
       </div>
     </div>
   );
