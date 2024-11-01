@@ -45,12 +45,14 @@ export const useAsyncCallback = (func) => {
   handleRef.current = func
   const loadingRef = useRef(false)
   const [loading, setLoading] = useState(false)
+
   const callback = useCallback((...args) => {
     if(loadingRef.current) {
       return Promise.reject(
         new Error('UseAsyncCallback: loading')
       )
     }
+
     const result = handleRef.current(...args)
     if(result instanceof Promise) {
       setLoading(true)
@@ -68,19 +70,17 @@ export const useAsyncCallback = (func) => {
     }
     return result
   }, [])
-  return [
-    callback,
-    loading
-  ]
+
+  return [ callback, loading ]
 }
 
 export const useFileUpload = (orderId) => {
   const [total, setTotal] = useState(0)
   const [loaded, setLoaded] = useState(0)
 
-  const [upload, uploading] = useAsyncCallback(async ({ file, fileType }) => {
+  const [upload, uploading] = useAsyncCallback(({ file, fileType }) => {
     setLoaded(0)
-    const rep = await request('/admin/upload_file').form({
+    return request('/admin/upload_file').form({
       file, 'order_id': orderId, 'type': fileType
     })
       .config({
@@ -90,8 +90,7 @@ export const useFileUpload = (orderId) => {
         }
       })
       .send()
-    return rep
-  }, [orderId])
+  })
   return {
     uploading,
     total,
@@ -153,7 +152,6 @@ export const useDepartmentList = () => {
   return departments
 }
 
-
 export const useBankList = () => {
   const [banks, setBanks] = useState([])
   useEffect(() => {
@@ -170,14 +168,12 @@ export const useBankList = () => {
 
 export const useGateCompanyOptions = (showSelf = true) => {
   const [options, setOptions] = useState([])
-  const [loading, setLoading] = useState(false)
-  useEffect(() => {
-    setLoading(true)
-    request('/admin/order/get_custom_com')
+
+  const [loadOptions, loading] = useAsyncCallback(() => {
+    return request('/admin/order/get_custom_com')
       .get()
       .send()
       .then((data) => {
-        setLoading(false)
         const options = []
         if(showSelf) {
           options.push({
@@ -194,8 +190,11 @@ export const useGateCompanyOptions = (showSelf = true) => {
           })))
         )
       })
-  }, [showSelf])
-  return { options, loading }
+  })
+
+  useEffect(() => { loadOptions() }, [showSelf])
+
+  return [options, loading]
 }
 
 export const useCompleteList = (tab) => {

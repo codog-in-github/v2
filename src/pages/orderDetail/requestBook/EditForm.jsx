@@ -5,7 +5,6 @@ import {
   COST_PART_SEA,
   COST_PARTS,
   FILE_TYPE_COST,
-  FILE_TYPE_REQUEST,
   REQUEST_TYPE_ADVANCE,
   REQUEST_TYPE_NORMAL,
   SELECT_ID_RB_DETAIL_ITEM,
@@ -30,6 +29,8 @@ import FormValue from "@/components/FormValue"
 import FileTabs from "@/components/FileTabs"
 import { useSearchParams } from "react-router-dom"
 import {useSelector} from "react-redux";
+import {groupBy} from "lodash";
+import classNames from "classnames";
 
 const costTypes = [
   COST_PART_CUSTOMS,
@@ -50,8 +51,19 @@ const getPartName = (type) => {
   }
 }
 
-const EditFormContext = createContext()
+const EditFormContext = createContext(null)
 
+const genEmptyCostGroup = () => ({
+  purchase: '',
+  items: [{}]
+})
+const genEmptyCostTotalGroup = () => ({
+  purchase: '',
+  items: [{
+    item_name: '合计',
+    data_type: 'total'
+  }]
+})
 const ExtraInput = ({ datakey }) => {
   const form = Form.useFormInstance()
   const { extraItems, extraDefaultValue } = useContext(EditFormContext)
@@ -93,34 +105,103 @@ const ExtraInput = ({ datakey }) => {
   )
 }
 
+const CostItemRow =
+  ({ value,
+     onChange,
+     addable = true,
+     disabled = false,
+     operation,
+     index
+  }) => {
+  const { detailItems } = useContext(EditFormContext)
+  const onChangeField = (field, changeValue) => {
+    onChange({
+      ...value,
+      [field]: changeValue
+    })
+  }
+
+  const dataType = value?.data_type
+
+  return (
+    <div className="flex gap-2 my-2">
+      { dataType === 'total' ? (
+        <Input
+          value={value?.item_name}
+          readOnly
+          className={'w-32 flex-shrink-0'}
+        ></Input>
+      ) : (
+        <AutoComplete
+          onChange={(value) => onChangeField('item_name', value)}
+          className={'w-32 flex-shrink-0'}
+          disabled={disabled}
+          options={detailItems}
+          filterOption
+          value={value?.item_name}
+          optionFilterProp={'value'}
+        ></AutoComplete>
+      )}
+
+      <InputNumber
+        value={value?.item_value}
+        onChange={value => onChangeField('item_value', value)}
+        className="w-full"
+        disabled={disabled}
+        min={0}
+      ></InputNumber>
+
+      { addable && (
+        <>
+          <Button
+            className={'flex-shrink-0'}
+            icon={<PlusOutlined/>}
+            onClick={() => operation.add({})}
+          ></Button>
+          <Button
+            className={'flex-shrink-0'}
+            onClick={() => operation.remove(index)}
+            icon={<MinusOutlined/>}
+          ></Button>
+        </>
+      ) }
+    </div>
+  )
+}
 
 const formDataFormat = (book, type = REQUEST_TYPE_NORMAL) => {
-  const formData = { ...book, type }
+  const formData = {...book, type}
   formData['date'] = dayjs(book['date'])
   formData['is_stamp'] = book['is_stamp'] === 1
-  if(!book['extras'] || book['extras'].length === 0) {
+  if (!book['extras'] || book['extras'].length === 0) {
     formData['extras'] = [{}]
   }
-  formData['counts'] = {}
-  if(book['counts'] && book['counts'].length > 0) {
-    const counts = {}
-    for(const row of book['counts']) {
-      if(!counts[row['type']]) {
-        counts[row['type']] = []
-      }
-      counts[row['type']].push(row)
+  formData['costs'] = {}
+  if (book['costs'] && book['costs'].length > 0) {
+    const costs = groupBy(book['costs'], 'type')
+    for(const type in costs) {
+      const byPurchase = groupBy(costs[type], 'purchase')
+      costs[type] = Object.entries(byPurchase)
+        .map(([purchase, items]) => {
+          return { purchase, items }
+        })
     }
-    formData['counts'] = counts
+    formData['costs'] = costs
+  } else {
+    if (type === REQUEST_TYPE_NORMAL) {
+      formData['costs'] = {
+        [COST_PART_CUSTOMS]: [genEmptyCostGroup()],
+        [COST_PART_SEA]: [genEmptyCostTotalGroup()],
+        [COST_PART_LAND]: [genEmptyCostGroup()]
+      }
+    } else {
+      formData['costs'] = {
+        [COST_PART_OTHER]: [genEmptyCostGroup()]
+      }
+    }
   }
   if(book['details'] && book['details'].length > 0) {
-    const details = {}
-    for(const row of book['details']) {
-      if(!details[row['type']]) {
-        details[row['type']] = []
-      }
-      details[row['type']].push(row)
-    }
-    formData['details'] = details
+    formData['details'] = groupBy((book['details'], 'type'))
   } else {
     if(type === REQUEST_TYPE_NORMAL) {
       formData['details'] = {
@@ -129,7 +210,7 @@ const formDataFormat = (book, type = REQUEST_TYPE_NORMAL) => {
         [COST_PART_LAND]: [{}]
       }
     } else {
-      formData['counts'] = {
+      formData['details'] = {
         [COST_PART_OTHER]: [{}]
       }
     }
@@ -154,23 +235,22 @@ const saveDataFormat = (formData) => {
     }
   }
   saveData['details'] = details
-  const counts = []
-  for(const group in saveData['counts']) {
-    if(!saveData['counts'][group]) {
+  const costs = []
+  for(const type in saveData['costs']) {
+    if(!saveData['costs'][type]) {
       continue
     }
-    for(const i in saveData['counts'][group]) {
-      const count = {
-        ...saveData['counts'][group][i],
-        type: group
+    for(const group of saveData['costs'][type]) {
+      for(const item of group['items']) {
+        costs.push({
+          ...item,
+          type,
+          purchase: group['purchase']
+        })
       }
-      if(~~group !== COST_PART_SEA) {
-        count['item_name'] = formData['details'][group][i]['item_name']
-      }
-      counts.push(count)
     }
   }
-  saveData['counts'] = counts
+  saveData['costs'] = costs
   return saveData
 }
 
@@ -203,7 +283,7 @@ const DetailRow = ({ partType, partName, props }) => {
     const part = form.getFieldValue(['details', partType])
     form.setFieldValue(['details', partType, part.length], {})
     if(partType !== COST_PART_SEA) {
-      form.setFieldValue(['counts', partType, part.length], {})
+      form.setFieldValue(['costs', partType, part.length], {})
     }
   }
 
@@ -217,9 +297,9 @@ const DetailRow = ({ partType, partName, props }) => {
     const part = form.getFieldValue(['details', partType])
     form.setFieldValue(['details', partType], part.filter((_, i) => i !== props.key))
 
-    const counts = form.getFieldValue('counts')
-    counts[partType] = counts[partType].filter((_, i) => i !== props.key)
-    form.setFieldValue('counts', {...counts})
+    const costs = form.getFieldValue('costs')
+    costs[partType] = costs[partType].filter((_, i) => i !== props.key)
+    form.setFieldValue('costs', {...costs})
   }
 
   return (
@@ -290,54 +370,116 @@ const DetailRow = ({ partType, partName, props }) => {
   )
 }
 
-const CostTable = ({ value }) => {
-  const counts = value
-  const form = Form.useFormInstance()
-  if(!counts) return null
+const CostTable = ({ value, onChange }) => {
+  const costs = value
+  const [partners, setPartners] = useState([])
+  const [getPartners, loading] = useAsyncCallback(async () => {
+    const list = await request('/admin/request_book/partner').get().send()
+    setPartners(list)
+  })
+
+  useEffect(() => { getPartners() }, [])
+
+  const addRow = (type) => {
+    onChange({
+      ...value,
+      [type]: [
+        ...value[type],
+        genEmptyCostGroup()
+      ]
+    })
+  }
+
+  const removeRow = (type, index) => {
+    if(value[type].length <= 1) {
+      return
+    }
+    onChange({
+      ...value,
+      [type]: value[type].filter((_, i) => i !== index)
+    })
+  }
+
+  if(!costs) return null
+
   return costTypes.map((type) => {
-    if(!counts[type] || counts[type].length === 0) {
+    if(!costs[type] || costs[type].length === 0) {
       return null
     }
     return (
-      <>
+      <div key={type}>
         <div className="flex items-center my-2">
           <div className="flex-shrink-0 mr-8">{getPartName(type)}</div>
           <div className="h-0 w-full flex border-t border-dashed border-gray-300" />
         </div>
         <div className="p-4 bg-gray-200">
-          <div className="flex gap-2 mb-2">
-            <div className="w-32">明细项目</div>
-            <div>金额</div>
-          </div>
-          {counts[type].map((item, i) => (
-            <div key={i} className="flex gap-2 my-2">
-              <Form.Item noStyle
-                name={[type === COST_PART_SEA ? 'counts': 'details', type, i, 'item_name']}
-              >
-                <Input readOnly className="w-32 flex-shrink-0"></Input>
-              </Form.Item>
-              <Form.Item noStyle name={['counts', type, i, 'id']} />
-              <Form.Item noStyle name={['counts', type, i, 'item_amount']}>
-                <InputNumber className="w-full" min={0}></InputNumber>
-              </Form.Item>
+
+          {costs[type].map((_, groupIndex) => (
+            <div
+              key={groupIndex}
+              className={classNames({
+                'border-t border-dashed border-gray-300 mt-2 pt-2': groupIndex
+              })}
+            >
+              <div className="flex gap-2 mb-2">
+                <div className="w-32">明细项目</div>
+                <div>金额</div>
+              </div>
+              <Form.List name={['costs', type, groupIndex, 'items']}>{
+                (list, operation) => list.map((itemProps) => {
+                  const decOpt = Object.assign({}, operation)
+                  decOpt.remove = (index) => {
+                    if (list.length <= 1) {
+                      return
+                    }
+                    operation.remove(index)
+                  }
+                  return (
+                    <Form.Item
+                      noStyle
+                      key={itemProps.key}
+                      name={itemProps.name}
+                    >
+                      <CostItemRow
+                        addable={type !== COST_PART_SEA}
+                        operation={decOpt}
+                        index={itemProps.name}
+                      ></CostItemRow>
+                    </Form.Item>
+                  )
+                })
+              }</Form.List>
+
+              <div className="my-2">仕入先</div>
+              <div className={'flex gap-2'}>
+                <Form.Item name={['costs', type, groupIndex, 'purchase']} noStyle>
+                  <AutoComplete
+                    className="flex-1"
+                    options={partners}
+                    filterOption
+                    fieldNames={{
+                      value: 'name'
+                    }}
+                    optionFilterProp={'name'}
+                  ></AutoComplete>
+                </Form.Item>
+                {type !== COST_PART_SEA && (
+                  <>
+                    <Button
+                      icon={<PlusOutlined/>}
+                      onClick={() => addRow(type)}
+                    ></Button>
+                    <Button
+                      icon={<MinusOutlined/>}
+                      onClick={() => removeRow(type, groupIndex)}
+                    ></Button>
+                  </>
+                )}
+              </div>
             </div>
           ))}
-          <div className="my-2">仕入先</div>
-          <Form.Item name={['counts', type, 0, 'purchase']} noStyle>
-            <Input
-              className="w-full"
-              onBlur={(e) => {
-                const val = e.target.value
-                const group = form.getFieldValue(['counts', type])
-                for(const item of group) {
-                  item['purchase'] = val
-                }
-                form.setFieldValue(['counts', type], group)
-              }}
-            ></Input>
-          </Form.Item>
         </div>
-      </>
+      </div>
     )
   })
 }
@@ -346,26 +488,30 @@ const detailPart = (type, i) => {
   let partName = getPartName(type)
   // eslint-disable-next-line react/display-name
   return (list) => {
-    if(!list?.length) {
+    if (!list?.length) {
       return null
     }
     return (
       <>
-        { i  > 0 && (
+        {i > 0 && (
           <>
-            <tr><td></td></tr>
+            <tr>
+              <td></td>
+            </tr>
             <tr className="border-dashed border-t border-gray-300"></tr>
-            <tr><td></td></tr>
+            <tr>
+              <td></td>
+            </tr>
           </>
         )}
-       {list.map((props, i) => (
-        <DetailRow
-          key={props.key}
-          partType={type}
-          partName={i ? '' : partName}
-          props={props}
-        />
-      ))}
+        {list.map((props, i) => (
+          <DetailRow
+            key={props.key}
+            partType={type}
+            partName={i ? '' : partName}
+            props={props}
+          />
+        ))}
       </>
     )
   }
@@ -509,6 +655,7 @@ const EditForm = () => {
     navigate(`/rb/copy/${voidFrom}/order/${orderId}/type/${type}?voidTo=${voidFrom}`, { replace: true })
   }
 
+  // 获取请求书默认值
   useEffect(() => {
     const bookId = id || copyId
     form.setFieldsValue({
@@ -523,6 +670,7 @@ const EditForm = () => {
       })
   }, [orderId, id, copyId, form, bookType, searchParams.get('voidTo')])
 
+  // 获取请求书详情数据
   useEffect(() => {
     const bookId = id || copyId || voidFrom
     form.resetFields()
@@ -536,6 +684,7 @@ const EditForm = () => {
             (!!rep['is_send'] || !!rep['is_void'] || searchParams.get('d') === '1')
               && !copyId
           )
+          // voidTo 被作废的请求书id
           if(searchParams.get('voidTo')) {
             form.setFieldValue('void_id', searchParams.get('voidTo'))
           }
@@ -568,7 +717,7 @@ const EditForm = () => {
             if(part === COST_PART_SEA) {
               countsDefaultRow['item_name'] = '合计'
             }
-            form.setFieldValue(['counts', part], [countsDefaultRow])
+            form.setFieldValue(['costs', part], [countsDefaultRow])
           }}
         >{getPartName(part)}</div>
       )
@@ -721,7 +870,7 @@ const EditForm = () => {
           <Label>コストチェック表</Label>
 
           <FileTabs tabs={[FILE_TYPE_COST]} files={files} />
-          <Form.Item name='counts' noStyle>
+          <Form.Item name='costs' noStyle>
             <CostTable></CostTable>
           </Form.Item>
         </div>

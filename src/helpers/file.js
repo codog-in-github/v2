@@ -32,9 +32,10 @@ export const chooseFile = (() => {
     _onChoose = isFunction(onChoose) ? onChoose : () => {};
     _onCancel = isFunction(onCancel) ? onCancel : () => {};
     _onError = isFunction(onError) ? onError : () => {};
-  
+
     inputElement.accept = accept;
     inputElement.size = size;
+    inputElement.value = ''
     inputElement.click();
   }
 })()

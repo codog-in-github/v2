@@ -17,6 +17,12 @@ function Sidebar({ className }) {
       <NavButton to="/acc/requestbook" className="mb-2">
         请求书
       </NavButton>
+      <NavButton to="/acc/requestMulti" className="mb-2">
+        综合LIST
+      </NavButton>
+      <NavButton to="/acc/payCheckReadOnly" className="mb-2">
+        上游請求書
+      </NavButton>
     </NavButtonGroup>
   );
 }

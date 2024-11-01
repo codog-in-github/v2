@@ -34,6 +34,15 @@ export default routeGuarder((_, next) => {
       },{
         path: "/acc/requestbook",
         element: <LazyPage load={() => import('@/pages/acc/requestbook/list.jsx')} />,
+      },{
+        path: "/acc/payCheck",
+        element: <LazyPage load={() => import('@/pages/acc/payCheck/list.jsx')} />,
+      },{
+        path: "/acc/requestMulti",
+        element: <LazyPage load={() => import('@/pages/acc/requestMulti/list.jsx')} />,
+      },{
+        path: "/acc/payCheckReadOnly",
+        element: <LazyPage load={() => import('@/pages/acc/payCheck/readOnlyList.jsx')} />,
       }
     ],
   },

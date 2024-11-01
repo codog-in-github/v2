@@ -35,6 +35,9 @@ const NavTopbar = ({ className }) => {
         <NavButton to="/acc/reqNotice" className="ml-2">
           変更請求書
         </NavButton>
+        <NavButton to="/acc/payCheck" className="ml-2">
+          上游未支出
+        </NavButton>
       </NavButtonGroup>
       <div className="flex ml-auto pr-4">
         <Dropdown
