@@ -74,7 +74,7 @@ const ListPage = () => {
       key: 'no'
     },
     {
-      title: '社内番号',
+      title: '请求书番号',
       dataIndex: ['no'],
       key: 'bkg_no'
     },
@@ -127,6 +127,7 @@ const ListPage = () => {
           if(filters.date && isArray(filters.date)) {
             filters.date = filters.date.map(item => item.format('YYYY-MM-DD'))
           }
+          filters.pay_check_status = 0
           return filters
         }}
         filterItems={(
