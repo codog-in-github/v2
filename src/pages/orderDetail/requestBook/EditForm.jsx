@@ -144,8 +144,8 @@ const CostItemRow =
       )}
 
       <InputNumber
-        value={value?.item_value}
-        onChange={value => onChangeField('item_value', value)}
+        value={value?.item_amount}
+        onChange={value => onChangeField('item_amount', value)}
         className="w-full"
         disabled={disabled}
         min={0}
