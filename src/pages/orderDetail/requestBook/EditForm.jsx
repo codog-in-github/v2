@@ -200,8 +200,9 @@ const formDataFormat = (book, type = REQUEST_TYPE_NORMAL) => {
       }
     }
   }
+
   if(book['details'] && book['details'].length > 0) {
-    formData['details'] = groupBy((book['details'], 'type'))
+    formData['details'] = groupBy(book['details'], 'type')
   } else {
     if(type === REQUEST_TYPE_NORMAL) {
       formData['details'] = {
