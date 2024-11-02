@@ -27,6 +27,7 @@ const NavTopbar = ({ className }) => {
         <img className={classnames(c('logo'))} src={logo}></img>
         <div className={classnames(c('title'))}>春海組システム</div>
       </Link>
+
       <NavButtonGroup className="ml-20 space-x-4">
         <NavButton to="/acc/todo">
           <Icon.Top classname="w-4 h-4 inline relative bottom-[3px]" />
@@ -38,7 +39,11 @@ const NavTopbar = ({ className }) => {
         <NavButton to="/acc/payCheck" className="ml-2">
           上游未支出
         </NavButton>
+        <NavButton to="/acc/entryList" className="ml-2">
+          未入金
+        </NavButton>
       </NavButtonGroup>
+
       <div className="flex ml-auto pr-4">
         <Dropdown
            menu={{ items: [

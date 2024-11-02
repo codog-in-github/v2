@@ -52,16 +52,8 @@ const RequestMultiList = () => {
     },
     {
       title: '出金',
-      dataIndex: ['costs'],
-      render: (value) => {
-        if(value && isArray(value) && value.length) {
-          if(value.filter(item => item.type !== COST_PART_SEA).every(item => item.pay_check_status)) {
-            return '是'
-          }
-          return '否'
-        }
-        return '-'
-      }
+      dataIndex: ['pay_cost_status'],
+      render: (value) => value ? '是' : '否'
     },
     {
       title: '毛利',
@@ -114,11 +106,25 @@ const RequestMultiList = () => {
               optionType={'button'}
               buttonStyle={'solid'}
               options={[
-                { label: '是', value: 1 },
-                { label: '否', value: 0 },
+                {label: '是', value: 1},
+                {label: '否', value: 0},
               ]}
             ></Radio.Group>
           </Form.Item>
+
+
+          <span>出金</span>
+          <Form.Item noStyle name={'pay_cost_status'}>
+            <Radio.Group
+              optionType={'button'}
+              buttonStyle={'solid'}
+              options={[
+                {label: '是', value: 1},
+                {label: '否', value: 0},
+              ]}
+            ></Radio.Group>
+          </Form.Item>
+
 
           <span>日期类型</span>
           <Form.Item noStyle name={'date_type'}>
@@ -126,10 +132,10 @@ const RequestMultiList = () => {
               optionType={'button'}
               buttonStyle={'solid'}
               options={[
-                { label: 'CUT', value: 'cy_cut' },
-                { label: '入金', value: 'entry_at' },
-                { label: '請求', value: 'date' },
-                { label: '新建', value: 'orders.created_at' },
+                {label: 'CUT', value: 'cy_cut'},
+                {label: '入金', value: 'entry_at'},
+                {label: '請求', value: 'date'},
+                {label: '新建', value: 'orders.created_at'},
               ]}
             ></Radio.Group>
           </Form.Item>
