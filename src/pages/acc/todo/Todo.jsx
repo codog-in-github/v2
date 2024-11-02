@@ -20,7 +20,7 @@ const useTodo = () => {
           list[item.key].push({
             ...job,
             color: colors[job.customer_company_name.charCodeAt() % colors.length],
-            expired_at: job.expired_at ? dayjs(job.created_at) : dayjs().add(1, 'hours')
+            expired_at: dayjs(job.created_at).add(1, 'hours')
           })
         }
       }
