@@ -5,11 +5,27 @@ import { ORDER_TYPE_EXPORT, ORDER_TYPE_IMPORT } from "@/constant";
 import { useDispatch, useSelector } from "react-redux";
 import { setOrderType } from "@/store/slices/order";
 import classNames from "classnames";
+import {useEffect, useState} from "react";
+import pubSub from "@/helpers/pubSub.js";
 export const TopLayout = () => {
+  const [isScrollPage, setIsScrollPage] = useState(false)
+  useEffect(() => {
+    const onChange = (isScroll) => {
+      setIsScrollPage(isScroll)
+    }
+    pubSub.subscribe('Info.UI.ScrollPage.Change', onChange)
+
+    return () => pubSub.unsubscribe('Info.UI.ScrollPage.Change', onChange)
+  }, []);
   return (
     <div className="nav-layout flex flex-col h-screen">
       <NavTopbar className="flex-shrink-0" />
-      <div className="flex-1 flex overflow-hidden">
+      <div
+        className={classNames(
+          'flex-1 flex',
+          { 'overflow-hidden': !isScrollPage }
+        )}
+      >
         <Outlet />
       </div>
     </div>

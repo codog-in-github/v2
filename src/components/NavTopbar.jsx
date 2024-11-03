@@ -50,7 +50,7 @@ const NavTopbar = ({ className }) => {
         <img className={classnames(c('logo'))} src={logo}></img>
         <div className={classnames(c('title'))}>春海組システム</div>
       </Link>
-      <NavButtonGroup className="ml-20 space-x-4">
+      <NavButtonGroup className="ml-20 flex-1 overflow-auto space-x-4">
         <NavButton to="/top" badge={badgeCounts[0]}>
           <Icon.Top classname="w-4 h-4 inline relative bottom-[3px]" />
           <span className='ml-2'>TOP</span>

@@ -49,7 +49,7 @@ const ListGroup = ({
         <div>{title}</div>
         <div>{filter}</div>
       </div>
-      <div className="grid grid-cols-4 lg:grid-cols-6 gap-8 flex-wrap mt-4 [&:has(.ant-empty)]:!grid-cols-1">
+      <div className="grid grid-cols-4 2xl:grid-cols-6 gap-8 flex-wrap mt-4 [&:has(.ant-empty)]:!grid-cols-1">
         <SkeletonList
           list={list}
           loading={loading}

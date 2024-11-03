@@ -10,10 +10,18 @@ import { DetailDataContext, useDetailData } from "./dataProvider"
 import { Spin } from "antd/lib"
 import { useBlocker } from "react-router-dom"
 import { Modal } from "antd"
+import {useEffect} from "react";
+import pubSub from "@/helpers/pubSub.js";
 const OrderDetail = () => {
   const detailHook = useDetailData()
   const blocker = useBlocker(() => detailHook.modified.current)
   const { form, loading } = detailHook
+
+  useEffect(() => {
+    pubSub.publish('Info.UI.ScrollPage.Change', true)
+    return () => pubSub.publish('Info.UI.ScrollPage.Change', false)
+  }, []);
+
   return (
     <>
       <div ref={detailHook.rootRef} className="flex-1"  style={{ zoom: 0.95 }}>

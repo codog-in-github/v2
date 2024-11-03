@@ -50,7 +50,7 @@ const ListGroup = ({ title, color, list, onContextMenu, loading }) => {
 
     <div className=" m-2 rounded-lg  py-4">
       <div>{title}</div>
-      <div className="grid grid-cols-4 lg:grid-cols-5 gap-8 flex-wrap mt-4">
+      <div className="grid grid-cols-4 2xl:grid-cols-5 gap-8 flex-wrap mt-4">
         <SkeletonList
           list={list}
           loading={loading}

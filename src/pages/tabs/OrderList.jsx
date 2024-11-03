@@ -102,7 +102,7 @@ const OrderGroup = ({ title, list, loading, filter, children }) => {
         <div>{title}</div>
         <div>{filter}</div>
       </div>
-      <div className="grid grid-cols-4 lg:grid-cols-6 gap-8 flex-wrap mt-4 [&:has(.ant-empty)]:!grid-cols-1">
+      <div className="grid grid-cols-4 2xl:grid-cols-6 gap-8 flex-wrap mt-4 [&:has(.ant-empty)]:!grid-cols-1">
         <SkeletonList
           empty={<Empty></Empty>}
           list={list}

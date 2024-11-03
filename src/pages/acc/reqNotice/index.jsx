@@ -71,7 +71,7 @@ const OrderGroup = ({ title, list, loading, button, children }) => {
         <div>{title}</div>
         <div className={'ml-2'}>{button}</div>
       </div>
-      <div className="grid grid-cols-3 lg:grid-cols-5 gap-8 flex-wrap mt-4 [&:has(.ant-empty)]:!grid-cols-1">
+      <div className="grid grid-cols-4 2xl:grid-cols-5 gap-8 flex-wrap mt-4 [&:has(.ant-empty)]:!grid-cols-1">
         <SkeletonList
           empty={<Empty />}
           list={list}

@@ -866,7 +866,7 @@ const EditForm = () => {
 
         </div>
         <div
-          className="h-full w-[600px] shadow-lg shadow-gray-400 p-8"
+          className="h-full w-[600px] shadow-lg shadow-gray-400 p-8 overflow-auto"
         >
           <Label>コストチェック表</Label>
 

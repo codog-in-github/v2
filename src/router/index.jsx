@@ -4,7 +4,6 @@ import Err404 from "@/pages/Err/404.jsx";
 import { SideLayout, TopLayout } from "@/components/NavLayout";
 import CustomerLayout from "@/components/CustomerLayout";
 import { SideClientLayout, TopClientLayout } from "@/components/ClientLayout";
-import { DeclarantLayout } from "@/components/DeclarantLayout";
 import LazyPage from "@/components/LazyPage";
 import pubSub from "@/helpers/pubSub";
 import { request } from "@/apis/requestBuilder";

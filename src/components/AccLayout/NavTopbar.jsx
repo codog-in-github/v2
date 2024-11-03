@@ -32,13 +32,9 @@ const NavTopbar = ({ className }) => {
         className="ml-20 space-x-4"
         buttonWidth={160}
       >
-        <NavButton to="/acc/todo">
+        <NavButton to="/acc/todo" class>
           <Icon.UnPaySea className="mr-2" />
           未支出
-        </NavButton>
-        <NavButton to="/acc/reqNotice" className="ml-2">
-          <Icon.ChangeRequestBook className={'mr-2'} />
-          変更請求書
         </NavButton>
         <NavButton to="/acc/payCheck" className="ml-2">
           <Icon.UnPayCosts className={'mr-2'} />
@@ -47,6 +43,10 @@ const NavTopbar = ({ className }) => {
         <NavButton to="/acc/entryList" className="ml-2">
           <Icon.UnEntry className={'mr-2'} />
           未入金
+        </NavButton>
+        <NavButton to="/acc/reqNotice" className="ml-2">
+          <Icon.ChangeRequestBook className={'mr-2'} />
+          変更請求書
         </NavButton>
         <NavButton to="/acc/reqDoneNotice" className="ml-2">
           <Icon.OffNode className={'mr-2'} />
@@ -59,7 +59,6 @@ const NavTopbar = ({ className }) => {
            menu={{ items: [
             { key: '1', label: <div onClick={logoutHandle}>サインアウト</div> },
            ] }}
-
         >
           <div className='flex gap-2 items-center'>
             <Avatar></Avatar>
