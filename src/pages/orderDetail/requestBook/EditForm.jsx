@@ -1,27 +1,36 @@
 import {
-  COST_PART_CUSTOMS, COST_PART_LAND, COST_PART_OTHER,
-  COST_PART_SEA, COST_PARTS, FILE_TYPE_COST, FILE_TYPE_REQUEST, REQUEST_TYPE_ADVANCE, REQUEST_TYPE_NORMAL, SELECT_ID_RB_DETAIL_ITEM, SELECT_ID_RB_DETAIL_UNIT, SELECT_ID_RB_EXTRA_ITEM
+  COST_PART_CUSTOMS,
+  COST_PART_LAND,
+  COST_PART_OTHER,
+  COST_PART_SEA,
+  COST_PARTS,
+  FILE_TYPE_COST,
+  REQUEST_TYPE_ADVANCE,
+  REQUEST_TYPE_NORMAL,
+  SELECT_ID_RB_DETAIL_ITEM,
+  SELECT_ID_RB_DETAIL_UNIT,
+  SELECT_ID_RB_EXTRA_ITEM,
+  USER_ROLE_ACC
 } from "@/constant"
 import {
   Switch, Radio, InputNumber, AutoComplete, Button, DatePicker,
-  Col, Form, Input, Row, Popover
+  Col, Form, Input, Row, Popover, Popconfirm, Space, Select, Modal
 } from "antd"
-import { useMemo, useEffect, useContext, createContext, useRef } from "react"
-import { useAsyncCallback, useBankList, useDepartmentList, useOptions } from "@/hooks"
+import { useMemo, useEffect, useContext, createContext, useRef, useState } from "react"
+import {useAsyncCallback, useBankList, useConfirm, useDepartmentList, useOptions} from "@/hooks"
 import { request } from "@/apis/requestBuilder"
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons"
 import Label from "@/components/Label"
 import SingleCheckbox from "@/components/SingleCheckbox"
-import { useParams } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 import dayjs from "dayjs"
 import pubSub from "@/helpers/pubSub"
-import { useNavigate } from "react-router-dom"
 import FormValue from "@/components/FormValue"
-import { useState } from "react"
 import FileTabs from "@/components/FileTabs"
-import { Space } from "antd/lib"
-import { Select } from "antd"
-import { Modal } from "antd"
+import { useSearchParams } from "react-router-dom"
+import {useSelector} from "react-redux";
+import {groupBy} from "lodash";
+import classNames from "classnames";
 
 const costTypes = [
   COST_PART_CUSTOMS,
@@ -34,16 +43,27 @@ const getPartName = (type) => {
     case COST_PART_CUSTOMS:
       return '通関部分'
     case COST_PART_SEA:
-      return '海運部分'
+      return '海上部分'
     case COST_PART_LAND:
-      return '陸送部分'
+      return '運送部分'
     default:
       return 'その他'
   }
 }
 
-const EditFormContext = createContext()
+const EditFormContext = createContext(null)
 
+const genEmptyCostGroup = () => ({
+  purchase: '',
+  items: [{}]
+})
+const genEmptyCostTotalGroup = () => ({
+  purchase: '',
+  items: [{
+    item_name: '合计',
+    data_type: 'total'
+  }]
+})
 const ExtraInput = ({ datakey }) => {
   const form = Form.useFormInstance()
   const { extraItems, extraDefaultValue } = useContext(EditFormContext)
@@ -85,34 +105,104 @@ const ExtraInput = ({ datakey }) => {
   )
 }
 
+const CostItemRow =
+  ({ value,
+     onChange,
+     addable = true,
+     disabled = false,
+     operation,
+     index
+  }) => {
+  const { detailItems } = useContext(EditFormContext)
+  const onChangeField = (field, changeValue) => {
+    onChange({
+      ...value,
+      [field]: changeValue
+    })
+  }
+
+  const dataType = value?.data_type
+
+  return (
+    <div className="flex gap-2 my-2">
+      { dataType === 'total' ? (
+        <Input
+          value={value?.item_name}
+          readOnly
+          className={'w-32 flex-shrink-0'}
+        ></Input>
+      ) : (
+        <AutoComplete
+          onChange={(value) => onChangeField('item_name', value)}
+          className={'w-32 flex-shrink-0'}
+          disabled={disabled}
+          options={detailItems}
+          filterOption
+          value={value?.item_name}
+          optionFilterProp={'value'}
+        ></AutoComplete>
+      )}
+
+      <InputNumber
+        value={value?.item_amount}
+        onChange={value => onChangeField('item_amount', value)}
+        className="w-full"
+        disabled={disabled}
+        min={0}
+      ></InputNumber>
+
+      { addable && (
+        <>
+          <Button
+            className={'flex-shrink-0'}
+            icon={<PlusOutlined/>}
+            onClick={() => operation.add({})}
+          ></Button>
+          <Button
+            className={'flex-shrink-0'}
+            onClick={() => operation.remove(index)}
+            icon={<MinusOutlined/>}
+          ></Button>
+        </>
+      ) }
+    </div>
+  )
+}
 
 const formDataFormat = (book, type = REQUEST_TYPE_NORMAL) => {
-  const formData = { ...book }
+  const formData = {...book, type}
   formData['date'] = dayjs(book['date'])
   formData['is_stamp'] = book['is_stamp'] === 1
-  if(!book['extras'] || book['extras'].length === 0) {
+  if (!book['extras'] || book['extras'].length === 0) {
     formData['extras'] = [{}]
-  } 
-  formData['counts'] = {}
-  if(book['counts'] && book['counts'].length > 0) {
-    const counts = {}
-    for(const row of book['counts']) {
-      if(!counts[row['type']]) {
-        counts[row['type']] = []
-      }
-      counts[row['type']].push(row)
-    }
-    formData['counts'] = counts
   }
-  if(book['details'] && book['details'].length > 0) {
-    const details = {}
-    for(const row of book['details']) {
-      if(!details[row['type']]) {
-        details[row['type']] = []
-      }
-      details[row['type']].push(row)
+  formData['costs'] = {}
+  if (book['costs'] && book['costs'].length > 0) {
+    const costs = groupBy(book['costs'], 'type')
+    for(const type in costs) {
+      const byPurchase = groupBy(costs[type], 'purchase')
+      costs[type] = Object.entries(byPurchase)
+        .map(([purchase, items]) => {
+          return { purchase, items }
+        })
     }
-    formData['details'] = details
+    formData['costs'] = costs
+  } else {
+    if (type === REQUEST_TYPE_NORMAL) {
+      formData['costs'] = {
+        [COST_PART_CUSTOMS]: [genEmptyCostGroup()],
+        [COST_PART_SEA]: [genEmptyCostTotalGroup()],
+        [COST_PART_LAND]: [genEmptyCostGroup()]
+      }
+    } else {
+      formData['costs'] = {
+        [COST_PART_OTHER]: [genEmptyCostGroup()]
+      }
+    }
+  }
+
+  if(book['details'] && book['details'].length > 0) {
+    formData['details'] = groupBy(book['details'], 'type')
   } else {
     if(type === REQUEST_TYPE_NORMAL) {
       formData['details'] = {
@@ -121,7 +211,7 @@ const formDataFormat = (book, type = REQUEST_TYPE_NORMAL) => {
         [COST_PART_LAND]: [{}]
       }
     } else {
-      formData['counts'] = {
+      formData['details'] = {
         [COST_PART_OTHER]: [{}]
       }
     }
@@ -146,23 +236,22 @@ const saveDataFormat = (formData) => {
     }
   }
   saveData['details'] = details
-  const counts = []
-  for(const group in saveData['counts']) {
-    if(!saveData['counts'][group]) {
+  const costs = []
+  for(const type in saveData['costs']) {
+    if(!saveData['costs'][type]) {
       continue
     }
-    for(const i in saveData['counts'][group]) {
-      const count = {
-        ...saveData['counts'][group][i],
-        type: group
+    for(const group of saveData['costs'][type]) {
+      for(const item of group['items']) {
+        costs.push({
+          ...item,
+          type,
+          purchase: group['purchase']
+        })
       }
-      if(~~group !== COST_PART_SEA) {
-        count['item_name'] = formData['details'][group][i]['item_name']
-      }
-      counts.push(count)
     }
   }
-  saveData['counts'] = counts
+  saveData['costs'] = costs
   return saveData
 }
 
@@ -195,7 +284,7 @@ const DetailRow = ({ partType, partName, props }) => {
     const part = form.getFieldValue(['details', partType])
     form.setFieldValue(['details', partType, part.length], {})
     if(partType !== COST_PART_SEA) {
-      form.setFieldValue(['counts', partType, part.length], {})
+      form.setFieldValue(['costs', partType, part.length], {})
     }
   }
 
@@ -208,10 +297,10 @@ const DetailRow = ({ partType, partName, props }) => {
     }
     const part = form.getFieldValue(['details', partType])
     form.setFieldValue(['details', partType], part.filter((_, i) => i !== props.key))
-    
-    const counts = form.getFieldValue('counts')
-    counts[partType] = counts[partType].filter((_, i) => i !== props.key)
-    form.setFieldValue('counts', {...counts})
+
+    const costs = form.getFieldValue('costs')
+    costs[partType] = costs[partType].filter((_, i) => i !== props.key)
+    form.setFieldValue('costs', {...costs})
   }
 
   return (
@@ -282,54 +371,116 @@ const DetailRow = ({ partType, partName, props }) => {
   )
 }
 
-const CostTable = ({ value }) => {
-  const counts = value
-  const form = Form.useFormInstance()
-  if(!counts) return null
+const CostTable = ({ value, onChange }) => {
+  const costs = value
+  const [partners, setPartners] = useState([])
+  const [getPartners, loading] = useAsyncCallback(async () => {
+    const list = await request('/admin/request_book/partner').get().send()
+    setPartners(list)
+  })
+
+  useEffect(() => { getPartners() }, [])
+
+  const addRow = (type) => {
+    onChange({
+      ...value,
+      [type]: [
+        ...value[type],
+        genEmptyCostGroup()
+      ]
+    })
+  }
+
+  const removeRow = (type, index) => {
+    if(value[type].length <= 1) {
+      return
+    }
+    onChange({
+      ...value,
+      [type]: value[type].filter((_, i) => i !== index)
+    })
+  }
+
+  if(!costs) return null
+
   return costTypes.map((type) => {
-    if(!counts[type] || counts[type].length === 0) {
+    if(!costs[type] || costs[type].length === 0) {
       return null
     }
     return (
-      <>
+      <div key={type}>
         <div className="flex items-center my-2">
           <div className="flex-shrink-0 mr-8">{getPartName(type)}</div>
           <div className="h-0 w-full flex border-t border-dashed border-gray-300" />
         </div>
         <div className="p-4 bg-gray-200">
-          <div className="flex gap-2 mb-2">
-            <div className="w-32">明细项目</div>
-            <div>金额</div>
-          </div>
-          {counts[type].map((item, i) => (
-            <div key={i} className="flex gap-2 my-2">
-              <Form.Item noStyle
-                name={[type === COST_PART_SEA ? 'counts': 'details', type, i, 'item_name']}
-              >
-                <Input readOnly className="w-32 flex-shrink-0"></Input>
-              </Form.Item>
-              <Form.Item noStyle name={['counts', type, i, 'id']} />
-              <Form.Item noStyle name={['counts', type, i, 'item_amount']}>
-                <InputNumber className="w-full" min={0}></InputNumber>
-              </Form.Item>
+
+          {costs[type].map((_, groupIndex) => (
+            <div
+              key={groupIndex}
+              className={classNames({
+                'border-t border-dashed border-gray-300 mt-2 pt-2': groupIndex
+              })}
+            >
+              <div className="flex gap-2 mb-2">
+                <div className="w-32">明细项目</div>
+                <div>金额</div>
+              </div>
+              <Form.List name={['costs', type, groupIndex, 'items']}>{
+                (list, operation) => list.map((itemProps) => {
+                  const decOpt = Object.assign({}, operation)
+                  decOpt.remove = (index) => {
+                    if (list.length <= 1) {
+                      return
+                    }
+                    operation.remove(index)
+                  }
+                  return (
+                    <Form.Item
+                      noStyle
+                      key={itemProps.key}
+                      name={itemProps.name}
+                    >
+                      <CostItemRow
+                        addable={type !== COST_PART_SEA}
+                        operation={decOpt}
+                        index={itemProps.name}
+                      ></CostItemRow>
+                    </Form.Item>
+                  )
+                })
+              }</Form.List>
+
+              <div className="my-2">仕入先</div>
+              <div className={'flex gap-2'}>
+                <Form.Item name={['costs', type, groupIndex, 'purchase']} noStyle>
+                  <AutoComplete
+                    className="flex-1"
+                    options={partners}
+                    filterOption
+                    fieldNames={{
+                      value: 'name'
+                    }}
+                    optionFilterProp={'name'}
+                  ></AutoComplete>
+                </Form.Item>
+                {type !== COST_PART_SEA && (
+                  <>
+                    <Button
+                      icon={<PlusOutlined/>}
+                      onClick={() => addRow(type)}
+                    ></Button>
+                    <Button
+                      icon={<MinusOutlined/>}
+                      onClick={() => removeRow(type, groupIndex)}
+                    ></Button>
+                  </>
+                )}
+              </div>
             </div>
           ))}
-          <div className="my-2">仕入先</div>
-          <Form.Item name={['counts', type, 0, 'purchase']} noStyle>
-            <Input
-              className="w-full"
-              onBlur={(e) => {
-                const val = e.target.value
-                const group = form.getFieldValue(['counts', type])
-                for(const item of group) {
-                  item['purchase'] = val
-                }
-                form.setFieldValue(['counts', type], group)
-              }}
-            ></Input>
-          </Form.Item>
         </div>
-      </>
+      </div>
     )
   })
 }
@@ -338,26 +489,30 @@ const detailPart = (type, i) => {
   let partName = getPartName(type)
   // eslint-disable-next-line react/display-name
   return (list) => {
-    if(!list?.length) {
+    if (!list?.length) {
       return null
     }
     return (
       <>
-        { i  > 0 && (
+        {i > 0 && (
           <>
-            <tr><td></td></tr>
+            <tr>
+              <td></td>
+            </tr>
             <tr className="border-dashed border-t border-gray-300"></tr>
-            <tr><td></td></tr>
+            <tr>
+              <td></td>
+            </tr>
           </>
         )}
-       {list.map((props, i) => (
-        <DetailRow
-          key={props.key}
-          partType={type}
-          partName={i ? '' : partName}
-          props={props}
-        />
-      ))}
+        {list.map((props, i) => (
+          <DetailRow
+            key={props.key}
+            partType={type}
+            partName={i ? '' : partName}
+            props={props}
+          />
+        ))}
       </>
     )
   }
@@ -378,7 +533,7 @@ const MiniTotal = () => {
   const detailsOrigin = Form.useWatch('details')
 
   const miniTotal = useMemo(() => {
-    
+
     if(!detailsOrigin) {
       return 0
     }
@@ -439,7 +594,8 @@ const Total = () => {
 const EditForm = () => {
   const [form] = Form.useForm()
   const [disabled, setDisabled] = useState(false)
-  const { id, orderId, copyId, type } = useParams()
+  const { id, orderId, copyId, voidFrom, type } = useParams()
+  const [searchParams] = useSearchParams()
   const bookType = ~~type
   const [files, setFiles] = useState({})
   const navigate = useNavigate()
@@ -447,6 +603,7 @@ const EditForm = () => {
   const extraItems = useItemList(SELECT_ID_RB_EXTRA_ITEM)
   const detailItems = useItemList(SELECT_ID_RB_DETAIL_ITEM)
   const units = useItemList(SELECT_ID_RB_DETAIL_UNIT)
+  const userRole = useSelector(state => state.user.userInfo.role)
 
   const [booksOpen, setBooksOpen] = useState(false)
   const [books, setBooks] =  useState([])
@@ -482,7 +639,11 @@ const EditForm = () => {
   }, [departments])
 
   const [submit, submiting] = useAsyncCallback(async () => {
-    const data = saveDataFormat(form.getFieldsValue())
+    let data = saveDataFormat(form.getFieldsValue())
+    if(userRole === USER_ROLE_ACC) {
+      const msg = await openAccConrirmModal()
+      data = { ...data, ...msg }
+    }
     if(copyId) {
       data.copy = 1
     }
@@ -491,32 +652,56 @@ const EditForm = () => {
     navigate(`/rb/edit/${rep['id']}/order/${rep['order_id']}/type/${rep['type']}`, { replace: true })
   })
 
+  const voidBook = () => {
+    navigate(`/rb/copy/${voidFrom}/order/${orderId}/type/${type}?voidTo=${voidFrom}`, { replace: true })
+  }
+
+  // 获取請求書默认值
   useEffect(() => {
     const bookId = id || copyId
     form.setFieldsValue({
       'order_id': orderId,
       type: bookType
     })
-    request('/admin/request_book/get_default_value').get({ id: orderId }).send().then((rep) => {
-      bookId || form.setFieldsValue(formDataFormat(rep['book'], bookType))
-      extraDefaultValue.current = rep['extra']
-      setFiles(rep['files'])
-    })
-  }, [orderId, id, copyId, form, bookType])
+    request('/admin/request_book/get_default_value')
+      .get({ id: orderId }).send().then((rep) => {
+        bookId || form.setFieldsValue(formDataFormat(rep['book'], bookType))
+        extraDefaultValue.current = rep['extra']
+        setFiles(rep['files'])
+      })
+  }, [orderId, id, copyId, form, bookType, searchParams.get('voidTo')])
 
+  // 获取請求書详情数据
   useEffect(() => {
-    const bookId = id || copyId
+    const bookId = id || copyId || voidFrom
+    form.resetFields()
+    form.setFieldValue('void_id', searchParams.get('voidTo'))
+    setDisabled(false)
     if(bookId) {
-      form.resetFields()
       request('/admin/request_book/detail').get({ id: bookId }).send()
         .then(rep => {
           form.setFieldsValue(formDataFormat(rep, bookType))
-          setDisabled(id && rep['is_send'])
+          setDisabled(
+            (!!rep['is_send'] || !!rep['is_void'] || searchParams.get('d') === '1')
+              && !copyId
+          )
+          // voidTo 被作废的請求書id
+          if(searchParams.get('voidTo')) {
+            form.setFieldValue('void_id', searchParams.get('voidTo'))
+          }
         })
     }
-  }, [form, copyId, id, bookType])
+  }, [form, copyId, id, bookType, voidFrom])
 
   const details = Form.useWatch('details', form)
+
+  const [accConfirmModal, openAccConrirmModal] = useConfirm('备注', (
+    <>
+      <Form.Item label={'备注'} name={'acc_comment'} rules={[{ required: true }]}>
+        <Input rows={4} placeholder="备注" />
+      </Form.Item>
+    </>
+  ))
 
   const groupAddButtons = useMemo(() => {
     const buttons = []
@@ -533,7 +718,7 @@ const EditForm = () => {
             if(part === COST_PART_SEA) {
               countsDefaultRow['item_name'] = '合计'
             }
-            form.setFieldValue(['counts', part], [countsDefaultRow])
+            form.setFieldValue(['costs', part], [countsDefaultRow])
           }}
         >{getPartName(part)}</div>
       )
@@ -544,15 +729,16 @@ const EditForm = () => {
   const [doExport, exporting] = useAsyncCallback(async () => {
     await request('/admin/request_book/export').data({ id }).download(null, true).send()
   })
-  
+
   return (
-    <EditFormContext.Provider value={{ detailItems, extraItems, units, extraDefaultValue }}>
+    <EditFormContext.Provider value={{ detailItems, disabled, extraItems, units, extraDefaultValue }}>
       <Form
         disabled={disabled}
         form={form}
         className="flex h-screen"
       >
         <Form.Item noStyle name="id" />
+        <Form.Item noStyle name="void_id" />
         <Form.Item noStyle name="order_id" />
         <Form.Item noStyle name="type" />
 
@@ -566,7 +752,7 @@ const EditForm = () => {
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item label="請求日" name="date" labelCol={{ span: 6 }} >
+              <Form.Item label="請求日" name="date"  labelCol={{ span: 6 }} >
                 <DatePicker className="w-full" />
               </Form.Item>
             </Col>
@@ -602,7 +788,7 @@ const EditForm = () => {
                   <td className="w-24"></td>
                   <td className="w-32">明細項目</td>
                   <td className="w-64">詳細</td>
-                  <td className="w-12 text-center">转换</td>
+                  <td className="w-12 text-center">別通貨</td>
                   <td className="w-32">单价</td>
                   <td className="w-16">数量</td>
                   <td className="w-16">单位</td>
@@ -638,7 +824,7 @@ const EditForm = () => {
             <Form.Item label="銀行" name="bank_id">
               <Radio.Group options={bankOptions} />
             </Form.Item>
-            <Form.Item label="地址" name="department_id">
+            <Form.Item label="住所" name="department_id">
               <Radio.Group options={departmentOptions} />
             </Form.Item>
             <Form.Item label="社印" name="is_stamp">
@@ -647,7 +833,7 @@ const EditForm = () => {
           </div>
 
           <div className="flex gap-2 justify-end px-16">
-            <Button className="w-32" disabled={!id} type="primary" onClick={() => navigate(`/rb/add/${orderId}/type/${type}`, { replace: true })}>追加請求書</Button>
+            <Button className="w-32" type="primary" onClick={() => navigate(`/rb/add/${orderId}/type/${type}`, { replace: true })}>追加請求書</Button>
             <Button
               className="w-32"
               type="primary"
@@ -658,17 +844,34 @@ const EditForm = () => {
             >参照入力</Button>
             <Button className="w-32" type="primary" disabled={disabled || !id} loading={exporting} onClick={doExport}>出力</Button>
             <Button className="w-32" loading={submiting} type="primary" onClick={submit}>保存</Button>
+            { voidFrom && (
+              <Popconfirm
+                title={'無効にするかどうかを確認する'}
+                onConfirm={voidBook}
+                okButtonProps={{ disabled: false, danger: true }}
+                cancelButtonProps={{ disabled: false }}
+                okText={'はい'}
+                cancelText={'いいえ'}
+              >
+                <Button
+                  className="w-32"
+                  disabled={false}
+                  danger
+                  type="primary"
+                >無効</Button>
+              </Popconfirm>
+            )}
             <Button className="w-32" disabled={false} onClick={() => navigate(-1)}>戻る</Button>
           </div>
-      
+
         </div>
         <div
-          className="h-full w-[600px] shadow-lg shadow-gray-400 p-8"
+          className="h-full w-[600px] shadow-lg shadow-gray-400 p-8 overflow-auto"
         >
           <Label>コストチェック表</Label>
 
           <FileTabs tabs={[FILE_TYPE_COST]} files={files} />
-          <Form.Item name='counts' noStyle>
+          <Form.Item name='costs' noStyle>
             <CostTable></CostTable>
           </Form.Item>
         </div>
@@ -699,6 +902,7 @@ const EditForm = () => {
           </Space.Compact>
         </Form>
       </Modal>
+      {accConfirmModal}
       <Modal title="选择" open={booksOpen} footer={null} onCancel={() => setBooksOpen(false)}>
         <div className="flex flex-wrap gap-2">
           { books.map(book => {

@@ -92,10 +92,10 @@ function MainContent() {
             'user_id': user
           }
           await request('admin/order/dispatch').data(params).send()
-          pubSub.publish('Info.Toast', '已指派', 'success')
+          pubSub.publish('Info.Toast', '仲間に協力', 'success')
           messageList.current.loadTop()
         }}
-      >指派任务</div>
+      >仲間に協力</div>
     </div>
   )
 

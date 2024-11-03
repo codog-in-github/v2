@@ -4,43 +4,20 @@ import Err404 from "@/pages/Err/404.jsx";
 import { SideLayout, TopLayout } from "@/components/NavLayout";
 import CustomerLayout from "@/components/CustomerLayout";
 import { SideClientLayout, TopClientLayout } from "@/components/ClientLayout";
-import { DeclarantLayout } from "@/components/DeclarantLayout";
 import LazyPage from "@/components/LazyPage";
 import pubSub from "@/helpers/pubSub";
 import { request } from "@/apis/requestBuilder";
 import store from "@/store";
 import { setUserInfo } from "@/store/slices/user"
 import { USER_ROLE_ACC, USER_ROLE_ADMIN, USER_ROLE_BOOS, USER_ROLE_CUSTOMS, USER_ROLE_NORMAL } from "@/constant";
-import AccLayout from "@/components/AccLayout";
-
+import {redirectUrl, routeGuarder} from "@/router/common.jsx";
+import accRoutes from "@/router/acc.jsx";
+import customsRoutes from "@/router/customs.jsx";
 
 pubSub.subscribe('Error:HTTP.Unauthorized', () => {
   localStorage.removeItem('token')
   router.navigate('/')
 })
-
-const redirectUrl = (roleId) => {
-  switch (roleId) {
-    case USER_ROLE_CUSTOMS:
-      return '/declarant'
-    case USER_ROLE_ACC:
-      return '/acc/todo'
-    default:
-      return
-  }
-}
-
-const routeGuarder = (guarder, children) => {
-  return {
-    element: (
-      <LazyPage
-        load={() => Promise.resolve({ default: () => <Outlet /> })}
-        beforeLoad={guarder}
-      />
-    ),
-    children,
-  }
-}
 
 const router = createBrowserRouter([
   {
@@ -57,7 +34,7 @@ const router = createBrowserRouter([
   }, [
     routeGuarder((_, next) => {
       const role = store.getState().user.userInfo.role
-      if([USER_ROLE_ADMIN, USER_ROLE_BOOS, USER_ROLE_NORMAL].includes(role)) {
+      if([USER_ROLE_ADMIN, USER_ROLE_BOOS, USER_ROLE_NORMAL, USER_ROLE_ACC].includes(role)) {
         next()
       } else {
         next(redirectUrl(role))
@@ -75,6 +52,18 @@ const router = createBrowserRouter([
         path: "/rb/copy/:copyId/order/:orderId/type/:type",
         element: <LazyPage load={() => import('@/pages/orderDetail/requestBook/EditForm.jsx')} />,
       },
+      {
+        path: "/rb/void/:voidFrom/order/:orderId/type/:type",
+        element: <LazyPage load={() => import('@/pages/orderDetail/requestBook/EditForm.jsx')} />,
+      },
+      routeGuarder((_, next) => {
+        const role = store.getState().user.userInfo.role
+        if([USER_ROLE_ADMIN, USER_ROLE_BOOS, USER_ROLE_NORMAL].includes(role)) {
+          next()
+        } else {
+          next(redirectUrl(role))
+        }
+      }, [
       {
         element: <TopLayout />,
         children: [
@@ -133,6 +122,7 @@ const router = createBrowserRouter([
           },
         ],
       },
+      ]),
       //员工端
       {
         element: <CustomerLayout />,
@@ -179,51 +169,8 @@ const router = createBrowserRouter([
         ],
       },
     ]),
-    //报关员端
-    routeGuarder((_, next) => {
-      const role = store.getState().user.userInfo.role
-      if([USER_ROLE_ADMIN, USER_ROLE_BOOS, USER_ROLE_CUSTOMS].includes(role)) {
-        next()
-      } else {
-        next(redirectUrl(role))
-      }
-    }, [
-      {
-        element: <DeclarantLayout />,
-        children: [
-          {
-            path: "/declarant",
-            element: <LazyPage load={() => import('@/pages/declarant/list')} />,
-          },{
-            path: "/declarant/detail/:id",
-            element: <LazyPage load={() => import('@/pages/declarant/detail')} />,
-          },
-        ],
-      },
-    ]),
-    //会计端
-    routeGuarder((_, next) => {
-      const role = store.getState().user.userInfo.role
-      console.log(role)
-      if([USER_ROLE_ADMIN, USER_ROLE_BOOS, USER_ROLE_ACC].includes(role)) {
-        next()
-      } else {
-        next(redirectUrl(role))
-      }
-    }, [
-      {
-        element: <AccLayout />,
-        children: [
-          {
-            path: "/acc/todo",
-            element: <LazyPage load={() => import('@/pages/acc/todo/Todo.jsx')} />,
-          },{
-            path: "/acc/dashboard",
-            element: <LazyPage load={() => import('@/pages/acc/dashboard/Dashboard.jsx')} />,
-          },
-        ],
-      },
-    ])
+    customsRoutes,
+    accRoutes,
   ]),
   {
     path: "*",

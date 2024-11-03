@@ -66,7 +66,7 @@ export const ORDER_NODE_TYPE_SUR = 9;
  */
 export const ORDER_NODE_TYPE_FM = 10;
 /**
- * 請：填写请求书→发送给客户
+ * 請：填写請求書→发送给客户
  * @type {11}
  */
 export const ORDER_NODE_TYPE_REQUEST = 11;
@@ -104,7 +104,7 @@ export const COST_PART_OTHER = 3
 
 export const COST_PARTS = [COST_PART_CUSTOMS, COST_PART_SEA, COST_PART_LAND, COST_PART_OTHER]
 
-export const SELECT_ID_SHIP_CONPANY = 5
+export const SELECT_ID_SHIP_COMPANY = 5
 export const SELECT_ID_CONTAINER_TYPE = 3
 export const SELECT_ID_RB_EXTRA_ITEM = 11
 export const SELECT_ID_RB_DETAIL_ITEM = 12
@@ -235,3 +235,12 @@ export const DEPARTMENT_OSAKA = 2;
  * @type {3}
  */
 export const DEPARTMENT_KYUSHU = 3;
+
+export const DEPARTMENTS = {
+  [DEPARTMENT_KOBE]: '神户',
+  [DEPARTMENT_OSAKA]: '大阪',
+  [DEPARTMENT_KYUSHU]: '九州',
+};
+
+export const MESSAGE_DO_TYPE_ORDER = 1;
+export const MESSAGE_DO_TYPE_REQUEST_BOOK = 2;

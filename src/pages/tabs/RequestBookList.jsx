@@ -6,8 +6,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import pubSub from "@/helpers/pubSub";
 import SkeletonList from "@/components/SkeletonList";
 import { ORDER_TAB_STATUS_REQUEST} from "@/constant";
-import { Avatar } from "antd";
-import { Form } from "antd";
+import { Avatar, Form } from "antd";
 import OrderFilter from "@/components/OrderFilter";
 import PortFullName from "@/components/PortFullName";
 import { CARD_COLORS } from "./common";
@@ -53,7 +52,7 @@ const ListGroup = ({
         <div>{title}</div>
         <div>{filter}</div>
       </div>
-      <div className="grid grid-cols-4 lg:grid-cols-6 gap-8 flex-wrap mt-4 [&:has(.ant-empty)]:!grid-cols-1">
+      <div className="grid grid-cols-4 2xl:grid-cols-6 gap-8 flex-wrap mt-4 [&:has(.ant-empty)]:!grid-cols-1">
         <SkeletonList
           list={list}
           loading={loading}
@@ -145,7 +144,7 @@ function RequestBookPage() {
       'node_status': ORDER_TAB_STATUS_REQUEST,
       'is_top': 1
     }).send()
-    pubSub.publish('Info.Toast', '已置顶任务', 'success')
+    pubSub.publish('Info.Toast', 'TOP PAGEに', 'success')
     reload()
   })
 
@@ -169,16 +168,15 @@ function RequestBookPage() {
             'user_id': user
           }
           await request('admin/order/dispatch').data(params).send()
-          pubSub.publish('Info.Toast', '已指派', 'success')
+          pubSub.publish('Info.Toast', '仲間に協力', 'success')
         }}
-      >指派任务
-      </div>
+      >仲間に協力</div>
       <div
         className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
         onClick={topNode}
       >
         {topNodeLoading && <LoadingOutlined className="mr-2"/>}
-        置顶任务
+        TOP PAGEに
       </div>
     </div>
   )

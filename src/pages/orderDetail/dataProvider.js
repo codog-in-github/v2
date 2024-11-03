@@ -125,7 +125,7 @@ const formDataGenerator = (isCopy) => (rep) => {
   setIfExist('customerAbbr', 'short_name')
   setIfExist('customerPostalCode', 'zip_code')
   setIfExist('customerAddr', 'address')
-  setIfExist('customerResponsiblePersion', 'header')
+  setIfExist('customerResponsiblePerson', 'header')
   setIfExist('customerContact', 'mobile')
   setIfExist('companyCode', 'legal_number')
 
@@ -295,7 +295,7 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
   setValue('customerAbbr', 'short_name')
   setValue('customerPostalCode', 'zip_code')
   setValue('customerAddr', 'address')
-  setValue('customerResponsiblePersion', 'header')
+  setValue('customerResponsiblePerson', 'header')
   setValue('customerContact', 'mobile')
   setValue('companyCode', 'legal_number')
 
@@ -593,13 +593,14 @@ export const useDetailData = () => {
     setRequestBooks(requestBooks.filter(item => item.id !== id))
   })
 
-  const [changeNodeStatus, changingNodeStatus] = useAsyncCallback(async (id, enable) => {
+  const [changeNodeStatus, changingNodeStatus] = useAsyncCallback(async (id, enable, reason = '') => {
     if(isTempOrder)
       return
     await request('/admin/order/change_node_status')
       .data({
         'id': id,
-        'is_enable': enable ? 1 : 0
+        'is_enable': enable ? 1 : 0,
+        reason
       })
       .send()
     refreshNodes()

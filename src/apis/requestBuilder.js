@@ -182,6 +182,11 @@ class Request {
     return this
   }
 
+  delete () {
+    this.method = 'delete';
+    return this;
+  }
+
   download(filename = '', preview = false) {
     this.config({
       responseType: 'blob'

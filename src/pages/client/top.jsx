@@ -82,7 +82,7 @@ const ClientTop = () => {
     },
 
     {
-      title: "操作",
+      title: "処理",
       key: "option",
       fixed: "right",
       width: 180,

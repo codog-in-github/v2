@@ -27,18 +27,38 @@ const NavTopbar = ({ className }) => {
         <img className={classnames(c('logo'))} src={logo}></img>
         <div className={classnames(c('title'))}>春海組システム</div>
       </Link>
-      <NavButtonGroup className="ml-20 space-x-4">
-        <NavButton to="/acc/todo">
-          <Icon.Top classname="w-4 h-4 inline relative bottom-[3px]" />
-          <span className='ml-2'>未支出</span>
+
+      <NavButtonGroup
+        className="ml-20 space-x-4"
+        buttonWidth={160}
+      >
+        <NavButton to="/acc/todo" class>
+          <Icon.UnPaySea className="mr-2" />
+          未支出
+        </NavButton>
+        <NavButton to="/acc/payCheck" className="ml-2">
+          <Icon.UnPayCosts className={'mr-2'} />
+          上游未支出
+        </NavButton>
+        <NavButton to="/acc/entryList" className="ml-2">
+          <Icon.UnEntry className={'mr-2'} />
+          未入金
+        </NavButton>
+        <NavButton to="/acc/reqNotice" className="ml-2">
+          <Icon.ChangeRequestBook className={'mr-2'} />
+          変更請求書
+        </NavButton>
+        <NavButton to="/acc/reqDoneNotice" className="ml-2">
+          <Icon.OffNode className={'mr-2'} />
+          熄灯申请
         </NavButton>
       </NavButtonGroup>
+
       <div className="flex ml-auto pr-4">
         <Dropdown
            menu={{ items: [
             { key: '1', label: <div onClick={logoutHandle}>サインアウト</div> },
            ] }}
-           
         >
           <div className='flex gap-2 items-center'>
             <Avatar></Avatar>

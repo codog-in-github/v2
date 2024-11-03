@@ -27,7 +27,7 @@ const Customer = ({ className }) => {
           <Input onChange={onModifyChange} />
         </Form.Item>
         <div className="flex items-end gap-1">
-          <Form.Item className="flex-1" label="担当者" name="customerResponsiblePersion">
+          <Form.Item className="flex-1" label="担当者" name="customerResponsiblePerson">
             <Input onChange={onModifyChange} />
           </Form.Item>
           <span className="relative bottom-1">/</span>

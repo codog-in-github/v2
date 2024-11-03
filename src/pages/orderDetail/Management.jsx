@@ -2,7 +2,7 @@ import Label from "@/components/Label"
 import ListModal from "./requestBook/ListModal"
 import { BKG_TYPE_CUSTOM, BKG_TYPES } from "@/constant"
 import { Form, Button, Input, DatePicker, Select, AutoComplete, Modal } from "antd"
-import { useContext, useMemo, useEffect, useState, useRef } from "react"
+import {useContext, useMemo, useEffect, useState, useRef, forwardRef, useImperativeHandle} from "react"
 import { DetailDataContext } from "./dataProvider"
 import { useAsyncCallback, useGateCompanyOptions } from '@/hooks'
 import { Space } from "antd"
@@ -64,7 +64,7 @@ const BkgTypeSelect = ({ value, onChange, ...props }) => {
 }
 
 const GateSelect = ({ value, onChange, ...props }) => {
-  const { options, loading } = useGateCompanyOptions()
+  const [options, loading] = useGateCompanyOptions()
   const type = Form.useWatch('type')
   const noGate = !type || ![1, 2, 4, 5].includes(~~type.key)
   return (
@@ -79,14 +79,13 @@ const GateSelect = ({ value, onChange, ...props }) => {
   )
 }
 
-const CopyModal = ({
-  instance
-}) => {
+const CopyModal = forwardRef(function CopyModal (props, ref) {
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [form] = Form.useForm()
-  if(instance) {
-    instance.current = {
+
+  useImperativeHandle(ref, () => {
+    return {
       open: () => {
         form.resetFields()
         form.setFieldValue('field', 'bkg_no')
@@ -94,7 +93,8 @@ const CopyModal = ({
       },
       close: () => setOpen(false)
     }
-  }
+  }, [form])
+
   const [submit, submiting] = useAsyncCallback(async () => {
     const data = await form.validateFields()
     const rep = await request('/admin/order/query_id').data(data).send()
@@ -105,6 +105,7 @@ const CopyModal = ({
     navigate(`/orderDetail/copy/${rep.id}`, { replace: true })
     setOpen(false)
   })
+
   return (
     <Modal
       title="類似事件"
@@ -134,7 +135,7 @@ const CopyModal = ({
       </Form>
     </Modal>
   )
-}
+})
 
 const Management = ({ className }) => {
   const { form, saveOrder, savingOrder, delOrder, deletingOrder, isCopy, onModifyChange, rootRef } = useContext(DetailDataContext)
@@ -149,8 +150,8 @@ const Management = ({ className }) => {
       form.setFieldValue('blNo', bkgNo)
     }
   }
-  const requestBookModalInstance = useRef(null)
-  const bookSelectModalInstance = useRef(null)
+  const requestBookModalRef = useRef(null)
+  const bookSelectModalRef = useRef(null)
 
   return (
     <div className={className}>
@@ -230,12 +231,12 @@ const Management = ({ className }) => {
           }}
         >戻る</Button>
         <Button type="primary"  onClick={() => { copyModalInstance.current.open() }}>類似案件</Button>
-        <Button type="primary" disabled={isCopy} onClick={() => { bookSelectModalInstance.current.open() }}>各種書類作成</Button>
-        <Button type="primary" disabled={isCopy} onClick={() => { requestBookModalInstance.current.open() }}>請求書</Button>
+        <Button type="primary" disabled={isCopy} onClick={() => { bookSelectModalRef.current.open() }}>各種書類作成</Button>
+        <Button type="primary" disabled={isCopy} onClick={() => { requestBookModalRef.current.open() }}>請求書</Button>
       </div>
-      <ListModal instance={requestBookModalInstance}></ListModal>
-      <CopyModal instance={copyModalInstance}></CopyModal>
-      <BookSelectModal instance={bookSelectModalInstance} />
+      <ListModal ref={requestBookModalRef}></ListModal>
+      <CopyModal ref={copyModalInstance}></CopyModal>
+      <BookSelectModal instance={bookSelectModalRef} />
     </div>
   )
 }

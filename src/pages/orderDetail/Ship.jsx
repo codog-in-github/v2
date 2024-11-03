@@ -1,6 +1,6 @@
 import { request } from "@/apis/requestBuilder"
 import Label from "@/components/Label"
-import { SELECT_ID_SHIP_CONPANY } from "@/constant"
+import { SELECT_ID_SHIP_COMPANY } from "@/constant"
 import { useAsyncCallback, useOptions } from "@/hooks"
 import {Form, Input, Select, DatePicker, Button, Space} from "antd"
 import { useContext } from "react"
@@ -195,13 +195,22 @@ const AddPortModal = forwardRef(function AddPortModal ({ onSuccess }, ref) {
 const AmPmSelect = ({ value, onChange }) => {
   const activeClass = 'bg-[#194114] text-white'
   return (
-    <div className={'flex w-16 text-center bg-white text-[#B4B4B4] cursor-pointer text-xs h-4 rounded overflow-hidden'}>
-      <div className={classNames('flex-1', {
-        [activeClass]: value === 0,
-      })} onClick={() => onChange(0)}>AM</div>
-      <div className={classNames('flex-1', {
-        [activeClass]: value === 1,
-      })} onClick={() => onChange(1)}>PM</div>
+    <div
+      className={'flex w-16 text-center bg-white text-[#B4B4B4] cursor-pointer text-xs h-4 rounded overflow-hidden'}
+    >
+      <div
+        className={classNames('flex-1', {
+          [activeClass]: value === 0,
+        })}
+        onClick={() => onChange(0)}
+      >AM</div>
+
+      <div
+        className={classNames('flex-1', {
+          [activeClass]: value === 1,
+        })}
+        onClick={() => onChange(1)}
+      >PM</div>
     </div>
   )
 }
@@ -212,12 +221,13 @@ const useCarrierOptions = () => {
   const [callback, loading] = useAsyncCallback(async () => {
     const rep = await request('admin/carrier_options').get().send()
     setList(rep)
-  }, [])
-  useEffect(() => {
-    callback()
-  }, [])
+  })
+
+  useEffect(() => { callback() }, [])
+
   return [list, loading, callback]
 }
+
 const Ship = ({ className }) => {
   const { rootRef, onModifyChange, form } = useContext(DetailDataContext)
   const { portTree, loading: portLoading, fetch: fetchPort } = usePorts()
@@ -230,7 +240,7 @@ const Ship = ({ className }) => {
    * 船公司列表从options表移到PartnerCompany
    * SELECT_ID_SHIP_CONPANY 只用来查询 vessel 列表
    */
-  const [ships] = useOptions(SELECT_ID_SHIP_CONPANY)
+  const [ships] = useOptions(SELECT_ID_SHIP_COMPANY)
 
   const vesselOptions = useMemo(
     () => ships.map(item => ({ value: item.extra })).filter(item => !!item.value),
