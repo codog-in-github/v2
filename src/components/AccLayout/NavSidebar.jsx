@@ -9,18 +9,19 @@ function Sidebar({ className }) {
       className={classNames("nav-side-bar bg-white p-4 flex-col", className)}
     >
       <NavButton to="/acc/dashboard" className="mb-2">
+        <Icon.ChartDashboard className={'mr-2'} />
         统计首页
       </NavButton>
-      <NavButton to="/acc/reqDoneNotice" className="mb-2">
-        請求書结束申请
-      </NavButton>
       <NavButton to="/acc/requestbook" className="mb-2">
-        请求书
+        <Icon.AccRequestBook className={'mr-2'} />
+        請求書
       </NavButton>
       <NavButton to="/acc/requestMulti" className="mb-2">
+        <Icon.MultiList className={'mr-2'} />
         综合LIST
       </NavButton>
       <NavButton to="/acc/payCheckReadOnly" className="mb-2">
+        <Icon.RequestBookCosts className={'mr-2'} />
         上游請求書
       </NavButton>
     </NavButtonGroup>

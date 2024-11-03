@@ -72,7 +72,7 @@ const PetitionList = () => {
       key: "number",
     },
     {
-      title: '请求书番号',
+      title: '請求書番号',
       dataIndex: ['no'],
       key: "number",
       render: (value, row) => {

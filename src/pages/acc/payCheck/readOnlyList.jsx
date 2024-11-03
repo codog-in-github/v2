@@ -1,12 +1,12 @@
 import List from "@/components/List.jsx";
-import {useCallback, useMemo, useRef, useState} from "react";
-import {Button, Checkbox, DatePicker, Form, Input, Radio, Select} from "antd";
-import {map2array} from "@/helpers/index.js";
+import {useCallback, useMemo, useRef} from "react";
+import {DatePicker, Form, Input, Radio, Select} from "antd";
+import {genRowSpan, map2array} from "@/helpers/index.js";
 import {COST_PART_CUSTOMS, COST_PART_LAND, COST_PART_OTHER, COST_PART_SEA, DEPARTMENTS} from "@/constant/index.js";
 import dayjs from "dayjs";
-import pubSub from "@/helpers/pubSub.js";
 import {isArray} from "lodash";
 import {Link} from "react-router-dom";
+import FilterItem from "@/components/FilterItem.jsx";
 
 const costTypeMap = {
   [COST_PART_CUSTOMS]: '通関',
@@ -20,67 +20,40 @@ const departments = map2array(DEPARTMENTS)
 const getRowKey = (row) => [row.book_id, row.type, row.purchase].join('|')
 const ListPage = () => {
   const [filters] = Form.useForm()
-  const [selectRows, setSelectRows] = useState({})
 
   const listRef = useRef(null);
 
-  const checkModalRef = useRef(null);
-
-  const selectRow = useCallback((checked, row) => {
-    console.log(checked, selectRows)
-    const key = getRowKey(row)
-    if(checked) {
-      selectRows[key] = row
-    } else {
-      delete selectRows[key]
-    }
-    setSelectRows({ ...selectRows })
-  }, []);
-
-  const showCheckModal = useCallback(() => {
-    if(Object.keys(selectRows).length === 0) {
-      return pubSub.publish('Info.Toast', '请选择要校对的费用记录', 'error')
-    }
-    checkModalRef.current.open(Object.values(selectRows))
-    setSelectRows({})
-  }, [selectRows]);
-
   const columns = useMemo(() => [
-    // {
-    //   width: 80,
-    //   render: (row) => (
-    //     <Checkbox
-    //       onChange={(e) => selectRow(e.target.checked, row)}
-    //       checked={getRowKey(row) in selectRows}
-    //     ></Checkbox>
-    //   ),
-    // },
     {
       title: '营业场所',
       dataIndex: ['department'],
       key: 'department',
       width: 120,
-      render: (text) => DEPARTMENTS[text]
+      render: (text) => DEPARTMENTS[text],
+      onCell: row => row.cellSpan
     },
     {
       title: 'お客様名',
       dataIndex: ['company_name'],
-      key: 'company_name'
-    },
-    {
-      title: '社内番号',
-      dataIndex: ['order_no'],
-      key: 'no'
-    },
-    {
-      title: '请求书番号',
-      dataIndex: ['no'],
-      key: 'bkg_no'
+      key: 'company_name',
+      onCell: row => row.cellSpan
     },
     {
       title: 'BKG NO.',
       dataIndex: ['bkg_no'],
       key: 'date',
+      onCell: row => row.cellSpan
+    },
+    {
+      title: '社内番号',
+      dataIndex: ['order_no'],
+      key: 'no',
+      onCell: row => row.cellSpan
+    },
+    {
+      title: '請求書番号',
+      dataIndex: ['no'],
+      key: 'bkg_no'
     },
     {
       title: '制作日期',
@@ -111,87 +84,83 @@ const ListPage = () => {
         </>
       )
     }
-  ], [selectRows])
+  ], [])
+
+  const onDataSource = useCallback(genRowSpan('order_id'), []);
 
   return (
-    <>
-      <List
-        url={'/admin/acc/costs_pay_check_list'}
-        rowKey={getRowKey}
-        ref={listRef}
-        columns={columns}
-        filters={filters}
-        beforeSearch={filters => {
-          filters = { ...filters }
-          if(filters.date && isArray(filters.date)) {
-            filters.date = filters.date.map(item => item.format('YYYY-MM-DD'))
-          }
-          return filters
-        }}
-        filterItems={(
-          <>
-            <span>营业场所</span>
-            <Form.Item noStyle name={'department'}>
-              <Select
-                className={'w-32'}
-                options={departments}
-              ></Select>
-            </Form.Item>
+    <List
+      onDataSource={onDataSource}
+      url={'/admin/acc/costs_pay_check_list'}
+      rowKey={getRowKey}
+      tableProps={{ bordered: true }}
+      ref={listRef}
+      columns={columns}
+      filters={filters}
+      beforeSearch={filters => {
+        filters = { ...filters }
+        filters.with_sea = 1
+        if(filters.date && isArray(filters.date)) {
+          filters.date = filters.date.map(item => item.format('YYYY-MM-DD'))
+        }
+        return filters
+      }}
+      filterItems={(
+        <>
+          <FilterItem label={'营业场所'} name={'department'}>
+            <Select
+              className={'w-32'}
+              options={departments}
+            ></Select>
+          </FilterItem>
 
-            <span>お客様名</span>
-            <Form.Item noStyle name={'company_name'}>
-              <Input placeholder={'お客様名'}></Input>
-            </Form.Item>
+          <FilterItem label={'お客様名'} name={'company_name'}>
+            <Input className={'w-44'} placeholder={'お客様名'}></Input>
+          </FilterItem>
 
-            <span>社内番号</span>
-            <Form.Item noStyle name={'order_no'}>
-              <Input placeholder={'社内番号'}></Input>
-            </Form.Item>
+          <FilterItem label={'社内番号'} name={'order_no'}>
+            <Input className={'w-44'} placeholder={'社内番号'}></Input>
+          </FilterItem>
 
-            <span>BKG NO.</span>
-            <Form.Item noStyle name={'bkg_no'}>
-              <Input placeholder={'BKG NO.'}></Input>
-            </Form.Item>
+          <FilterItem label={'BKG NO.'} name={'bkg_no'}>
+            <Input className={'w-44'} placeholder={'BKG NO.'}></Input>
+          </FilterItem>
 
-            <span>制作状态</span>
-            <Form.Item noStyle name={'is_send'}>
-              <Radio.Group
-                optionType={'button'}
-                buttonStyle={'solid'}
-                options={[
-                  { label: '未完了', value: 0 },
-                  { label: '完了', value: 1 }
-                ]}
-              ></Radio.Group>
-            </Form.Item>
+          <FilterItem label={'制作状态'} name={'is_send'}>
+            <Radio.Group
+              optionType={'button'}
+              buttonStyle={'solid'}
+              options={[
+                { label: '未完了', value: 0 },
+                { label: '完了', value: 1 }
+              ]}
+            ></Radio.Group>
+          </FilterItem>
 
-            <span>請求部分</span>
-            <Form.Item noStyle name={'type'}>
-              <Radio.Group
-                optionType={'button'}
-                buttonStyle={'solid'}
-                options={[
-                  { label: '通関', value: COST_PART_CUSTOMS },
-                  { label: '運送', value: COST_PART_LAND },
-                  { label: 'その他', value: COST_PART_OTHER }
-                ]}
-             ></Radio.Group>
-            </Form.Item>
+          <FilterItem label={'請求部分'} name={'type'}>
+            <Radio.Group
+              optionType={'button'}
+              buttonStyle={'solid'}
+              options={[
+                { label: '通関', value: COST_PART_CUSTOMS },
+                { label: '海運', value: COST_PART_SEA },
+                { label: '運送', value: COST_PART_LAND },
+                { label: 'その他', value: COST_PART_OTHER }
+              ]}
+           ></Radio.Group>
+          </FilterItem>
 
-            <span>制作日期</span>
-            <Form.Item noStyle name={'date'}>
-              <DatePicker.RangePicker  />
-            </Form.Item>
+          <FilterItem label={'制作日期'} name={'date'}>
+            <DatePicker.RangePicker  />
+          </FilterItem>
 
-            <span>支払先お客様名</span>
-            <Form.Item noStyle name={'purchase'}>
-              <Input placeholder={'支払先お客様名'}></Input>
-            </Form.Item>
-          </>
-        )}
-      >
-      </List>
-    </>
+          <FilterItem label={'支払先お客様名'} name={'purchase'}>
+            <Input className={'w-44'} placeholder={'支払先お客様名'}></Input>
+          </FilterItem>
+        </>
+      )}
+    >
+    </List>
   )
 }
 

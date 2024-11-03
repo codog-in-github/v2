@@ -22,7 +22,7 @@ const ListModal = forwardRef(function ListModal(_, ref) {
         dataIndex: ['order', 'order_no'],
       },
       {
-        title: '作废请求书号',
+        title: '作废請求書号',
         dataIndex: ['no'],
         render: (value, row) => (
           <div className={'text-primary-500'}>
@@ -32,7 +32,7 @@ const ListModal = forwardRef(function ListModal(_, ref) {
         ),
       },
       {
-        title: '变更后请求书号',
+        title: '变更后請求書号',
         dataIndex: ['replace_book', 'no'],
         render: (value, row) => (
           <div className={'text-primary-500'}>

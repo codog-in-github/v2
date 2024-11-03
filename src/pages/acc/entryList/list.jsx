@@ -8,6 +8,7 @@ import {DEPARTMENT_KOBE, DEPARTMENT_KYUSHU, DEPARTMENT_OSAKA, DEPARTMENTS, ORDER
 import { Form } from "antd";
 import OrderFilter from "@/components/OrderFilter";
 import dayjs from "dayjs";
+import classNames from "classnames";
 
 const useReqList = (form) => {
   const [list, setList] = useState({});
@@ -43,7 +44,7 @@ const ListGroup = ({
    }) => {
   return (
 
-    <div className="bg-white mb-[20px] rounded-lg shadow p-4">
+    <div className="mb-[20px]">
       <div className="flex justify-between">
         <div>{title}</div>
         <div>{filter}</div>
@@ -93,15 +94,21 @@ function Card({
   }
   return (
     <div
-      className="border-2 rounded cursor-pointer overflow-hidden text-[#484848] relative flex flex-col"
+      className={classNames(
+        'bg-white rounded cursor-pointer overflow-hidden relative flex flex-col shadow',
+        {
+          'border-2': !isEnd
+        }
+      )}
       style={{
-        height: isEnd ? '130px' : '110px',
+        height: isEnd ? 'auto' : '120px',
+        color: '#484848',
         borderColor: '#FD7556',
         ...grayscale
       }}
       {...props}
     >
-      <div className={'flex-1 flex p-2 gap-2 items-start'}>
+      <div className={'flex-1 flex p-4 gap-2 items-start'}>
         <div
           className={'rounded w-10 h-10 flex justify-center items-center text-white'}
           style={{
@@ -124,7 +131,7 @@ function Card({
 
       { isEnd && (
         <div
-          className={'flex p-2 justify-between text-xs'}
+          className={'flex px-4 justify-between text-sm'}
         >
           <div className={'w-1/2 flex-1'}>{data.order.bkg_no}</div>
           <div className={'w-1/2 border-l flex-1 text-right'}>{data.order.order_no}</div>
@@ -132,17 +139,19 @@ function Card({
       )}
 
       {isEnd ? (
-        <div
-          className={'flex p-2 justify-between text-xs'}
-          style={{backgroundColor: '#FFE0DD'}}
-        >
-          <div>{data.entry_at}</div>
-          <div>{data.entry_by_name}</div>
+        <div className={'p-4 text-sm'}>
+          <div
+            className={'flex p-2 justify-between'}
+            style={{backgroundColor: '#FFE0DD'}}
+          >
+            <div>{data.entry_at}</div>
+            <div>{data.entry_by_name}</div>
+          </div>
         </div>
       ) : (
         <div
-          className={'flex p-2 justify-between text-xs'}
-          style={{ backgroundColor: '#FFE0DD' }}
+          className={'flex px-4 py-2 justify-between text-sm rounded'}
+          style={{backgroundColor: '#FFE0DD'}}
         >
           <div>{data.order.bkg_no}</div>
           <div>{data.order.order_no}</div>

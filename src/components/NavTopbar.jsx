@@ -84,7 +84,7 @@ const NavTopbar = ({ className }) => {
           <span className='ml-2'>SUR</span>
           </NavButton>
         <NavButton to="/rbl" badge={badgeCounts[8]}>
-          <Icon.RequestBook className="w-4 h-4 inline relative bottom-[2px]" />
+          <Icon.RequestBook />
           <span className='ml-2'>請求書</span>
         </NavButton>
       </NavButtonGroup>

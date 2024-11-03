@@ -1,11 +1,11 @@
-import {Space, Input, Select, Button, Table} from "antd";
-import {forwardRef, useEffect, useImperativeHandle, useState} from "react";
+import {Space, Button, Table} from "antd";
+import {forwardRef, useEffect, useImperativeHandle, useMemo, useState} from "react";
 import { useRef } from "react";
 import { useAsyncCallback } from "@/hooks";
 import { request } from "@/apis/requestBuilder";
 import { Form } from "antd";
-import { PARTNER_TYPE_CAR, PARTNER_TYPE_CUSTOMS, PARTNER_TYPE_SHIP } from "@/constant";
 import classNames from "classnames";
+import {cloneDeep} from "lodash";
 
 
 const usePaginationRef = () => {
@@ -49,40 +49,52 @@ const useList = (url, pagination, filterForm, beforeSearch) => {
 
 
 const List = forwardRef(function List({
-                /**
-                 * @type {import('antd').FormInstance}
-                 */
-                filters,
-                /**
-                 * @type {import('antd').TableColumnsType<any>}
-                 */
-                columns,
-                /**
-                 * @type {string}
-                 */
-                url = '',
-                rowKey = 'id',
-                filtersSpaceSize = [10, 16],
-                filterItems,
-                filterActions,
-                /**
-                 * @type {boolean}
-                 */
-                showClear = true,
-                /**
-                 * @type {(filters: import('antd').FormInstance) => any}
-                 */
-                onClear = (filters) => filters.resetFields(),
-                /**
-                 * @type {string}
-                 */
-                className,
-                beforeSearch = (filters) => filters,
+  /**
+   * @type {import('antd').FormInstance}
+   */
+  filters,
+  /**
+   * @type {import('antd').TableColumnsType<any>}
+   */
+  columns,
+  /**
+   * @type {string}
+   */
+  url = '',
+  rowKey = 'id',
+  filtersSpaceSize = [10, 16],
+  filterItems,
+  filterActions,
+  /**
+   * @type {boolean}
+   */
+  showClear = true,
+  /**
+   * @type {(filters: import('antd').FormInstance) => any}
+   */
+  onClear = (filters) => filters.resetFields(),
+  /**
+   * @type {string}
+   */
+  className,
+  beforeSearch = (filters) => filters,
+  onDataSource,
+  tableProps
 }, ref) {
   const page =  usePaginationRef()
+
   const {
-    list: dataSource, getList, loading
+    list, getList, loading
   } = useList(url, page, filters, beforeSearch)
+
+  const onDataSourceMemo = useMemo(() => {
+    if(!onDataSource) {
+      return dataSource => dataSource
+    }
+    return onDataSource
+  }, [onDataSource]);
+
+  const dataSource = useMemo(() => onDataSourceMemo(list), [list, onDataSourceMemo]);
 
   useEffect(() => { getList() }, [url]);
 
@@ -118,6 +130,7 @@ const List = forwardRef(function List({
         className="mt-5"
         dataSource={dataSource}
         columns={columns}
+        {...tableProps}
         pagination={page.pagination.current}
         onChange={(e) => {
           page.set(e)

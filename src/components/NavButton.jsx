@@ -58,9 +58,14 @@ export function NavButtonGroup(props) {
     classes,
     props.className
   )
+  const styleVarables = {}
+  if(props.buttonWidth) {
+    styleVarables['--nav-button-width'] = props.buttonWidth + 'px'
+  }
+
   return (
     <NavContext.Provider value={{ vertical: props.vertical }}>
-      <div ref={boxRef} className={className}>
+      <div ref={boxRef} style={styleVarables} className={className}>
         {props.children}
       </div>
     </NavContext.Provider>

@@ -28,19 +28,29 @@ const NavTopbar = ({ className }) => {
         <div className={classnames(c('title'))}>春海組システム</div>
       </Link>
 
-      <NavButtonGroup className="ml-20 space-x-4">
+      <NavButtonGroup
+        className="ml-20 space-x-4"
+        buttonWidth={160}
+      >
         <NavButton to="/acc/todo">
-          <Icon.Top classname="w-4 h-4 inline relative bottom-[3px]" />
-          <span className='ml-2'>未支出</span>
+          <Icon.UnPaySea className="mr-2" />
+          未支出
         </NavButton>
         <NavButton to="/acc/reqNotice" className="ml-2">
+          <Icon.ChangeRequestBook className={'mr-2'} />
           変更請求書
         </NavButton>
         <NavButton to="/acc/payCheck" className="ml-2">
+          <Icon.UnPayCosts className={'mr-2'} />
           上游未支出
         </NavButton>
         <NavButton to="/acc/entryList" className="ml-2">
+          <Icon.UnEntry className={'mr-2'} />
           未入金
+        </NavButton>
+        <NavButton to="/acc/reqDoneNotice" className="ml-2">
+          <Icon.OffNode className={'mr-2'} />
+          熄灯申请
         </NavButton>
       </NavButtonGroup>
 

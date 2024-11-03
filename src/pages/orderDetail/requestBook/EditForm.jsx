@@ -656,7 +656,7 @@ const EditForm = () => {
     navigate(`/rb/copy/${voidFrom}/order/${orderId}/type/${type}?voidTo=${voidFrom}`, { replace: true })
   }
 
-  // 获取请求书默认值
+  // 获取請求書默认值
   useEffect(() => {
     const bookId = id || copyId
     form.setFieldsValue({
@@ -671,7 +671,7 @@ const EditForm = () => {
       })
   }, [orderId, id, copyId, form, bookType, searchParams.get('voidTo')])
 
-  // 获取请求书详情数据
+  // 获取請求書详情数据
   useEffect(() => {
     const bookId = id || copyId || voidFrom
     form.resetFields()
@@ -685,7 +685,7 @@ const EditForm = () => {
             (!!rep['is_send'] || !!rep['is_void'] || searchParams.get('d') === '1')
               && !copyId
           )
-          // voidTo 被作废的请求书id
+          // voidTo 被作废的請求書id
           if(searchParams.get('voidTo')) {
             form.setFieldValue('void_id', searchParams.get('voidTo'))
           }

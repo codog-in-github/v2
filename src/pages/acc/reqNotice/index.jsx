@@ -29,7 +29,6 @@ const useTabReqNoticeList = () => {
 function Card({
   item = {},
   className,
-  end = false,
   onClick = () => {},
   ...props
 }) {
@@ -47,7 +46,7 @@ function Card({
         <CompanyAvatar  text={item['order']['short_name'][0]} />
         <div className='ml-4'>
           <div className='font-semibold text-[#1B1B1B]'>
-            请求书变更申请-{DEPARTMENTS[item['order']['department']]}-{item['void_by_name']}
+            請求書変更-{DEPARTMENTS[item['order']['department']]}-{item['void_by_name']}
           </div>
           <div className="text-sm flex items-center justify-between text-[#848484] mt-2">
             <div>{dayjs(item['void_at']).format('YYYY-MM-DD')}</div>

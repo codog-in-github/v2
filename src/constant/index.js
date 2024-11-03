@@ -66,7 +66,7 @@ export const ORDER_NODE_TYPE_SUR = 9;
  */
 export const ORDER_NODE_TYPE_FM = 10;
 /**
- * 請：填写请求书→发送给客户
+ * 請：填写請求書→发送给客户
  * @type {11}
  */
 export const ORDER_NODE_TYPE_REQUEST = 11;

@@ -1,3 +1,5 @@
+import {isString} from "lodash";
+
 /**
  *
  * @param {Record<string, string>} map
@@ -125,3 +127,40 @@ export const combie = (...arrs) => {
   }
   return combine
 }
+
+export const genMetaBy = (keyBy, genMeta) => {
+  if(isString(keyBy)) {
+    const keyName = keyBy
+    keyBy = item => item[keyName]
+  }
+  return dataSource => {
+    if(!dataSource || dataSource.length === 0) {
+      return dataSource
+    }
+    let item = { ...dataSource[0] }
+    const newDataSource = [item]
+    let lastGroupKey = keyBy(item), spanGroup = [item], injectMetaRow = item
+    for(let i = 1; i < dataSource.length; i++) {
+      item = { ...dataSource[i] }
+      const currentKey = keyBy(item)
+      if(currentKey === lastGroupKey) {
+        genMeta(item, [])
+        spanGroup.push(item)
+      } else {
+        genMeta(injectMetaRow, spanGroup)
+        spanGroup = [item]
+        injectMetaRow = item
+      }
+      lastGroupKey = currentKey
+      newDataSource.push(item)
+    }
+    genMeta(injectMetaRow, spanGroup)
+    return newDataSource
+  }
+}
+
+export const genRowSpan = (keyBy) => genMetaBy(keyBy, (metaRow, spanGroup) => {
+  metaRow.cellSpan = {
+    rowSpan: spanGroup.length
+  }
+})

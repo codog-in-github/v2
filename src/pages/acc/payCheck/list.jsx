@@ -1,13 +1,14 @@
 import List from "@/components/List.jsx";
 import {useCallback, useMemo, useRef, useState} from "react";
 import {Button, Checkbox, DatePicker, Form, Input, Radio, Select} from "antd";
-import {map2array} from "@/helpers/index.js";
+import {genRowSpan, map2array} from "@/helpers/index.js";
 import {COST_PART_CUSTOMS, COST_PART_LAND, COST_PART_OTHER, COST_PART_SEA, DEPARTMENTS} from "@/constant/index.js";
 import dayjs from "dayjs";
 import CheckModal from "./CheckModal.jsx";
 import pubSub from "@/helpers/pubSub.js";
 import {isArray} from "lodash";
 import {Link} from "react-router-dom";
+import FilterItem from "@/components/FilterItem.jsx";
 
 const costTypeMap = {
   [COST_PART_CUSTOMS]: '通関',
@@ -48,7 +49,8 @@ const ListPage = () => {
 
   const columns = useMemo(() => [
     {
-      width: 80,
+      width: 60,
+      align: 'center',
       render: (row) => (
         <Checkbox
           onChange={(e) => selectRow(e.target.checked, row)}
@@ -61,27 +63,31 @@ const ListPage = () => {
       dataIndex: ['department'],
       key: 'department',
       width: 120,
-      render: (text) => DEPARTMENTS[text]
+      render: (text) => DEPARTMENTS[text],
+      onCell: row => row.cellSpan
     },
     {
       title: 'お客様名',
       dataIndex: ['company_name'],
-      key: 'company_name'
-    },
-    {
-      title: '社内番号',
-      dataIndex: ['order_no'],
-      key: 'no'
-    },
-    {
-      title: '请求书番号',
-      dataIndex: ['no'],
-      key: 'bkg_no'
+      key: 'company_name',
+      onCell: row => row.cellSpan
     },
     {
       title: 'BKG NO.',
       dataIndex: ['bkg_no'],
       key: 'date',
+      onCell: row => row.cellSpan
+    },
+    {
+      title: '社内番号',
+      dataIndex: ['order_no'],
+      key: 'no',
+      onCell: row => row.cellSpan
+    },
+    {
+      title: '請求書番号',
+      dataIndex: ['no'],
+      key: 'bkg_no'
     },
     {
       title: '制作日期',
@@ -114,10 +120,14 @@ const ListPage = () => {
     }
   ], [selectRows])
 
+  const onDataSource = useCallback(genRowSpan('order_id'), []);
+
   return (
     <>
       <List
         url={'/admin/acc/costs_pay_check_list'}
+        onDataSource={onDataSource}
+        tableProps={{ bordered: true }}
         rowKey={getRowKey}
         ref={listRef}
         columns={columns}
@@ -132,31 +142,26 @@ const ListPage = () => {
         }}
         filterItems={(
           <>
-            <span>营业场所</span>
-            <Form.Item noStyle name={'department'}>
+            <FilterItem label={'营业场所'} name={'department'}>
               <Select
                 className={'w-32'}
                 options={departments}
               ></Select>
-            </Form.Item>
+            </FilterItem>
 
-            <span>お客様名</span>
-            <Form.Item noStyle name={'company_name'}>
-              <Input placeholder={'お客様名'}></Input>
-            </Form.Item>
+            <FilterItem label={'お客様名'} name={'company_name'}>
+              <Input className={'w-44'} placeholder={'お客様名'}></Input>
+            </FilterItem>
 
-            <span>社内番号</span>
-            <Form.Item noStyle name={'order_no'}>
-              <Input placeholder={'社内番号'}></Input>
-            </Form.Item>
+            <FilterItem label={'社内番号'} name={'order_no'}>
+              <Input className={'w-44'} placeholder={'社内番号'}></Input>
+            </FilterItem>
 
-            <span>BKG NO.</span>
-            <Form.Item noStyle name={'bkg_no'}>
-              <Input placeholder={'BKG NO.'}></Input>
-            </Form.Item>
+            <FilterItem label={'BKG NO.'} name={'bkg_no'}>
+              <Input className={'w-44'} placeholder={'BKG NO.'}></Input>
+            </FilterItem>
 
-            <span>制作状态</span>
-            <Form.Item noStyle name={'is_send'}>
+            <FilterItem label={'制作状态'} name={'is_send'}>
               <Radio.Group
                 optionType={'button'}
                 buttonStyle={'solid'}
@@ -165,10 +170,9 @@ const ListPage = () => {
                   { label: '完了', value: 1 }
                 ]}
               ></Radio.Group>
-            </Form.Item>
+            </FilterItem>
 
-            <span>請求部分</span>
-            <Form.Item noStyle name={'type'}>
+            <FilterItem label={'請求部分'} name={'type'}>
               <Radio.Group
                 optionType={'button'}
                 buttonStyle={'solid'}
@@ -178,17 +182,15 @@ const ListPage = () => {
                   { label: 'その他', value: COST_PART_OTHER }
                 ]}
              ></Radio.Group>
-            </Form.Item>
+            </FilterItem>
 
-            <span>制作日期</span>
-            <Form.Item noStyle name={'date'}>
+            <FilterItem label={'制作日期'} name={'date'}>
               <DatePicker.RangePicker  />
-            </Form.Item>
+            </FilterItem>
 
-            <span>支払先お客様名</span>
-            <Form.Item noStyle name={'purchase'}>
-              <Input placeholder={'支払先お客様名'}></Input>
-            </Form.Item>
+            <FilterItem label={'支払先お客様名'} name={'purchase'}>
+              <Input className={'w-44'} placeholder={'支払先お客様名'}></Input>
+            </FilterItem>
           </>
         )}
 
