@@ -150,21 +150,16 @@ const CostItemRow =
         disabled={disabled}
         min={0}
       ></InputNumber>
-
-      { addable && (
-        <>
-          <Button
-            className={'flex-shrink-0'}
-            icon={<PlusOutlined/>}
-            onClick={() => operation.add({})}
-          ></Button>
-          <Button
-            className={'flex-shrink-0'}
-            onClick={() => operation.remove(index)}
-            icon={<MinusOutlined/>}
-          ></Button>
-        </>
-      ) }
+      <Button
+        className={'flex-shrink-0'}
+        icon={<PlusOutlined/>}
+        onClick={() => operation.add({})}
+      ></Button>
+      <Button
+        className={'flex-shrink-0'}
+        onClick={() => operation.remove(index)}
+        icon={<MinusOutlined/>}
+      ></Button>
     </div>
   )
 }
@@ -242,6 +237,9 @@ const saveDataFormat = (formData) => {
       continue
     }
     for(const group of saveData['costs'][type]) {
+      if(!group['items']) {
+        continue
+      }
       for(const item of group['items']) {
         costs.push({
           ...item,
@@ -464,18 +462,14 @@ const CostTable = ({ value, onChange }) => {
                     optionFilterProp={'name'}
                   ></AutoComplete>
                 </Form.Item>
-                {type !== COST_PART_SEA && (
-                  <>
-                    <Button
-                      icon={<PlusOutlined/>}
-                      onClick={() => addRow(type)}
-                    ></Button>
-                    <Button
-                      icon={<MinusOutlined/>}
-                      onClick={() => removeRow(type, groupIndex)}
-                    ></Button>
-                  </>
-                )}
+                <Button
+                  icon={<PlusOutlined/>}
+                  onClick={() => addRow(type)}
+                ></Button>
+                <Button
+                  icon={<MinusOutlined/>}
+                  onClick={() => removeRow(type, groupIndex)}
+                ></Button>
               </div>
             </div>
           ))}
