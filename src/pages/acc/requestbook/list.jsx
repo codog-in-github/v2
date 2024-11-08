@@ -1,8 +1,8 @@
 import List from '@/components/List.jsx'
-import {Button, DatePicker, Form, Input, Select} from "antd";
+import {Button, Checkbox, DatePicker, Form, Input, Select} from "antd";
 import {genRowSpan, map2array} from "@/helpers/index.js";
 import {DEPARTMENTS} from "@/constant/index.js";
-import {useCallback, useMemo} from "react";
+import {useCallback, useMemo, useState} from "react";
 import dayjs from "dayjs";
 import {Link} from "react-router-dom";
 import {useAsyncCallback} from "@/hooks/index.js";
@@ -13,12 +13,37 @@ const departments = map2array(DEPARTMENTS)
 
 const PageContent = () => {
   const [filters] = Form.useForm()
+  const [selectedIds, setSelectedIds] = useState([])
 
-  const [exportCSV, loading] = useAsyncCallback( () =>
-    request('/admin/acc/request_book_csv').get(filters.getFieldsValue()).download().send()
-  )
+  const [exportCSV, loading] = useAsyncCallback( () => {
+    const params = {}
+    if(selectedIds.length === 0) {
+      Object.assign(params, filters.getFieldsValue())
+    } else {
+      params.id = selectedIds
+    }
+    return request('/admin/acc/request_book_csv').get(params).download().send()
+  })
+
+  const onSelectedIdsChange = useCallback((id, isSelected) => {
+    console.log('selectedIds change', id, isSelected)
+    if(isSelected) {
+      setSelectedIds([...selectedIds, id])
+    } else {
+      setSelectedIds(selectedIds.filter(item => item !== id))
+    }
+  }, [selectedIds]);
 
   const columns = useMemo(() => [
+    {
+      width: 30,
+      render: row => (
+        <Checkbox
+          checked={selectedIds.includes(row.id)}
+          onChange={e => onSelectedIdsChange(row.id, e.target.checked)}
+        />
+      )
+    },
     {
       title: "营业场所",
       dataIndex: ['order', 'department'],
@@ -66,7 +91,7 @@ const PageContent = () => {
         </Link>
       )
     },
-  ], []);
+  ], [selectedIds]);
 
   const onDataSource = useCallback(genRowSpan('order_id'), []);
 
