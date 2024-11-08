@@ -21,7 +21,6 @@ const PageContent = () => {
       Object.assign(params, filters.getFieldsValue())
     } else {
       params.id = selectedIds
-      setSelectedIds([])
     }
     return request('/admin/acc/request_book_csv').get(params).download().send()
   })
