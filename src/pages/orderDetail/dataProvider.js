@@ -304,6 +304,7 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
    */
   setValue('carrier', 'carrier')
   setValue('carrier_id', 'carrier_id')
+  setValue('carrierName', 'carrier_name')
   setValue('vesselName', 'vessel_name')
   setValue('voyage', 'voyage')
    /**

@@ -263,6 +263,7 @@ const Ship = ({ className }) => {
               }}
               getPopupContainer={() => rootRef.current}
               onSelect={(_, item) => {
+                console.log(item)
                 form.setFieldValue('carrierName', item.label)
                 onModifyChange()
               }}

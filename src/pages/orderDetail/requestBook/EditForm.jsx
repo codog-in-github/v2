@@ -200,7 +200,7 @@ const formDataFormat = (book, type = REQUEST_TYPE_NORMAL) => {
     const details = book['details'].map(item => ({
       ...item,
       amount: Math.floor(item['amount'] ?? 0),
-      price: Math.floor(item['price'] ?? 0),
+      price: Number(item['price']).toFixed(2),
     }))
     formData['details'] = groupBy(details, 'type')
   } else {
@@ -278,7 +278,7 @@ const DetailRow = ({ partType, partName, props }) => {
         pubSub.publish('Info.Toast', '汇率が未設定です', 'error')
         return
       }
-      form.setFieldValue([...currentRowPath, 'price'], Math.floor(row['detail'] * rate))
+      form.setFieldValue([...currentRowPath, 'price'], row['detail'] * rate)
       calcAmount()
     }
   }
@@ -337,6 +337,7 @@ const DetailRow = ({ partType, partName, props }) => {
           <Select
             className="w-16"
             allowClear
+            onBlur={calcPrice}
             options={[
               {value: '$'}
             ]}
@@ -345,7 +346,12 @@ const DetailRow = ({ partType, partName, props }) => {
       </td>
       <td>
         <Form.Item noStyle name={[props.key, 'price']}>
-          <InputNumber className="w-full" min={0} onBlur={calcAmount}></InputNumber>
+          <InputNumber
+            className="w-full"
+            step={0.01}
+            min={0}
+            onBlur={calcAmount}
+          ></InputNumber>
         </Form.Item>
       </td>
       <td>
