@@ -3,8 +3,7 @@ import Label from "@/components/Label"
 import { SELECT_ID_SHIP_COMPANY } from "@/constant"
 import { useAsyncCallback, useOptions } from "@/hooks"
 import {Form, Input, Select, DatePicker, Button, Space} from "antd"
-import { useContext } from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import { DetailDataContext } from "./dataProvider"
 import { AutoComplete } from "antd"
 import { PlusCircleFilled } from "@ant-design/icons"
@@ -80,9 +79,14 @@ const PortSelect = ({ tree, bindId, bindName, ...props }) => {
   const parentValue = Form.useWatch(bindId, form)
   if(parentValue) {
     options = tree.find(item => item.id === parentValue)?.children ?? []
-  } else {
-    form.setFieldValue(bindName, '')
   }
+
+  useEffect(() => {
+    if(!parentValue) {
+      form.setFieldValue(bindName, '')
+    }
+  }, [bindName, form, parentValue]);
+
   return (
     <Select
       {...props}

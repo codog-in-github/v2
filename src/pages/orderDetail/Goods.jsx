@@ -227,9 +227,21 @@ const CarList = ({
               <Form.Item className="w-32" label="2軸3軸" name={[props.name, 'carType']}>
                 <Select
                   onChange={onModifyChange}
-                  getPopupContainer={() => rootRef.current} options={[
+                  getPopupContainer={() => rootRef.current}
+                  options={[
                     { label: '2軸', value: 1 },
                     { label: '3軸', value: 2 }
+                  ]}
+                >
+                </Select>
+              </Form.Item>
+              <Form.Item className="w-32" label="スケール" name={[props.name, 'scale']}>
+                <Select
+                  onChange={onModifyChange}
+                  getPopupContainer={() => rootRef.current}
+                  options={[
+                    { label: 'なし', value: 0 },
+                    { label: 'あり', value: 1 }
                   ]}
                 >
                 </Select>

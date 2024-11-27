@@ -235,6 +235,7 @@ const formDataGenerator = (isCopy) => (rep) => {
         const car = {
           id: item['id'],
           containerId: item['container_id'],
+          scale: item['scale'],
           vanPlace: item['van_place'],
           vanType: item['van_type'],
           carType: item['bearing_type'] || void 0,
@@ -362,6 +363,7 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
     const detail = {
       'id' : item.id ?? '',
       'container_id' : item.containerId ?? '',
+      'scale': item.scale,
       'van_place': item.vanPlace ?? '',
       'van_type': item.vanType ?? '',
       'bearing_type': item.carType ?? 0,

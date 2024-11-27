@@ -179,7 +179,7 @@ const Mail = ({ mail, onSuccess = () => {} }) => {
             </Form.Item>
           )}
           {mailToType === MAIL_TO_ACC && (
-            <Form.Item label="金额" name={[props.name, 'amount']}>
+            <Form.Item label="金额" name={[props.name, 'amount']} rules={[{ required: true, message: '必須項目です' }]}>
               <Input></Input>
             </Form.Item>
           )}

@@ -1,6 +1,7 @@
 import { FileExcelFilled, FileFilled, FileImageFilled, FilePdfFilled, FileTextFilled, FileWordFilled } from "@ant-design/icons";
 import { Checkbox } from "antd";
 import { useMemo } from "react";
+import classNames from "classnames";
 
 const ext = (filename = '') => {
   if(filename.includes('.')) {
@@ -16,7 +17,9 @@ const filename = (filePath = '') => {
 }
 
 
-const File = ({ filePath, selectable, selected, inSelected, onSelect }) => {
+const File = ({
+  filePath, selectable, selected, inSelected, onNativeClick, onSelect, className
+}) => {
   const fileName = useMemo(() => {
     return filename(filePath)
   }, [filePath])
@@ -41,7 +44,10 @@ const File = ({ filePath, selectable, selected, inSelected, onSelect }) => {
     }
   }, [fileName])
   return(
-    <div className="flex flex-col items-center cursor-pointer relative" onClick={selectable && onSelect}>
+    <div
+      className={classNames('flex flex-col items-center cursor-pointer relative', className)}
+      onClick={onNativeClick || selectable && onSelect}
+    >
       <div className="text-2xl">{fileIco}</div>
       <div className="w-16 line-clamp-2 text-center break-words">
         {inSelected && <Checkbox checked={selected} className="absolute top-0 left-6" />}

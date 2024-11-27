@@ -69,6 +69,7 @@ export const touch = (func) => {
  *
  * @param {Blob} blob
  * @param {string} fileName
+ * @param {boolean} preview
  */
 export const downloadBlob = (blob, fileName, preview = false) => {
   const url = URL.createObjectURL(blob);
