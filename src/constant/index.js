@@ -221,15 +221,15 @@ export const PARTNER_TYPE_CAR = 3;
 export const PARTNER_TYPE_CUSTOMS = 4;
 
 /**
- * 神户
+ * 大阪
  * @type {1}
  */
-export const DEPARTMENT_KOBE = 1;
+export const DEPARTMENT_OSAKA = 1;
 /**
- * 大阪
+ * 神户
  * @type {2}
  */
-export const DEPARTMENT_OSAKA = 2;
+export const DEPARTMENT_KOBE = 2;
 /**
  * 九州
  * @type {3}

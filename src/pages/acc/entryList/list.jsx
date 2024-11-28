@@ -1,14 +1,14 @@
 import { request } from "@/apis/requestBuilder";
 import { useEffect, useState, useRef } from "react";
 import { useAsyncCallback, useContextMenu } from "@/hooks";
-import { useNavigate } from "react-router-dom";
 import pubSub from "@/helpers/pubSub";
 import SkeletonList from "@/components/SkeletonList";
-import {DEPARTMENT_KOBE, DEPARTMENT_KYUSHU, DEPARTMENT_OSAKA, DEPARTMENTS, ORDER_TAB_STATUS_REQUEST} from "@/constant";
+import {DEPARTMENT_KOBE, DEPARTMENT_KYUSHU, DEPARTMENT_OSAKA, DEPARTMENTS} from "@/constant";
 import { Form } from "antd";
-import OrderFilter from "@/components/OrderFilter";
 import dayjs from "dayjs";
 import classNames from "classnames";
+import UploadModal from "@/pages/acc/entryList/UploadModal.jsx";
+import {useNavigate} from "react-router-dom";
 
 const useReqList = (form) => {
   const [list, setList] = useState({});
@@ -36,14 +36,15 @@ const groups = [
 ]
 
 const ListGroup = ({
-     title,
-     list,
-     onContextMenu,
-     loading,
-     filter
-   }) => {
-  return (
+  title,
+  list,
+  onContextMenu,
+  loading,
+  filter
+}) => {
+  const navigate = useNavigate()
 
+  return (
     <div className="mb-[20px]">
       <div className="flex justify-between">
         <div>{title}</div>
@@ -58,9 +59,10 @@ const ListGroup = ({
         >
           {item => (
             <Card
-              isEnd={!!item.is_entry}
+              isEnd={!!item.is_entry}ß
               key={item['id']}
-              onClick={e => onContextMenu(e, item)}
+              onContextMenu={e => onContextMenu(e, item)}
+              onClick={() => navigate(`/rb/edit/${item.id}/order/${item.order_id}/type/${item.type}`)}
               data={item}
             />
           )}
@@ -161,10 +163,11 @@ function Card({
   );
 }
 
-function listPage() {
+const ListPage = () => {
   const [filterForm] = Form.useForm()
   const {list, reload, loading} = useReqList(filterForm)
   const menuItem = useRef(null)
+  const modalRef = useRef(null)
   const [menu, open, close] = useContextMenu(
     <div
       className="
@@ -176,16 +179,8 @@ function listPage() {
     >
       <div
         className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
-        onClick={async () => {
-          close()
-          const params = {
-            'ids': menuItem.current.id,
-          }
-          await request('admin/acc/entry').data(params).send()
-          pubSub.publish('Info.Toast', 'ok', 'success')
-          reload()
-        }}
-      >已收款</div>
+        onClick={() => modalRef.current.open(menuItem.current.id)}
+      >收款</div>
     </div>
   )
   /**
@@ -219,8 +214,9 @@ function listPage() {
         )
       )) }
       {menu}
+      <UploadModal ref={modalRef} onSuccess={reload} />
     </div>
   );
 }
 
-export default listPage;
+export default ListPage;
