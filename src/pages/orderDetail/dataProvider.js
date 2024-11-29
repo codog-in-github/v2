@@ -363,7 +363,7 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
     const detail = {
       'id' : item.id ?? '',
       'container_id' : item.containerId ?? '',
-      'scale': item.scale,
+      'scale': item.scale ?? '',
       'van_place': item.vanPlace ?? '',
       'van_type': item.vanType ?? '',
       'bearing_type': item.carType ?? 0,

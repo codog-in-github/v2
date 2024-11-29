@@ -1,10 +1,21 @@
 import List from "@/components/List.jsx";
 import {useMemo, useRef} from "react";
-import {Button, DatePicker, Form, Input, Popconfirm} from "antd";
+import {Button, DatePicker, Form, Input, Popconfirm, Tag} from "antd";
 import dayjs from "dayjs";
 import {useAsyncCallback} from "@/hooks/index.js";
 import {request} from "@/apis/requestBuilder.js";
 import pubSub from "@/helpers/pubSub.js";
+
+const StatusTag = ({ status }) => {
+  const statusMap = {
+    '-1': ['red', '驳回'],
+    '0': ['orange', '待审核'],
+    '1': ['green', '已通过']
+  }
+  return (
+    <Tag color={statusMap[status][0]}>{statusMap[status][1]}</Tag>
+  )
+}
 
 const PageContent = () => {
 
@@ -34,8 +45,12 @@ const PageContent = () => {
     dataIndex: ['created_at'],
     render: (value) => dayjs(value).format('YYYY-MM-DD HH:mm:ss'),
   }, {
-    title: '申请时间',
-    render: (row) => (
+    title: '状態',
+    dataIndex: ['status'],
+    render: (value) => <StatusTag status={value} />,
+  }, {
+    title: '処理',
+    render: (row) => row.status ? null : (
         <>
           <Popconfirm
               title={'是否确定'}
@@ -53,6 +68,7 @@ const PageContent = () => {
         </>
     ),
   }], [])
+
   const [filters] = Form.useForm()
 
   return (

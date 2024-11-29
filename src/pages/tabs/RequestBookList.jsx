@@ -243,6 +243,9 @@ function RequestBookPage() {
     reload()
   })
 
+  useEffect(() => {
+    filterForm.setFieldValue('filter_key', 'company_name')
+  }, []);
   const exitSelectMode = () => {
     setSelectedMode(false)
     setSelectedBookIds([])
@@ -318,18 +321,21 @@ function RequestBookPage() {
 
       <ListGroup
         filter={(
-         <>
+         <div className={'flex gap-2'}>
            { selectedMode && (
              <Button
                className={'mr-2'}
                onClick={exitSelectMode}
              >キャンセル</Button>
            ) }
+
           <Button
             type={'primary'}
             onClick={onExportClick}
           >导出</Button>
-         </>
+
+           <OrderFilter form={filterForm} onSearch={reload} />
+         </div>
         )}
         list={list.unsend}
         selectedKeys={selectedBookIds}
@@ -348,7 +354,9 @@ function RequestBookPage() {
         loading={loading}
         onContextMenu={contextMenuHandle}
       ></ListGroup>
+
       {menu}
+
       <UserPicker ref={userPicker} />
       <MultiExportModal
         ref={modalRef}

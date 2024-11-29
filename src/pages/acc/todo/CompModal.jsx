@@ -5,6 +5,7 @@ import { Modal, Form } from "antd";
 import {forwardRef, useEffect, useImperativeHandle, useState} from "react";
 import File from "@/components/File.jsx";
 import {DEPARTMENTS} from "@/constant/index.js";
+import dayjs from "dayjs";
 
 const CompModal = forwardRef(function CompModal ({ onSuccess }, ref) {
   const [open, setOpen] = useState(false)
@@ -49,6 +50,9 @@ const CompModal = forwardRef(function CompModal ({ onSuccess }, ref) {
       <Form form={form} className="mt-8" labelCol={{ span: 4 }}>
         <Form.Item noStyle name='id' ></Form.Item>
         <Form.Item label={'创建人'}>{detail?.created_by_name}</Form.Item>
+        <Form.Item label={'创建时间'}>{
+          dayjs(detail?.created_at).format('YYYY-MM-DD HH:mm:ss')
+        }</Form.Item>
         <Form.Item label={'所属部门'}>{
           detail?.order.department ? DEPARTMENTS[detail.order.department] : ''
         }</Form.Item>

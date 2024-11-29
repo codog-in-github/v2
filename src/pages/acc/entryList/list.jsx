@@ -168,10 +168,10 @@ const ListPage = () => {
   const {list, reload, loading} = useReqList(filterForm)
   const menuItem = useRef(null)
   const modalRef = useRef(null)
-  const [menu, open, close] = useContextMenu(
+  const [menu, open] = useContextMenu(
     <div
       className="
-        fixed w-32 z-50 border cursor-OrderListinter
+        fixed w-32 z-50 border
         text-center bg-white shadow-md
         leading-8 rounded-md overflow-hidden
       "
