@@ -6,12 +6,13 @@ import { LoadingOutlined } from "@ant-design/icons";
 import pubSub from "@/helpers/pubSub";
 import SkeletonList from "@/components/SkeletonList";
 import { ORDER_TAB_STATUS_REQUEST} from "@/constant";
-import {Avatar, Button, Checkbox, Form, Input, Modal, Radio} from "antd";
+import {Avatar, Button, Checkbox, Form, Input, Modal, Radio, Select} from "antd";
 import OrderFilter from "@/components/OrderFilter";
 import PortFullName from "@/components/PortFullName";
 import { CARD_COLORS } from "./common";
 import TopBadge from "@/components/TopBadge";
 import UserPicker from "@/components/UserPicker.jsx";
+import {isArray} from "lodash";
 
 const MultiExportModal = forwardRef(function MultiExportModal(props, ref) {
   const { onSuccess } = props
@@ -21,6 +22,8 @@ const MultiExportModal = forwardRef(function MultiExportModal(props, ref) {
   const [open, setOpen] = useState(false)
   const ids = useRef([])
   const [form] = Form.useForm()
+  const [ccOptions, setCcOptions] = useState([])
+  const [toOptions, setToOptions] = useState([])
 
   useImperativeHandle(ref, () => {
     return {
@@ -29,11 +32,35 @@ const MultiExportModal = forwardRef(function MultiExportModal(props, ref) {
         form.resetFields()
         form.setFieldValue('custom_cols', ['orderNo', 'containerCount', 'port', 'etd'])
         setOpen(true)
+        return getMailDefault(selectedIds)
       }
     }
-  }, [form])
+  }, [])
 
-  const [onSubmit, loading] = useAsyncCallback(async () => {
+  const [getMailDefault, loading] = useAsyncCallback(async (ids) => {
+    const rep = await request('/admin/request_book/merge_export')
+      .get({ id: ids.join(',') }).send()
+    const subject = rep.subject
+    const content = rep.content
+    let cc = []
+    let to = []
+    const contact = rep.contact
+    if(contact.email) {
+      to = [{ value: contact.email }]
+      form.setFieldValue('to', contact.email)
+    }
+
+    if(contact.cc) {
+      cc.push(contact.cc.split(',').map(item => ({ value: item })))
+    }
+    setCcOptions(cc)
+    setToOptions(to)
+    form.setFieldsValue({
+      subject, content
+    })
+  })
+
+  const [onSubmit, submitting] = useAsyncCallback(async () => {
     const formData = await form.validateFields()
     formData.id = ids.current.join(',')
     formData.custom_cols = formData.custom_cols.join(',')
@@ -52,11 +79,24 @@ const MultiExportModal = forwardRef(function MultiExportModal(props, ref) {
       open={open}
       onOk={onSubmit}
       onCancel={() => setOpen(false)}
+      loading={loading}
       okButtonProps={{
-        loading: loading
+        loading: submitting
       }}
     >
-      <Form form={form}>
+      <Form form={form} labelCol={{ span: 4 }}>
+        <Form.Item label={'件名'} name={'subject'} rules={[{ required: true, message: '件名必填' }]}>
+          <Input placeholder={'请输入件名'} />
+        </Form.Item>
+        <Form.Item label={'受信者'} name={'to'} rules={[{ required: true, message: '受信者必填' }]}>
+          <Select mode={'tags'} options={toOptions}></Select>
+        </Form.Item>
+        <Form.Item label={'CC'} name={'cc'}>
+          <Select mode={'tags'} options={ccOptions}></Select>
+        </Form.Item>
+        <Form.Item label={'内容'} name={'content'}>
+          <Input.TextArea rows={7} placeholder={'请输入内容'} />
+        </Form.Item>
         <Form.Item label="銀行" name="bank_id" rules={[{ required: true, message: '銀行必填' }]}>
           <Radio.Group options={bankOptions} />
         </Form.Item>

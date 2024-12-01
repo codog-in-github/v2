@@ -53,10 +53,10 @@ const CompModal = forwardRef(function CompModal ({ onSuccess }, ref) {
         <Form.Item label={'创建时间'}>{
           dayjs(detail?.created_at).format('YYYY-MM-DD HH:mm:ss')
         }</Form.Item>
-        <Form.Item label={'所属部门'}>{
+        <Form.Item label={'所属部門'}>{
           detail?.order.department ? DEPARTMENTS[detail.order.department] : ''
         }</Form.Item>
-        <Form.Item label={'文件'}>
+        <Form.Item label={'付款凭证'}>
           <div className="flex flex-col gap-2">
             {detail?.check_files.map(file => (
               <File

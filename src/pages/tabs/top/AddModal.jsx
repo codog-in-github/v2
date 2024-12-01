@@ -15,9 +15,11 @@ const getCustomers = async () => {
 
 const useCustomerSelect = () => {
   const [customer, setCustomers] = useState()
+
   useEffect(() => {
     getCustomers().then(setCustomers)
   }, [])
+
   return customer
 }
 
