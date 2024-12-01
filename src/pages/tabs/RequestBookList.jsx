@@ -13,6 +13,8 @@ import { CARD_COLORS } from "./common";
 import TopBadge from "@/components/TopBadge";
 import UserPicker from "@/components/UserPicker.jsx";
 import {isArray} from "lodash";
+import {base64ToBlob, confirm, downloadBlob} from "@/helpers/index.js";
+import {checkJSONCode, getResponseJsonBodyData} from "@/apis/middleware.js";
 
 const MultiExportModal = forwardRef(function MultiExportModal(props, ref) {
   const { onSuccess } = props
@@ -65,10 +67,20 @@ const MultiExportModal = forwardRef(function MultiExportModal(props, ref) {
     formData.id = ids.current.join(',')
     formData.custom_cols = formData.custom_cols.join(',')
 
-    await request('/admin/request_book/merge_export')
-      .data(formData).download('', true).send()
+    const { file_stream, ticket } = await request('/admin/request_book/merge_export')
+      .data(formData).send()
 
-    pubSub.publish('Info.Toast', '导出成功', 'success')
+    const pdf = base64ToBlob(file_stream)
+    downloadBlob(pdf, '', true)
+
+    await confirm('是否发送邮件？')
+    await request('/admin/request_book/merge_send')
+      .data({
+        ...formData,
+        ticket,
+      }).send()
+
+    pubSub.publish('Info.Toast', '已发送', 'success')
     setOpen(false)
     onSuccess()
   })

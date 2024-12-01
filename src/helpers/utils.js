@@ -1,4 +1,5 @@
 import {isString} from "lodash";
+import {Modal} from "antd";
 
 /**
  *
@@ -165,3 +166,47 @@ export const genRowSpan = (keyBy) => genMetaBy(keyBy, (metaRow, spanGroup) => {
     rowSpan: spanGroup.length
   }
 })
+
+export const confirm = (message, options) => {
+  return new Promise((resolve, reject) => {
+    const modal = Modal.confirm({
+      title: '提示',
+      content: message,
+      ...options,
+      onOk() {
+        resolve()
+        modal.destroy()
+      },
+      onCancel() {
+        reject('Confirm cancel')
+        modal.destroy()
+      }
+    })
+  })
+}
+
+/**
+ * 将 Base64 字符串转换为 Blob 对象
+ * @param base64
+ * @param mimeType
+ * @returns {Blob}
+ */
+export const base64ToBlob = (base64) => {
+  // 移除 Base64 字符串的前缀（例如 "data:image/png;base64,"）
+  const [type, data] = base64.split(';base64,');
+  const mimeType = type.substring(5);
+  let byteCharacters = atob(data);
+
+  // 创建一个 Uint8Array 数组以存储二进制数据
+  let byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  let byteArray = new Uint8Array(byteNumbers);
+
+  // 创建 Blob 对象
+  let blob = new Blob([byteArray], { type: mimeType });
+
+  return blob;
+}
+
