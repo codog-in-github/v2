@@ -123,10 +123,10 @@ const formDataGenerator = (isCopy) => (rep) => {
   setIfExist('customerId', 'customer_id')
   setIfExist('customerName', 'company_name')
   setIfExist('customerAbbr', 'short_name')
-  setIfExist('customerPostalCode', 'zip_code')
+  setIfExist('zipcode', 'zip_code')
   setIfExist('customerAddr', 'address')
   setIfExist('customerResponsiblePerson', 'header')
-  setIfExist('customerContact', 'mobile')
+  setIfExist('mobile', 'mobile')
   setIfExist('companyCode', 'legal_number')
 
   /**
@@ -294,10 +294,10 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
   setValue('customerName', 'company_name')
   setValue('customerId', 'customer_id')
   setValue('customerAbbr', 'short_name')
-  setValue('customerPostalCode', 'zip_code')
+  setValue('zipcode', 'zip_code')
   setValue('customerAddr', 'address')
   setValue('customerResponsiblePerson', 'header')
-  setValue('customerContact', 'mobile')
+  setValue('mobile', 'mobile')
   setValue('companyCode', 'legal_number')
 
   /**
@@ -434,6 +434,7 @@ export const useDetailData = () => {
   const [multiMails, setMultiMails] = useState(null)
   const isCopy = Boolean(copyId)
   const isTempOrder = nodes.length === 0
+  const [canEditCuster, setCanEditCuster] = useState(false)
 
   const rootRef = useRef(null)
 
@@ -516,6 +517,9 @@ export const useDetailData = () => {
         multiMailGenerator,
         setMultiMails
     )))
+    .then(rep => {
+      setCanEditCuster(!rep.customer_id)
+    })
   })
 
   const [saveOrder, savingOrder] = useAsyncCallback(async () => {
@@ -637,7 +641,8 @@ export const useDetailData = () => {
     modified,
     rootRef,
     onModifyChange,
-    modifyChangeGenerator
+    modifyChangeGenerator,
+    canEditCuster
   }
 }
 

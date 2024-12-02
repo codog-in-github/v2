@@ -6,7 +6,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import pubSub from "@/helpers/pubSub";
 import SkeletonList from "@/components/SkeletonList";
 import { ORDER_TAB_STATUS_REQUEST} from "@/constant";
-import {Avatar, Button, Checkbox, Form, Input, Modal, Radio, Select} from "antd";
+import {Avatar, Button, Checkbox, DatePicker, Form, Input, Modal, Radio, Select} from "antd";
 import OrderFilter from "@/components/OrderFilter";
 import PortFullName from "@/components/PortFullName";
 import { CARD_COLORS } from "./common";
@@ -15,6 +15,7 @@ import UserPicker from "@/components/UserPicker.jsx";
 import {isArray} from "lodash";
 import {base64ToBlob, confirm, downloadBlob} from "@/helpers/index.js";
 import {checkJSONCode, getResponseJsonBodyData} from "@/apis/middleware.js";
+import dayjs from "dayjs";
 
 const MultiExportModal = forwardRef(function MultiExportModal(props, ref) {
   const { onSuccess } = props
@@ -32,7 +33,10 @@ const MultiExportModal = forwardRef(function MultiExportModal(props, ref) {
       open (selectedIds) {
         ids.current = selectedIds
         form.resetFields()
-        form.setFieldValue('custom_cols', ['orderNo', 'containerCount', 'port', 'etd'])
+        form.setFieldsValue({
+          'custom_cols': ['orderNo', 'containerCount', 'port', 'etd'],
+          'month': dayjs().add(-1, 'month')
+        })
         setOpen(true)
         return getMailDefault(selectedIds)
       }
@@ -65,6 +69,7 @@ const MultiExportModal = forwardRef(function MultiExportModal(props, ref) {
   const [onSubmit, submitting] = useAsyncCallback(async () => {
     const formData = await form.validateFields()
     formData.id = ids.current.join(',')
+    formData.month = formData.month.format('YYYY-MM')
     formData.custom_cols = formData.custom_cols.join(',')
 
     const { file_stream, ticket } = await request('/admin/request_book/merge_export')
@@ -108,6 +113,9 @@ const MultiExportModal = forwardRef(function MultiExportModal(props, ref) {
         </Form.Item>
         <Form.Item label={'内容'} name={'content'}>
           <Input.TextArea rows={7} placeholder={'请输入内容'} />
+        </Form.Item>
+        <Form.Item label={'月份'} name={'month'} rules={[{ required: true, message: '月份必填' }]}>
+          <DatePicker picker={'month'}></DatePicker>
         </Form.Item>
         <Form.Item label="銀行" name="bank_id" rules={[{ required: true, message: '銀行必填' }]}>
           <Radio.Group options={bankOptions} />
@@ -328,11 +336,11 @@ function RequestBookPage() {
         className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
         onClick={async () => {
           close()
-          const user = await userPicker.current.pick()
+          const formData = await userPicker.current.pick()
           const params = {
             'order_id': order.current.id,
             'node_id': order.current.request_book_node.id,
-            'user_id': user
+            ...formData
           }
           await request('admin/order/dispatch').data(params).send()
           pubSub.publish('Info.Toast', '仲間に協力', 'success')

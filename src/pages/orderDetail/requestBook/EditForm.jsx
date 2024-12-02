@@ -148,7 +148,6 @@ const CostItemRow =
         onChange={value => onChangeField('item_amount', value)}
         className="w-full"
         disabled={disabled}
-        min={0}
       ></InputNumber>
       <Button
         className={'flex-shrink-0'}
@@ -349,14 +348,13 @@ const DetailRow = ({ partType, partName, props }) => {
           <InputNumber
             className="w-full"
             step={0.01}
-            min={0}
             onBlur={calcAmount}
           ></InputNumber>
         </Form.Item>
       </td>
       <td>
         <Form.Item noStyle name={[props.key, 'num']}>
-          <InputNumber min={0} className="w-full" onBlur={calcAmount} />
+          <InputNumber className="w-full" onBlur={calcAmount} />
         </Form.Item>
       </td>
       <td>

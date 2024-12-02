@@ -17,7 +17,12 @@ const useCustomerSelect = () => {
   const [customer, setCustomers] = useState()
 
   useEffect(() => {
-    getCustomers().then(setCustomers)
+    getCustomers().then((rep) => {
+      const customer = [
+        { label: 'お客様情報未定', value: -1 }
+      ].concat(rep)
+      setCustomers(customer)
+    })
   }, [])
 
   return customer

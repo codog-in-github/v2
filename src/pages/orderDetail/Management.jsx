@@ -138,7 +138,10 @@ const CopyModal = forwardRef(function CopyModal (props, ref) {
 })
 
 const Management = ({ className }) => {
-  const { form, saveOrder, savingOrder, delOrder, deletingOrder, isCopy, onModifyChange, rootRef } = useContext(DetailDataContext)
+  const {
+    form, saveOrder, savingOrder, delOrder, deletingOrder,
+    isCopy, onModifyChange, rootRef, modified
+  } = useContext(DetailDataContext)
   const navigate = useNavigate()
   const copyModalInstance = useRef(null)
   const [modal, modalContent] = Modal.useModal()
@@ -213,6 +216,14 @@ const Management = ({ className }) => {
           type="primary"
           danger
           onClick={async () => {
+            if(modified.current) {
+              pubSub.publish('Info.Toast', '保存されていないケースは削除できません', 'error')
+              return
+            }
+            if(!form.getFieldValue('customerId')) {
+              pubSub.publish('Info.Toast', '最初に顧客を選択してください', 'error')
+              return
+            }
             const confirm = await modal.confirm({
               content: 'このデータを削除しますか？'
             })

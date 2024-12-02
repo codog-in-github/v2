@@ -7,10 +7,10 @@ import dayjs from 'dayjs';
 import TopBadge from '@/components/TopBadge';
 
 /**
- * 
- * @param {Date} start 
- * @param {Date} end 
- * @returns 
+ *
+ * @param {Date} start
+ * @param {Date} end
+ * @returns
  */
 function getTimeDistant(start, end) {
   start = Math.floor(start.valueOf() / 1000)
@@ -27,8 +27,8 @@ function getTimeDistant(start, end) {
 }
 /**
  * @param {Object} param0
- * @param {import('dayjs').Dayjs} param0.expiredAt 
- * @returns 
+ * @param {import('dayjs').Dayjs} param0.expiredAt
+ * @returns
  */
 function Timer({ expiredAt  = dayjs() }) {
   const [display, setDisplay] = useState(
@@ -90,7 +90,7 @@ function Card({
         <div className='flex flex-1'>
           <CompanyAvatar className="!text-[10px]" bg="#D46DE0" text="REMARK"></CompanyAvatar>
           <div className='ml-4'>
-            <div className="font-semibold">{orderInfo.remark}</div>
+            <div className="font-semibold line-clamp-3">{orderInfo.remark}</div>
           </div>
         </div>
       ) : (

@@ -138,11 +138,11 @@ function MainContent() {
         className='text-primary-500 hover:text-white hover:bg-primary-500 border-t active:bg-danger-700'
         onClick={async () => {
           close()
-          const user = await userPicker.current.pick()
+          const formData = await userPicker.current.pick()
           const params = {
             'order_id': onContextOrder.orderId,
             'node_id': onContextOrder.nodeId,
-            'user_id': user
+            ...formData
           }
           await request('admin/order/dispatch').data(params).send()
           pubSub.publish('Info.Toast', '仲間に協力', 'success')
