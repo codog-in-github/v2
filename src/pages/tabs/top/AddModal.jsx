@@ -15,9 +15,16 @@ const getCustomers = async () => {
 
 const useCustomerSelect = () => {
   const [customer, setCustomers] = useState()
+
   useEffect(() => {
-    getCustomers().then(setCustomers)
+    getCustomers().then((rep) => {
+      const customer = [
+        { label: 'お客様情報未定', value: -1 }
+      ].concat(rep)
+      setCustomers(customer)
+    })
   }, [])
+
   return customer
 }
 
@@ -25,7 +32,8 @@ const AddModal = ({
   open = false,
   onCancel = () => {},
   onOk = () => {},
-  onOkEdit = () => {}
+  onOkEdit = () => {},
+  onOkRequest = () => {},
 }) => {
   const [form] = Form.useForm()
   const customers = useCustomerSelect()
@@ -53,6 +61,11 @@ const AddModal = ({
         <div className="flex items-center justify-center gap-2">
           <LoadingButton type="primary" onClick={() => validate(onOk)}>保存して閉じる</LoadingButton>
           <LoadingButton type="primary" onClick={() => validate(onOkEdit)}>保存し編集</LoadingButton>
+          <LoadingButton
+            type="primary"
+            onClick={() => validate(onOkRequest)}
+            className={'bg-success hover:!bg-success-400 active:!bg-success-700'}
+          >值引案件</LoadingButton>
           <Button color="red" onClick={cancelHandle}>取消</Button>
         </div>
       )}

@@ -13,6 +13,7 @@ const OrderFilter = ({ form, onSearch }) => {
       <Space.Compact>
         <Form.Item name="filter_key" noStyle>
           <Select
+            className={'w-36'}
             options={[
               { value: 'bkg_no', label: 'BKG NO.' },
               { value: 'order_no', label: '社内番号' },

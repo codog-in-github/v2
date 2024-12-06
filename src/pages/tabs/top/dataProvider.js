@@ -133,7 +133,7 @@ export const useMessages = () => {
     setMessages(lastMessages.concat(rep.map(toMessageProps)))
   })
 
-  const  [loadTop] = useAsyncCallback(async () => {
+  const [loadTop] = useAsyncCallback(async () => {
     const data = {
       'page_size': 10,
       'at_me': isAtMe ? 1 : 0,

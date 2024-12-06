@@ -1,7 +1,6 @@
 import { useRef } from "react"
 
 const FileInput = ({ className, onChange, accept, multiple, value, ...props }) => {
-  console.log('props', props)
   const ref = useRef(null)
   if(!value && ref.current) {
     ref.current.value = ''

@@ -1,5 +1,5 @@
 import {forwardRef, useEffect, useImperativeHandle, useRef, useState} from "react";
-import {Modal, Radio} from "antd";
+import {Form, Input, Modal, Radio} from "antd";
 import {request} from "@/apis/requestBuilder.js";
 
 const UserPicker = forwardRef(function UserPicker(_, ref) {
@@ -8,11 +8,12 @@ const UserPicker = forwardRef(function UserPicker(_, ref) {
     resolve: () => {},
     reject: () => {}
   })
-  const [selected, setSelected] = useState(null)
+
   const [users, setUsers] = useState([])
+  const [form] = Form.useForm()
 
   useEffect(() => {
-    request('admin/user/user_list').get().send()
+    request('admin/user/user_list').get({ dispatchable: 1 }).send()
       .then((rep) => {
         if(!rep) {
           setUsers([])
@@ -29,7 +30,7 @@ const UserPicker = forwardRef(function UserPicker(_, ref) {
     return {
       pick: () => {
         setOpen(true)
-        setSelected(null)
+        form.resetFields()
         return new Promise((resolve, reject) => {
           pickerCallbacks.current = {
             resolve,
@@ -45,26 +46,32 @@ const UserPicker = forwardRef(function UserPicker(_, ref) {
       title="選択してください"
       open={open}
       width={600}
-      onOk={() => {
-        if(!selected) {
-          return
-        }
+      onOk={async () => {
+        const data = await form.validateFields()
         setOpen(false)
-        pickerCallbacks.current.resolve(selected)
+        pickerCallbacks.current.resolve(data)
       }}
       onCancel={() => {
         setOpen(false)
         pickerCallbacks.current.reject()
       }}
     >
-      <div className={'min-h-[94px] flex  items-center [&_.ant-radio-wrapper]:text-[16px] [&_.ant-radio-wrapper]:mr-[30px]'}>
-        <Radio.Group
-          className="mt-4"
-          value={selected}
-          options={users}
-          onChange={e => setSelected(e.target.value)}
-        ></Radio.Group>
-      </div>
+      <Form
+        form={form}
+        className={'mt-4'}
+        labelCol={{ span: 2 }}
+      >
+        <Form.Item label={'人员'} name={'user_id'} rules={[{ required: true, message: '人员必填' }]}>
+          <Radio.Group
+            options={users}
+          ></Radio.Group>
+        </Form.Item>
+        <Form.Item label={'留言'} name={'content'}>
+          <Input.TextArea
+            rows={4}
+          ></Input.TextArea>
+        </Form.Item>
+      </Form>
     </Modal>
   )
 })

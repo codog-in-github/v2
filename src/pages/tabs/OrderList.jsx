@@ -146,11 +146,11 @@ function OrderList() {
         className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
         onClick={async () => {
           close()
-          const user = await userPicker.current.pick()
+          const formData = await userPicker.current.pick()
           const params = {
             'order_id': order.current.id,
             'node_id': order.current.node.id,
-            'user_id': user
+            ...formData
           }
           await request('admin/order/dispatch').data(params).send()
           pubSub.publish('Info.Toast', '仲間に協力', 'success')

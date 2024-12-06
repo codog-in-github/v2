@@ -148,7 +148,6 @@ const CostItemRow =
         onChange={value => onChangeField('item_amount', value)}
         className="w-full"
         disabled={disabled}
-        min={0}
       ></InputNumber>
       <Button
         className={'flex-shrink-0'}
@@ -197,7 +196,12 @@ const formDataFormat = (book, type = REQUEST_TYPE_NORMAL) => {
   }
 
   if(book['details'] && book['details'].length > 0) {
-    formData['details'] = groupBy(book['details'], 'type')
+    const details = book['details'].map(item => ({
+      ...item,
+      amount: Math.floor(item['amount'] ?? 0),
+      price: Number(item['price']).toFixed(2),
+    }))
+    formData['details'] = groupBy(details, 'type')
   } else {
     if(type === REQUEST_TYPE_NORMAL) {
       formData['details'] = {
@@ -261,7 +265,7 @@ const DetailRow = ({ partType, partName, props }) => {
   const calcAmount = () => {
     const row = form.getFieldValue(currentRowPath)
     if(row['num'] && row['price']) {
-      form.setFieldValue([...currentRowPath, 'amount'], (row['num'] * row['price']).toFixed(2))
+      form.setFieldValue([...currentRowPath, 'amount'], Math.floor(row['num'] * row['price']))
     }
   }
 
@@ -273,7 +277,7 @@ const DetailRow = ({ partType, partName, props }) => {
         pubSub.publish('Info.Toast', '汇率が未設定です', 'error')
         return
       }
-      form.setFieldValue([...currentRowPath, 'price'], (row['detail'] * rate).toFixed(2))
+      form.setFieldValue([...currentRowPath, 'price'], row['detail'] * rate)
       calcAmount()
     }
   }
@@ -332,6 +336,7 @@ const DetailRow = ({ partType, partName, props }) => {
           <Select
             className="w-16"
             allowClear
+            onBlur={calcPrice}
             options={[
               {value: '$'}
             ]}
@@ -340,12 +345,16 @@ const DetailRow = ({ partType, partName, props }) => {
       </td>
       <td>
         <Form.Item noStyle name={[props.key, 'price']}>
-          <InputNumber className="w-full" min={0} onBlur={calcAmount}></InputNumber>
+          <InputNumber
+            className="w-full"
+            step={0.01}
+            onBlur={calcAmount}
+          ></InputNumber>
         </Form.Item>
       </td>
       <td>
         <Form.Item noStyle name={[props.key, 'num']}>
-          <InputNumber min={0} className="w-full" onBlur={calcAmount} />
+          <InputNumber className="w-full" onBlur={calcAmount} />
         </Form.Item>
       </td>
       <td>
@@ -537,7 +546,7 @@ const MiniTotal = () => {
       .reduce((acc, cur) => acc + Number(cur['amount'] ?? 0), 0)
 
   }, [detailsOrigin])
-  return `[*消費税対象金額 ${miniTotal.toFixed(2)}]`
+  return `[*消費税対象金額 ${Math.floor(miniTotal)}]`
 }
 
 const Total = () => {
@@ -561,10 +570,12 @@ const Total = () => {
     if(isNaN(tax)) {
       tax = 0
     }
+    tax = Math.floor(tax)
+    total = Math.floor(total)
     form.setFieldsValue({
-      'tax': tax.toFixed(2),
-      'total_amount': total.toFixed(2),
-      'request_amount': (total + tax).toFixed(2),
+      'tax': tax,
+      'total_amount': total,
+      'request_amount': total + tax,
     })
   }, [details, form])
 

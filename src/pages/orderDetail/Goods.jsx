@@ -212,6 +212,17 @@ const CarList = ({
               <Form.Item className="flex-1" label="VAN場所" name={[props.name, 'vanPlace']}>
                 <Input onChange={onModifyChange} />
               </Form.Item>
+              <Form.Item className="w-32" label="スケール" name={[props.name, 'scale']}>
+                <Select
+                  onChange={onModifyChange}
+                  getPopupContainer={() => rootRef.current}
+                  options={[
+                    { label: 'なし', value: 0 },
+                    { label: 'あり', value: 1 }
+                  ]}
+                >
+                </Select>
+              </Form.Item>
               <Form.Item className="w-32" label="TYPE" name={[props.name, 'vanType']}>
                 <AutoComplete
                   options={containerTypes}
@@ -227,7 +238,8 @@ const CarList = ({
               <Form.Item className="w-32" label="2軸3軸" name={[props.name, 'carType']}>
                 <Select
                   onChange={onModifyChange}
-                  getPopupContainer={() => rootRef.current} options={[
+                  getPopupContainer={() => rootRef.current}
+                  options={[
                     { label: '2軸', value: 1 },
                     { label: '3軸', value: 2 }
                   ]}

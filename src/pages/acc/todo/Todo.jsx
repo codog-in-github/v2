@@ -1,8 +1,6 @@
 import { request } from "@/apis/requestBuilder.js";
-import { useEffect, useState, useRef } from "react";
-import { useAsyncCallback, useContextMenu } from "@/hooks/index.js";
-import { useNavigate } from "react-router-dom";
-import { LoadingOutlined } from "@ant-design/icons";
+import {useEffect, useState, useRef, useCallback} from "react";
+import { useAsyncCallback } from "@/hooks/index.js";
 import SkeletonList from "@/components/SkeletonList.jsx";
 import { ACC_JOB_TYPE_BL, ACC_JOB_TYPE_SEA } from "@/constant/index.js";
 import Card from "./Card.jsx";
@@ -44,10 +42,8 @@ const groups = [
   },
 ]
 
-const ListGroup = ({ title, color, list, onContextMenu, loading }) => {
-  const navigate = useNavigate()
+const ListGroup = ({ title, color, list, onClick, loading }) => {
   return (
-
     <div className=" m-2 rounded-lg  py-4">
       <div>{title}</div>
       <div className="grid grid-cols-4 2xl:grid-cols-5 gap-8 flex-wrap mt-4">
@@ -60,8 +56,7 @@ const ListGroup = ({ title, color, list, onContextMenu, loading }) => {
           {item => (
             <Card
               key={item['id']}
-              onContextMenu={e => onContextMenu(e, item)}
-              onClick={() => {}}
+              onClick={() => onClick(item)}
               color={color}
               jobInfo={item}
             />
@@ -73,44 +68,15 @@ const ListGroup = ({ title, color, list, onContextMenu, loading }) => {
 }
 function TodoList() {
   const { list, reload, loading } = useTodo()
-  const job = useRef(null)
-  const modalInstall = useRef(null)
-  const [pay, paying] = useAsyncCallback(async () => {
-    modalInstall.current.open(job.current['id'])
-    hidden()
-  })
-
-  const [menu, open, hidden] = useContextMenu(
-    <div
-      className="
-        fixed w-32 z-50 border cursor-OrderListinter
-        text-center bg-white shadow-md
-        leading-8 rounded-md overflow-hidden
-      "
-      onClick={e => e.stopPropagation()}
-    >
-      <div
-        type='primary'
-        className='text-primary hover:text-white hover:bg-primary active:bg-primary-600'
-        onClick={pay}
-      >
-        {paying && <LoadingOutlined className="mr-2" />}
-        付款
-      </div>
-    </div>
-  )
+  const modalRef = useRef(null)
+  const onClick = useCallback((item) => {
+    modalRef.current.open(item.id)
+  }, [])
   /**
    *
    * @param {Event} e
    */
-  const contextMenuHandle = (e, item) => {
-    e.preventDefault()
-    job.current = item
-    open({
-      x: e.clientX,
-      y: e.clientY
-    })
-  }
+
   return (
     <div className="flex-1">
       { groups.map(item => (
@@ -120,12 +86,11 @@ function TodoList() {
             list={list[item.key]}
             title={item.title}
             loading={loading}
-            onContextMenu={contextMenuHandle}
+            onClick={onClick}
           ></ListGroup>
         )
       )) }
-      {menu}
-      <CompModal instance={modalInstall} onSuccess={reload}></CompModal>
+      <CompModal ref={modalRef} onSuccess={reload}></CompModal>
     </div>
   );
 }

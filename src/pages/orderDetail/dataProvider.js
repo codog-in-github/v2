@@ -123,10 +123,10 @@ const formDataGenerator = (isCopy) => (rep) => {
   setIfExist('customerId', 'customer_id')
   setIfExist('customerName', 'company_name')
   setIfExist('customerAbbr', 'short_name')
-  setIfExist('customerPostalCode', 'zip_code')
+  setIfExist('zipcode', 'zip_code')
   setIfExist('customerAddr', 'address')
   setIfExist('customerResponsiblePerson', 'header')
-  setIfExist('customerContact', 'mobile')
+  setIfExist('mobile', 'mobile')
   setIfExist('companyCode', 'legal_number')
 
   /**
@@ -235,6 +235,7 @@ const formDataGenerator = (isCopy) => (rep) => {
         const car = {
           id: item['id'],
           containerId: item['container_id'],
+          scale: item['scale'],
           vanPlace: item['van_place'],
           vanType: item['van_type'],
           carType: item['bearing_type'] || void 0,
@@ -293,10 +294,10 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
   setValue('customerName', 'company_name')
   setValue('customerId', 'customer_id')
   setValue('customerAbbr', 'short_name')
-  setValue('customerPostalCode', 'zip_code')
+  setValue('zipcode', 'zip_code')
   setValue('customerAddr', 'address')
   setValue('customerResponsiblePerson', 'header')
-  setValue('customerContact', 'mobile')
+  setValue('mobile', 'mobile')
   setValue('companyCode', 'legal_number')
 
   /**
@@ -304,6 +305,7 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
    */
   setValue('carrier', 'carrier')
   setValue('carrier_id', 'carrier_id')
+  setValue('carrierName', 'carrier_name')
   setValue('vesselName', 'vessel_name')
   setValue('voyage', 'voyage')
    /**
@@ -361,6 +363,7 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
     const detail = {
       'id' : item.id ?? '',
       'container_id' : item.containerId ?? '',
+      'scale': item.scale ?? '',
       'van_place': item.vanPlace ?? '',
       'van_type': item.vanType ?? '',
       'bearing_type': item.carType ?? 0,
@@ -431,6 +434,7 @@ export const useDetailData = () => {
   const [multiMails, setMultiMails] = useState(null)
   const isCopy = Boolean(copyId)
   const isTempOrder = nodes.length === 0
+  const [canEditCuster, setCanEditCuster] = useState(false)
 
   const rootRef = useRef(null)
 
@@ -513,6 +517,9 @@ export const useDetailData = () => {
         multiMailGenerator,
         setMultiMails
     )))
+    .then(rep => {
+      setCanEditCuster(!rep.customer_id)
+    })
   })
 
   const [saveOrder, savingOrder] = useAsyncCallback(async () => {
@@ -634,7 +641,8 @@ export const useDetailData = () => {
     modified,
     rootRef,
     onModifyChange,
-    modifyChangeGenerator
+    modifyChangeGenerator,
+    canEditCuster
   }
 }
 
