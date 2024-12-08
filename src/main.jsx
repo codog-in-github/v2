@@ -6,6 +6,7 @@ import { themeColor } from '@/helpers/color.js';
 import ja_JP from 'antd/locale/ja_JP';
 import dayjs from 'dayjs';
 
+import '@/helpers/echo'
 import 'dayjs/locale/ja';
 import 'dayjs/locale/zh-cn';
 import '@/assets/styles/public.scss';

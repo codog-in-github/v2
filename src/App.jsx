@@ -11,7 +11,7 @@ const useGlobalMessage = () => {
   const [messageApi, contextHolder] = message.useMessage();
   useEffect(() => {
     /**
-     * @param {import('axios').AxiosResponse} err 
+     * @param {import('axios').AxiosResponse} err
      */
     const showApiError = (err) => {
       let errMsg
@@ -23,7 +23,7 @@ const useGlobalMessage = () => {
       showErrorToast(new Error(errMsg))
     };
     /**
-     * @param {Error} err 
+     * @param {Error} err
      */
     const showErrorToast = (err) => {
       messageApi.error(err.message);
@@ -31,15 +31,22 @@ const useGlobalMessage = () => {
     const showToast = (msg, type = "info") => {
       messageApi[type](msg);
     };
+    const makeNotification = (rep) => {
+      console.log(rep)
+    }
+
     pubSub.subscribe("Error:HTTP.State", showApiError);
     pubSub.subscribe("Error:API.Code", showApiError);
     pubSub.subscribe("Info.Toast.Error", showErrorToast)
     pubSub.subscribe("Info.Toast", showToast)
+    pubSub.subscribe("Info.Notification.Received", makeNotification)
+
     return () => {
       pubSub.unsubscribe("Error:HTTP.State", showApiError);
       pubSub.unsubscribe("Error:API.Code", showApiError);
       pubSub.unsubscribe("Info.Toast.Error", showErrorToast);
       pubSub.unsubscribe("Info.Toast", showToast);
+      pubSub.unsubscribe("Info.Notification.Received", makeNotification);
     };
   }, [messageApi]);
   return contextHolder;

@@ -8,22 +8,27 @@ import { Dropdown } from 'antd';
 import { useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import * as Icon from '@/components/Icon'
-import { useSelector } from 'react-redux';
+import {useSelector, useStore} from 'react-redux';
 import { ORDER_TAB_STATUS_ACL, ORDER_TAB_STATUS_BL_COPY, ORDER_TAB_STATUS_CUSTOMER_DOCUMENTS, ORDER_TAB_STATUS_CUSTOMS, ORDER_TAB_STATUS_DRIVE, ORDER_TAB_STATUS_PO, ORDER_TAB_STATUS_SUR } from '@/constant';
 import { useEffect } from 'react';
 import pubSub from '@/helpers/pubSub';
 import { useState } from 'react';
 import { useAsyncCallback } from '@/hooks';
 import { request } from '@/apis/requestBuilder';
+import Echo from "@/helpers/echo.js";
 
 const c = namespaceClass('nav-top-bar')
 const useLogout = () => {
   const navigate = useNavigate()
-  const handle = useCallback(() => {
-    localStorage.removeItem('token')
+  const store = useStore()
+
+  return useCallback(() => {
+    const { user } = store.getState()
+    Echo.leaveChannel('user.' + user.userInfo.id)
+    Echo.leaveChannel('department.' + user.userInfo.department)
     navigate('/')
+    localStorage.removeItem('token')
   }, [navigate])
-  return handle
 }
 const NavTopbar = ({ className }) => {
   const logoutHandle = useLogout()

@@ -7,6 +7,8 @@ const userSlice = createSlice({
     userInfo: {
       name: '',
       role: null,
+      department: null,
+      id: null,
     }
   },
   reducers: {
