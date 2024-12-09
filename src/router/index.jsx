@@ -9,10 +9,11 @@ import pubSub from "@/helpers/pubSub";
 import { request } from "@/apis/requestBuilder";
 import store from "@/store";
 import { setUserInfo } from "@/store/slices/user"
-import { USER_ROLE_ACC, USER_ROLE_ADMIN, USER_ROLE_BOOS, USER_ROLE_CUSTOMS, USER_ROLE_NORMAL } from "@/constant";
+import { USER_ROLE_ACC, USER_ROLE_ADMIN, USER_ROLE_BOOS, USER_ROLE_NORMAL } from "@/constant";
 import {redirectUrl, routeGuarder} from "@/router/common.jsx";
 import accRoutes from "@/router/acc.jsx";
 import customsRoutes from "@/router/customs.jsx";
+import Echo, {makeSystemNotification} from "@/helpers/echo.js";
 
 pubSub.subscribe('Error:HTTP.Unauthorized', () => {
   localStorage.removeItem('token')
@@ -26,10 +27,24 @@ const router = createBrowserRouter([
   },
   routeGuarder(async (_, next) => {
     const rep = await request('/admin/user/me').get().send()
+
+    Echo.channel('user.' + rep.id).on('Message.Send', (event) => {
+      makeSystemNotification(
+        event.message.content.replace(/<[Ff]ile[^>]+>/g, '「書類」'),
+        '誰かが私を@しました'
+      )
+    })
+    Echo.channel('department.' + rep.department).on('Order.Update', (event) => {
+      // todo: when order be created refresh data
+    })
+
     store.dispatch(setUserInfo({
+      id: rep.id,
       name: rep.name,
       role: rep.role_id,
+      department: rep.department,
     }))
+
     next()
   }, [
     routeGuarder((_, next) => {
