@@ -4,6 +4,8 @@ import { useAsyncCallback } from "@/hooks"
 import dayjs from "dayjs"
 import { useEffect, useState } from "react"
 import QueryString from "qs";
+import {setUnread} from "@/store/slices/user.js";
+import {useStore} from "react-redux";
 
 const getOrders = (params) => {
   return request('admin/order/top_list')
@@ -93,7 +95,7 @@ const toMessageProps = item => {
     id: item['id'],
     orderId: item['order_id'],
     isAtMe: item['at_me'] === 1,
-    isReaded: item['is_read'] === 1,
+    isRead: item['is_read'] === 1,
     content: item['content'],
     datetime: dayjs(item['created_at']).format('YYYY-MM-DD HH:mm:ss'),
     doText: item['do_type'] === MESSAGE_DO_TYPE_ORDER ? '案件処理' : '請求書処理',
@@ -153,13 +155,30 @@ export const useMessages = () => {
   return { messages, loading, load, loadTop, isAtMe, toggleAtMe }
 }
 
-export const useReadMessage =  (id) => {
-  const [isReaded, setIsReaded] = useState(false)
+export const useReadMessage =  (id, isReadProp) => {
+  const [isReadCache, setIsReadCache] = useState(null)
+  const store = useStore()
+
+  useEffect(() => {
+    setIsReadCache(null)
+  }, [isReadProp]);
+
+  const isReadMemo = isReadCache === null ? isReadProp : isReadCache
+
   const [read, loading] = useAsyncCallback(async () => {
-    await request('/admin/order/read_message').post({ id }).send()
-    setIsReaded(true)
+    const nextStatus = !isReadMemo
+    const updateCountType = nextStatus ? 'decrement' : 'increment'
+    await request('/admin/order/read_message')
+      .post({ id, is_read: Number(nextStatus) }).send()
+
+    setIsReadCache(nextStatus)
+    store.dispatch(setUnread({
+      type: updateCountType,
+      count: 1
+    }))
   })
-  return {
-    read, loading, isReaded
-  }
+
+  return [
+    isReadMemo, read, loading
+  ]
 }

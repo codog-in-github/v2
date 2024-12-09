@@ -8,7 +8,7 @@ Notification.requestPermission()
 
 const Echo = new LaravelEcho({
   broadcaster: 'pusher',
-  wsHost: window.location.host,
+  wsHost: window.location.hostname,
   key: 'harumigumi',
   wsPort: 6001,
   forceTLS: false,

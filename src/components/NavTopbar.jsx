@@ -4,7 +4,7 @@ import { NavButton, NavButtonGroup } from './NavButton';
 import { namespaceClass } from '@/helpers/style';
 import classnames from 'classnames';
 import { CaretDownOutlined } from '@ant-design/icons';
-import { Dropdown } from 'antd';
+import {Badge, Dropdown} from 'antd';
 import { useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import * as Icon from '@/components/Icon'
@@ -37,7 +37,10 @@ const NavTopbar = ({ className }) => {
     const data = await request('/admin/order/tabs_todo_total').get().send()
     setBadgeCounts(data)
   })
+
   const username = useSelector(state => state.user.userInfo.name)
+  const unReadMsgCount = useSelector(state => state.user.message.unread)
+
   useEffect(() => {
     pubSub.subscribe('Info.Order.Change', updateBadge)
     return () => {
@@ -55,6 +58,7 @@ const NavTopbar = ({ className }) => {
         <img className={classnames(c('logo'))} src={logo}></img>
         <div className={classnames(c('title'))}>春海組システム</div>
       </Link>
+
       <NavButtonGroup className="ml-20 flex-1 overflow-auto space-x-4">
         <NavButton to="/top" badge={badgeCounts[0]}>
           <Icon.Top classname="w-4 h-4 inline relative bottom-[3px]" />
@@ -93,6 +97,7 @@ const NavTopbar = ({ className }) => {
           <span className='ml-2'>請求書</span>
         </NavButton>
       </NavButtonGroup>
+
       <div className="flex ml-auto pr-4">
         <Dropdown
            menu={{ items: [
@@ -100,8 +105,10 @@ const NavTopbar = ({ className }) => {
            ] }}
         >
           <div className='flex gap-2 items-center'>
-            <Avatar></Avatar>
-              <span className='mx-2'>{username}</span>
+            <Badge count={unReadMsgCount}>
+              <Avatar />
+            </Badge>
+            <span className='mx-2'>{username}</span>
             <CaretDownOutlined />
           </div>
         </Dropdown>
