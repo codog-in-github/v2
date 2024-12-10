@@ -6,6 +6,7 @@ import {forwardRef, useEffect, useImperativeHandle, useState} from "react";
 import File from "@/components/File.jsx";
 import {DEPARTMENTS} from "@/constant/index.js";
 import dayjs from "dayjs";
+import {openLinkBlank} from "@/helpers/index.js";
 
 const CompModal = forwardRef(function CompModal ({ onSuccess }, ref) {
   const [open, setOpen] = useState(false)
@@ -63,7 +64,7 @@ const CompModal = forwardRef(function CompModal ({ onSuccess }, ref) {
                 className={'w-fit'}
                 filePath={file}
                 key={file}
-                onNativeClick={() => {request(file).download().send()}}
+                onNativeClick={() => openLinkBlank(file)}
               />
             ))}
           </div>

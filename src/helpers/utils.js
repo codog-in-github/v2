@@ -210,3 +210,11 @@ export const base64ToBlob = (base64) => {
   return blob;
 }
 
+export const openLinkBlank = (url) => {
+  const a = document.createElement('a')
+  a.href = url
+  a.target = '_blank'
+  a.click()
+  a.remove()
+}
+
