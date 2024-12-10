@@ -69,6 +69,7 @@ const Mail = ({ mail, onSuccess = () => {} }) => {
   const [form] = Form.useForm()
   const [title, setTitle] = useState('送信')
   const [fileType, setFileType] = useState(null)
+
   const [setDefaultValue, loading] = useAsyncCallback(async (mailInfo) => {
     setToOptions([])
     setCcOptions([])

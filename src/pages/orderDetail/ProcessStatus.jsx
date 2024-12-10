@@ -220,6 +220,7 @@ const ProcessBarButtons = ({nodeId, nodeType, step, mail, sended, redo}) => {
         case SUR_STEP_WAIT_CUSTOMER_CONFIRMED:
           mailData.to = MAIL_TO_ACC
           mailData.title = `${EXPORT_NODE_NAMES[nodeType]} - 支払依頼`
+          mailData.file = [FILE_TYPE_COST]
           return (
             <Button type="primary" onClick={() => mail.current.open(mailData)}>支払依頼</Button>
           )
