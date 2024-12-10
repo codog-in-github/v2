@@ -88,14 +88,18 @@ function Card({
       { top && <TopBadge>{orderInfo.topName}</TopBadge> }
       { orderInfo.isTempOrder ? (
         <div className='flex flex-1'>
-          <CompanyAvatar className="!text-[10px]" bg="#D46DE0" text="REMARK"></CompanyAvatar>
+          <CompanyAvatar
+            className="!text-[10px] flex-shrink-0"
+            bg="#D46DE0"
+            text="REMARK"
+          />
           <div className='ml-4'>
             <div className="font-semibold line-clamp-3">{orderInfo.remark}</div>
           </div>
         </div>
       ) : (
         <div className='flex flex-1'>
-          <CompanyAvatar text={orderInfo.avatarText}></CompanyAvatar>
+          <CompanyAvatar className={'flex-shrink-0'} text={orderInfo.avatarText}></CompanyAvatar>
           <div className='ml-4'>
             <div className="font-semibold">{orderInfo.companyName}</div>
             <div className="mt-2 text-sm text-gray-500">BKG No. {orderInfo.bkgNo}</div>

@@ -4,7 +4,7 @@ import { NavButton, NavButtonGroup } from '@/components/NavButton';
 import { namespaceClass } from '@/helpers/style';
 import classnames from 'classnames';
 import { CaretDownOutlined } from '@ant-design/icons';
-import { Dropdown } from 'antd';
+import {Badge, Dropdown} from 'antd';
 import { useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 const c = namespaceClass('nav-top-bar')
@@ -21,6 +21,8 @@ const useLogout = () => {
 const NavTopbar = ({ className }) => {
   const logoutHandle = useLogout()
   const username = useSelector(state => state.user.userInfo.name)
+  const unReadMsgCount = useSelector(state => state.user.message.unread)
+
   return (
     <div className={classnames(c(''), 'bg-white flex items-center', className)}>
       <Link to="/top" className='flex gap-1 items-center'>
@@ -61,8 +63,10 @@ const NavTopbar = ({ className }) => {
            ] }}
         >
           <div className='flex gap-2 items-center'>
-            <Avatar></Avatar>
-              <span className='mx-2'>{username}</span>
+            <Badge count={unReadMsgCount}>
+              <Avatar/>
+            </Badge>
+            <span className='mx-2'>{username}</span>
             <CaretDownOutlined />
           </div>
         </Dropdown>

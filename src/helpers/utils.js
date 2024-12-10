@@ -218,3 +218,6 @@ export const openLinkBlank = (url) => {
   a.remove()
 }
 
+export const pipeExec = (input, ...callbacks) => {
+  return callbacks.reduce((result, callback) => callback(result), input)
+}

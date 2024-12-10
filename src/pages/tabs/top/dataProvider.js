@@ -1,11 +1,8 @@
 import { request } from "@/apis/requestBuilder"
-import {EXPORT_NODE_NAMES, MESSAGE_DO_TYPE_ORDER} from "@/constant"
+import {EXPORT_NODE_NAMES} from "@/constant"
 import { useAsyncCallback } from "@/hooks"
 import dayjs from "dayjs"
 import { useEffect, useState } from "react"
-import QueryString from "qs";
-import {setUnread} from "@/store/slices/user.js";
-import {useStore} from "react-redux";
 
 const getOrders = (params) => {
   return request('admin/order/top_list')
@@ -81,104 +78,4 @@ export const useTopOrderList = (form) => {
     loading,
     refresh
   }
-}
-
-const toMessageProps = item => {
-  let to
-  if(item['do_type'] === MESSAGE_DO_TYPE_ORDER) {
-    to = `/orderDetail/${item['order_id']}`
-  } else {
-    const qs = QueryString.parse(item['query'])
-    to = `/rb/edit/${qs.id}/order/${qs.order_id}/type/${qs.type}`
-  }
-  return {
-    id: item['id'],
-    orderId: item['order_id'],
-    isAtMe: item['at_me'] === 1,
-    isRead: item['is_read'] === 1,
-    content: item['content'],
-    datetime: dayjs(item['created_at']).format('YYYY-MM-DD HH:mm:ss'),
-    doText: item['do_type'] === MESSAGE_DO_TYPE_ORDER ? '案件処理' : '請求書処理',
-    to,
-    at: item['receiver'],
-    from: item['sender']
-  }
-}
-
-export const useMessages = () => {
-  const [messages, setMessages] = useState([])
-  const [hasMore, setHasMore] = useState(true)
-  const [isAtMe, setIsAtMe] = useState(false)
-
-  const [load, loading] = useAsyncCallback(async (atMe = isAtMe) => {
-    let lastMessages = messages
-    const clear = atMe !== isAtMe
-    const data = {
-      'page_size': 10,
-      'at_me': atMe ? 1 : 0
-    }
-    if(clear) {
-      lastMessages = []
-      setHasMore(true)
-      setIsAtMe(atMe)
-    } else if(!hasMore) {
-      return
-    } if(lastMessages.length) {
-      data['max_id'] = lastMessages[messages.length - 1].id
-    }
-    const rep = await request('admin/order/message_list')
-      .get(data).send()
-
-    if(!rep || !rep.length || rep.length < 10) {
-      setHasMore(false)
-    }
-    setMessages(lastMessages.concat(rep.map(toMessageProps)))
-  })
-
-  const [loadTop] = useAsyncCallback(async () => {
-    const data = {
-      'page_size': 10,
-      'at_me': isAtMe ? 1 : 0,
-      'min_id': messages[0]?.id
-    }
-    const rep = await request('admin/order/message_list')
-      .get(data).send()
-    setMessages(rep.map(toMessageProps).concat(messages))
-  })
-
-  const [toggleAtMe] = useAsyncCallback(() => load(!isAtMe))
-
-  useEffect(() => {
-    load()
-  }, [])
-
-  return { messages, loading, load, loadTop, isAtMe, toggleAtMe }
-}
-
-export const useReadMessage =  (id, isReadProp) => {
-  const [isReadCache, setIsReadCache] = useState(null)
-  const store = useStore()
-
-  useEffect(() => {
-    setIsReadCache(null)
-  }, [isReadProp]);
-
-  const isReadMemo = isReadCache === null ? isReadProp : isReadCache
-
-  const [read, loading] = useAsyncCallback(async () => {
-    const nextStatus = !isReadMemo
-    const updateCountType = nextStatus ? 'decrement' : 'increment'
-    await request('/admin/order/read_message')
-      .post({ id, is_read: Number(nextStatus) }).send()
-
-    setIsReadCache(nextStatus)
-    store.dispatch(setUnread({
-      type: updateCountType,
-      count: 1
-    }))
-  })
-
-  return [
-    isReadMemo, read, loading
-  ]
 }

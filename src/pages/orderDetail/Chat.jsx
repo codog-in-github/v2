@@ -37,7 +37,7 @@ const MessageBoard = ({ messages, disabled }) => {
       if(i > 0) {
         msgEle.push(
           <div
-            key={`${messages[i].id}-dash`}
+            key={`${messages[i].id}-dashed`}
             className="h-4 border-gray-400 border-l border-dashed ml-[57px]"
           />
         )
@@ -48,7 +48,13 @@ const MessageBoard = ({ messages, disabled }) => {
     }
   }
   return (
-    <div id="message-board" className="bg-[#EFF2F4] p-2 flex-1 overflow-auto text-base">
+    <div
+      id="message-board"
+      className="bg-[#EFF2F4] p-2 flex-1 overflow-auto text-base"
+      style={{
+        maxHeight: '350px',
+      }}
+    >
       {msgEle}
     </div>
   )

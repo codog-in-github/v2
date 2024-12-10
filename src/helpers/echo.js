@@ -13,7 +13,12 @@ const Echo = new LaravelEcho({
   wsPort: 6001,
   forceTLS: false,
   disableStats: true,
-  cluster: 'mt1'
+  cluster: 'mt1',
+  auth: {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
+  },
 })
 
 /**

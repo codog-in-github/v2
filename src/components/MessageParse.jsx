@@ -1,16 +1,12 @@
-import { request } from "@/apis/requestBuilder";
-import { basename } from "@/helpers";
+import {basename, openLinkBlank} from "@/helpers";
 import { useMemo } from "react";
 
-const download = (url) => {
-  request(url).download(basename(url)).send()
-}
 const FileNode = ({ src }) => {
   src = decodeURIComponent(src)
   return (
     <span
       className="file-node px-2 py-1 bg-success-200 text-success-500 rounded-full cursor-pointer mx-1"
-      onClick={() => download(src)}
+      onClick={() => openLinkBlank(src)}
     >{basename(src)}</span>
   )
 }

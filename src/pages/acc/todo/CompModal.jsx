@@ -40,7 +40,7 @@ const CompModal = forwardRef(function CompModal ({ onSuccess }, ref) {
 
   return (
     <Modal
-      title="付款"
+      title={'付款'}
       open={open}
       onOk={done}
       loading={loading}
