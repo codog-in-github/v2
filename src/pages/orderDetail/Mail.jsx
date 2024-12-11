@@ -1,7 +1,7 @@
 import { Button, Modal, Input, Form, Select } from "antd"
 import { useState, useContext, useEffect } from "react"
 import { DetailDataContext } from "./dataProvider"
-import { MAIL_TO_ACC, MAIL_TO_CUSTOMER, MAIL_TO_CUSTOMS_DECLARANT, MAIL_TYPE_NORMAL } from "@/constant"
+import {MAIL_TO_ACC, MAIL_TO_CUSTOMER, MAIL_TO_CUSTOMS_DECLARANT, MAIL_TYPE_NORMAL, MAIL_TYPE_REDO} from "@/constant"
 import { Checkbox } from "antd"
 import { CloseOutlined } from "@ant-design/icons"
 import { useAsyncCallback } from "@/hooks"
@@ -84,10 +84,16 @@ const Mail = ({ mail, onSuccess = () => {} }) => {
     setMailToType(mailInfo.to)
     setFileType(mailInfo.file)
     mailType.current = mailInfo.type
-    const rep = await request('/admin/order/get_mail_default').get({
+
+    const getDefaultParams = {
       'order_id': orderForm.getFieldValue('id'),
       'node_id': mailInfo.nodeId,
-    }).send()
+    }
+    if(mailInfo.type === MAIL_TYPE_REDO) {
+      getDefaultParams['redo'] = 1
+    }
+    const rep = await request('/admin/order/get_mail_default').get(getDefaultParams).send()
+
     const mails = []
     const cc = []
     const to = []

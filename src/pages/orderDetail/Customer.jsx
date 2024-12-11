@@ -1,17 +1,27 @@
 import Label from "@/components/Label"
-import {Input, Form, Select} from "antd"
-import {useCallback, useContext, useEffect, useState} from "react"
+import {Input, Form, Select, Button} from "antd"
+import {useCallback, useContext, useEffect, useRef, useState} from "react"
 import { DetailDataContext } from "./dataProvider"
 import {request} from "@/apis/requestBuilder.js";
+import {PlusCircleFilled} from "@ant-design/icons";
+import CustomerAddModal from "@/components/CustomerAddModal.jsx";
 
 const Customer = ({ className }) => {
-  const { onModifyChange, rootRef, canEditCuster, form } = useContext(DetailDataContext)
+  const {onModifyChange, rootRef, canEditCuster, form} = useContext(DetailDataContext)
   const [customers, setCustomers] = useState([])
+
+  const addModalRef = useRef(null);
 
   useEffect(() => {
     request('admin/order/get_department_customers')
       .get().send().then(setCustomers)
   }, []);
+
+  const onCustomerAdd = useCallback((customer) => {
+    setCustomers(customers => [...customers, customer])
+    form.setFieldValue('customerId', customer.id)
+    onCustomerSelect(null, customer)
+  }, [])
 
   const onCustomerSelect = useCallback((_, customer) => {
     form.setFieldsValue({
@@ -52,6 +62,16 @@ const Customer = ({ className }) => {
               onSelect={onCustomerSelect}
               options={customers}
               onChange={onModifyChange}
+              notFoundContent={(
+                <Button
+                  onClick={() => addModalRef.current.open()}
+                  className={'w-full'}
+                  type={'primary'}
+                  icon={<PlusCircleFilled />}
+                >
+                  <span className="ml-1">お客様追加</span>
+                </Button>
+              )}
             />
           </Form.Item>
           <span className="relative bottom-1">/</span>
@@ -80,6 +100,7 @@ const Customer = ({ className }) => {
           </Form.Item>
         </div>
       </div>
+      <CustomerAddModal ref={addModalRef} onSuccess={onCustomerAdd} />
     </div>
   )
 }
