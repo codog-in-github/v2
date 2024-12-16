@@ -4,7 +4,7 @@ import GroupLabel from '@/components/GroupLabel';
 import { useNavigate } from 'react-router-dom';
 import { request } from '@/apis/requestBuilder'
 import { Form } from 'antd/lib';
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import { useRef } from 'react';
 import { addAuthorization } from '@/apis/middleware';
 import md5 from 'crypto-js/md5';
@@ -44,6 +44,11 @@ const Card = () => {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    usrRef.current?.focus()
+  }, []);
+
   return (
     <div className='w-80 flex-shrink-0 bg-white p-10 rounded-lg'>
       <GroupLabel className="tracking-widest">登录</GroupLabel>

@@ -40,7 +40,7 @@ const CompModal = forwardRef(function CompModal ({ onSuccess }, ref) {
 
   return (
     <Modal
-      title={'付款'}
+      title={'支払い依頼の詳細'}
       open={open}
       onOk={done}
       loading={loading}
@@ -48,16 +48,13 @@ const CompModal = forwardRef(function CompModal ({ onSuccess }, ref) {
       okButtonProps={{ loading: submitting }}
       maskClosable={false}
     >
-      <Form form={form} className="mt-8" labelCol={{ span: 4 }}>
+      <Form form={form} className="mt-8" labelCol={{ span: 6 }}>
         <Form.Item noStyle name='id' ></Form.Item>
-        <Form.Item label={'创建人'}>{detail?.created_by_name}</Form.Item>
-        <Form.Item label={'创建时间'}>{
-          dayjs(detail?.created_at).format('YYYY-MM-DD HH:mm:ss')
-        }</Form.Item>
-        <Form.Item label={'所属部門'}>{
-          detail?.order.department ? DEPARTMENTS[detail.order.department] : ''
-        }</Form.Item>
-        <Form.Item label={'付款凭证'}>
+        <Form.Item label={'BKG NO.'}>{detail?.order.bkg_no}</Form.Item>
+        <Form.Item label={'社内番号'}>{detail?.order.order_no}</Form.Item>
+        <Form.Item label={'支払先'}>{detail?.pay_to}</Form.Item>
+        <Form.Item label={'支払金額'}>{detail?.amount}</Form.Item>
+        <Form.Item label={'支払い依頼証憑'}>
           <div className="flex flex-col gap-2">
             {detail?.check_files.map(file => (
               <File
@@ -69,7 +66,14 @@ const CompModal = forwardRef(function CompModal ({ onSuccess }, ref) {
             ))}
           </div>
         </Form.Item>
-        <Form.Item name='files' label="凭证" rules={[{ required: true, message: '请上传凭证' }]}>
+        <Form.Item label={'作成者'}>{detail?.created_by_name}</Form.Item>
+        <Form.Item label={'作成時間'}>{
+          dayjs(detail?.created_at).format('YYYY-MM-DD HH:mm:ss')
+        }</Form.Item>
+        <Form.Item label={'所属部署'}>{
+          detail?.order.department ? DEPARTMENTS[detail.order.department] : ''
+        }</Form.Item>
+        <Form.Item name='files' label="支払証憑" rules={[{ required: true, message: '请上传凭证' }]}>
           <FileInput multiple></FileInput>
         </Form.Item>
       </Form>
