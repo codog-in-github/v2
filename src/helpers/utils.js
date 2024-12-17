@@ -210,3 +210,14 @@ export const base64ToBlob = (base64) => {
   return blob;
 }
 
+export const openLinkBlank = (url) => {
+  const a = document.createElement('a')
+  a.href = url
+  a.target = '_blank'
+  a.click()
+  a.remove()
+}
+
+export const pipeExec = (input, ...callbacks) => {
+  return callbacks.reduce((result, callback) => callback(result), input)
+}

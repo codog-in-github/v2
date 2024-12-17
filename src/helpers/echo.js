@@ -8,12 +8,17 @@ Notification.requestPermission()
 
 const Echo = new LaravelEcho({
   broadcaster: 'pusher',
-  wsHost: window.location.host,
+  wsHost: window.location.hostname,
   key: 'harumigumi',
   wsPort: 6001,
   forceTLS: false,
   disableStats: true,
-  cluster: 'mt1'
+  cluster: 'mt1',
+  auth: {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
+  },
 })
 
 /**

@@ -11,6 +11,7 @@ import {
 } from "@/constant/index.js";
 import classNames from "classnames";
 import {combie} from "@/helpers/index.js";
+import NumberTransition from "@/components/NumberTransition.jsx";
 
 const departments = [
   DEPARTMENT_KOBE,
@@ -54,7 +55,12 @@ const DepartmentItem = ({ department, total = 0, rate = 0 }) => {
       )}
     >
       <div>{departmentName(department)}</div>
-      <div className={'text-[30px]'}>{total}</div>
+      <div className={'text-[30px]'}>
+        <NumberTransition
+          duration={200}
+          animateProps={{ round: 1 }}
+        >{total}</NumberTransition>
+      </div>
       <div className={'flex items-center'}>
         <div className={'rounded-full w-4 h-4 border-4 mr-2 border-white opacity-50'}></div>
         <div>{rate}%</div>
@@ -105,13 +111,23 @@ const OrderTotal = () => {
       <div className={'flex cursor-pointer'}>
         <div className={'flex-1 border-r'} onClick={() => setIsLastMonthDepartmentData(false)}>
           <div className={'text-[#585D6E] text-lg'}>总案件数</div>
-          <div className={'text-[40px] font-bold'}>{total}</div>
+          <div className={'text-[40px] font-bold'}>
+            <NumberTransition
+              duration={200}
+              animateProps={{ round: 1 }}
+            >{total}</NumberTransition>
+          </div>
           <div>{(done / total * 100).toFixed(0)}% <span className={'text-gray-500'}>完成</span></div>
         </div>
 
         <div className={'flex-1 pl-[27px]'} onClick={() => setIsLastMonthDepartmentData(true)}>
           <div className={'text-[#585D6E] text-lg'}>近一个月</div>
-          <div className={'text-[40px] font-bold'}>{lastMonthTotal}</div>
+          <div className={'text-[40px] font-bold'}>
+            <NumberTransition
+              duration={200}
+              animateProps={{ round: 1 }}
+            >{lastMonthTotal}</NumberTransition>
+          </div>
           <div className={'text-gray-500 flex justify-between'}>
             <div>
               <span className={'text-[#37832E]'}>{exportRate}%</span>

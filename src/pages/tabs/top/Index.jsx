@@ -10,7 +10,7 @@ import { useCallback } from 'react';
 import { request } from '@/apis/requestBuilder';
 import { useSelector } from 'react-redux';
 import { useTopOrderList } from './dataProvider';
-import MessageList from './MessageList';
+import MessageList from '@/components/MessageList.jsx';
 import { useCompleteList, useContextMenu } from '@/hooks';
 import SkeletonList from '@/components/SkeletonList';
 import { ORDER_TAB_STATUS_TOP } from '@/constant';
@@ -206,7 +206,12 @@ function MainContent() {
           </div>
         </div>
       </div>
-      <div className={classNames(c('message-bar'), 'px-2 py-[22px] bg-white h-full flex flex-col overflow-hidden border-l')}>
+      <div
+        className={
+          classNames(c('message-bar'),
+          'px-2 py-[22px] bg-white h-full flex flex-col overflow-hidden border-l')
+        }
+      >
         <MessageList ref={messageList} />
       </div>
       <AddModal

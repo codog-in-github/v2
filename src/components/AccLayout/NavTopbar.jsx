@@ -4,12 +4,13 @@ import { NavButton, NavButtonGroup } from '@/components/NavButton';
 import { namespaceClass } from '@/helpers/style';
 import classnames from 'classnames';
 import { CaretDownOutlined } from '@ant-design/icons';
-import { Dropdown } from 'antd';
-import { useCallback } from 'react';
+import {Badge, Dropdown} from 'antd';
+import {useCallback, useEffect, useState} from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 const c = namespaceClass('nav-top-bar')
 import * as Icon from '@/components/Icon'
 import { useSelector } from 'react-redux';
+import {request} from "@/apis/requestBuilder.js";
 const useLogout = () => {
   const navigate = useNavigate()
   const handle = useCallback(() => {
@@ -21,6 +22,13 @@ const useLogout = () => {
 const NavTopbar = ({ className }) => {
   const logoutHandle = useLogout()
   const username = useSelector(state => state.user.userInfo.name)
+  const unReadMsgCount = useSelector(state => state.user.message.unread)
+  const [counts, setCounts] = useState({})
+
+  useEffect(() => {
+    request('/admin/acc/tab_counts').get().send().then(setCounts)
+  }, []);
+
   return (
     <div className={classnames(c(''), 'bg-white flex items-center', className)}>
       <Link to="/top" className='flex gap-1 items-center'>
@@ -32,23 +40,23 @@ const NavTopbar = ({ className }) => {
         className="ml-20 space-x-4"
         buttonWidth={160}
       >
-        <NavButton to="/acc/todo" class>
+        <NavButton to="/acc/todo" badge={counts.todo}>
           <Icon.UnPaySea className="mr-2" />
-          未支出
+          海上未支出
         </NavButton>
-        <NavButton to="/acc/payCheck" className="ml-2">
+        <NavButton to="/acc/payCheck" className="ml-2" badge={counts.pay_check}>
           <Icon.UnPayCosts className={'mr-2'} />
           上游未支出
         </NavButton>
-        <NavButton to="/acc/entryList" className="ml-2">
+        <NavButton to="/acc/entryList" className="ml-2" badge={counts.entry_list}>
           <Icon.UnEntry className={'mr-2'} />
           未入金
         </NavButton>
-        <NavButton to="/acc/reqNotice" className="ml-2">
+        <NavButton to="/acc/reqNotice" className="ml-2" badge={counts.req_notice}>
           <Icon.ChangeRequestBook className={'mr-2'} />
           変更請求書
         </NavButton>
-        <NavButton to="/acc/reqDoneNotice" className="ml-2">
+        <NavButton to="/acc/reqDoneNotice" className="ml-2" badge={counts.req_done_notice}>
           <Icon.OffNode className={'mr-2'} />
           熄灯申请
         </NavButton>
@@ -61,8 +69,10 @@ const NavTopbar = ({ className }) => {
            ] }}
         >
           <div className='flex gap-2 items-center'>
-            <Avatar></Avatar>
-              <span className='mx-2'>{username}</span>
+            <Badge count={unReadMsgCount}>
+              <Avatar/>
+            </Badge>
+            <span className='mx-2'>{username}</span>
             <CaretDownOutlined />
           </div>
         </Dropdown>

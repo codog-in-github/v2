@@ -8,7 +8,7 @@ import LazyPage from "@/components/LazyPage";
 import pubSub from "@/helpers/pubSub";
 import { request } from "@/apis/requestBuilder";
 import store from "@/store";
-import { setUserInfo } from "@/store/slices/user"
+import {setUnread, setUserInfo} from "@/store/slices/user"
 import { USER_ROLE_ACC, USER_ROLE_ADMIN, USER_ROLE_BOOS, USER_ROLE_NORMAL } from "@/constant";
 import {redirectUrl, routeGuarder} from "@/router/common.jsx";
 import accRoutes from "@/router/acc.jsx";
@@ -26,9 +26,18 @@ const router = createBrowserRouter([
     element: <Login />,
   },
   routeGuarder(async (_, next) => {
+    request('/admin/order/un_read_message_num')
+      .get().send().then((count) => {
+        store.dispatch(setUnread({ count }))
+    })
+
     const rep = await request('/admin/user/me').get().send()
 
     Echo.channel('user.' + rep.id).on('Message.Send', (event) => {
+      store.dispatch(setUnread({
+        type: 'increment',
+        count: 1
+      }))
       makeSystemNotification(
         event.message.content.replace(/<[Ff]ile[^>]+>/g, '「書類」'),
         '誰かが私を@しました'
