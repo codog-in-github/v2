@@ -13,9 +13,9 @@ import { Modal } from "antd"
 import {useEffect} from "react";
 import pubSub from "@/helpers/pubSub.js";
 const OrderDetail = () => {
-  const detailHook = useDetailData()
-  const blocker = useBlocker(() => detailHook.modified.current)
-  const { form, loading } = detailHook
+  const detailContext = useDetailData()
+  const blocker = useBlocker(() => detailContext.modified.current)
+  const { form, loading } = detailContext
 
   useEffect(() => {
     pubSub.publish('Info.UI.ScrollPage.Change', true)
@@ -24,8 +24,8 @@ const OrderDetail = () => {
 
   return (
     <>
-      <div ref={detailHook.rootRef} className="flex-1"  style={{ zoom: 0.95 }}>
-        <DetailDataContext.Provider value={detailHook}>
+      <div ref={detailContext.rootRef} className="flex-1"  style={{ zoom: 0.95 }}>
+        <DetailDataContext.Provider value={detailContext}>
           <Modal
             title="提示"
             open={blocker.state === 'blocked'}

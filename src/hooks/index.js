@@ -112,6 +112,7 @@ export const useOptions = (selectId) => {
       .then(data => { setOptions(data) })
       .finally(() => { setLoading(false) })
   }, [selectId])
+
   return [options, loading]
 }
 

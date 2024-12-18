@@ -180,6 +180,7 @@ export const CUSTOMS_STATUS_END = 4;
 
 export const ACC_JOB_TYPE_SEA = 1;
 export const ACC_JOB_TYPE_BL = 2;
+export const ACC_JOB_TYPE_OTHER = -1;
 
 /**
  * 日志类型 发送邮件

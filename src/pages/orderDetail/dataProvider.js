@@ -12,6 +12,7 @@ import {
   ORDER_NODE_TYPE_CUSTOMS_CLEARANCE,
   ORDER_NODE_TYPE_REQUEST
 } from "@/constant/index.js";
+import {isArray} from "lodash";
 
 export const DetailDataContext = createContext()
 
@@ -553,7 +554,10 @@ export const useDetailData = () => {
     if(!_files[type]) {
       _files[type] = []
     }
-    _files[type].push(fileUrl)
+    if(!isArray(fileUrl)) {
+      fileUrl = [fileUrl]
+    }
+    _files[type] = _files[type].concat(fileUrl)
     setFiles(_files)
   }
   const scrollBottom = () => {

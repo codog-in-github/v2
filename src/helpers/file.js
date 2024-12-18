@@ -11,9 +11,13 @@ export const chooseFile = (() => {
   let _onError = () => {};
 
   inputElement.addEventListener('input', () => {
-    const file = inputElement.files[0]
-    if(file) {
-      _onChoose(file);
+    const { files, multiple } = inputElement;
+    if(files.length) {
+      if(multiple) {
+        _onChoose(files)
+      } else {
+        _onChoose(files[0]);
+      }
     } else {
       _onCancel();
     }
@@ -25,6 +29,7 @@ export const chooseFile = (() => {
   return ({
     size = -1,
     accept = '',
+    multiple = false,
     onChoose,
     onCancel,
     onError
@@ -36,6 +41,7 @@ export const chooseFile = (() => {
     inputElement.accept = accept;
     inputElement.size = size;
     inputElement.value = ''
+    inputElement.multiple = multiple;
     inputElement.click();
   }
 })()
