@@ -6,6 +6,7 @@ import {
   useEffect,
   useState
 } from "react"
+import {useSelector} from "react-redux";
 
 export * from './modal.jsx'
 
@@ -204,12 +205,17 @@ export const useGateCompanyOptions = (showSelf = true) => {
 
 export const useCompleteList = (tab) => {
   const [list, setList] = useState([])
+  const orderType = useSelector(state => state.order.type)
+
   const [load, loading] = useAsyncCallback(async (tab) => {
-    const rep = await request('/admin/order/complete_lasted').get({ tab }).send()
+    const rep = await request('/admin/order/complete_lasted')
+      .get({ tab, 'order_type': orderType }).send()
     setList(rep)
   })
+
   useEffect(() => {
     load(tab)
-  }, [tab])
+  }, [tab, orderType])
+
   return [list, loading]
 }

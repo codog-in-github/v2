@@ -3,6 +3,7 @@ import {EXPORT_NODE_NAMES} from "@/constant"
 import { useAsyncCallback } from "@/hooks"
 import dayjs from "dayjs"
 import { useEffect, useState } from "react"
+import {useSelector} from "react-redux";
 
 const getOrders = (params) => {
   return request('admin/order/top_list')
@@ -59,9 +60,12 @@ const ordersSort = (orders) => {
 
 export const useTopOrderList = (form) => {
   const [orders, setOrders] = useState([])
+  const orderType = useSelector(state => state.order.type)
 
   const [refresh, loading] = useAsyncCallback(async () => {
-    const rep = await getOrders(form.getFieldsValue())
+    const rep = await getOrders(
+      Object.assign({ 'order_type': orderType }, form.getFieldsValue())
+    )
     setOrders(ordersSort(rep))
   }, [])
 
@@ -71,7 +75,7 @@ export const useTopOrderList = (form) => {
       'filter_value': '',
     })
     refresh()
-  }, [])
+  }, [orderType])
 
   return {
     orders,

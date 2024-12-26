@@ -232,7 +232,7 @@ const useCarrierOptions = () => {
   return [list, loading, callback]
 }
 
-const Ship = ({ className }) => {
+const ExportShip = ({ className }) => {
   const { rootRef, onModifyChange, form } = useContext(DetailDataContext)
   const { portTree, loading: portLoading, fetch: fetchPort } = usePorts()
   const [carriers, , reloadCarrier] = useCarrierOptions()
@@ -551,4 +551,4 @@ const Ship = ({ className }) => {
   )
 }
 
-export default Ship
+export default ExportShip
