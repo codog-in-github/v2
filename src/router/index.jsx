@@ -111,6 +111,10 @@ const router = createBrowserRouter([
                 element: <LazyPage load={() => import('@/pages/tabs/ContainerList')} />,
               },
               {
+                path: "/rbl_i",
+                element: <LazyPage load={() => import('@/pages/tabs/ImportReqList.jsx')} />,
+              },
+              {
                 path: "/od/:tab",
                 element: <LazyPage load={() => import('@/pages/tabs/OrderList')} />,
               },

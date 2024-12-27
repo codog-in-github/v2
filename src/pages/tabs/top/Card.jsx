@@ -85,7 +85,7 @@ function Card({
       onClick={() => onToDetail(orderInfo.id)}
       {...props}
     >
-      { top && <TopBadge>{orderInfo.topName}</TopBadge> }
+      { orderInfo.top && <TopBadge>{orderInfo.topName}</TopBadge> }
       { orderInfo.isTempOrder ? (
         <div className='flex flex-1'>
           <CompanyAvatar

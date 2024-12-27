@@ -1,5 +1,5 @@
 import { request } from "@/apis/requestBuilder"
-import {EXPORT_NODE_NAMES} from "@/constant"
+import {EXPORT_NODE_NAMES, IMPORT_NODE_NAMES, ORDER_TYPE_EXPORT} from "@/constant"
 import { useAsyncCallback } from "@/hooks"
 import dayjs from "dayjs"
 import { useEffect, useState } from "react"
@@ -13,12 +13,13 @@ const getOrders = (params) => {
 const ordersSort = (orders) => {
   const newOrders = []
   for(const item of orders['top']) {
+    const nodeNames = item['order']['order_type'] === ORDER_TYPE_EXPORT ? EXPORT_NODE_NAMES : IMPORT_NODE_NAMES
     newOrders.push({
       top: true,
       renderKey: `top-${item['id']}`,
       orderId: item['order']['id'],
       nodeId: item['id'],
-      topName: EXPORT_NODE_NAMES[item['node_id']],
+      topName: nodeNames[item['node_id']],
       id: item['order']['id'],
       expiredAt: dayjs(item['top_finish_time']),
       remark: item['remark'],

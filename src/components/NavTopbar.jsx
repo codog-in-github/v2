@@ -106,7 +106,7 @@ const ImportMenus = ({ badgeCounts }) => {
         <Icon.Drive className="w-4 h-4 inline relative bottom-[2px]" />
         <span className='ml-2'>許可書送付</span>
       </NavButton>
-      <NavButton to={`/rbl`}>
+      <NavButton to={`/rbl_i`} badge={badgeCounts[18]}>
         <Icon.Drive className="w-4 h-4 inline relative bottom-[2px]" />
         <span className='ml-2'>請求書作成</span>
       </NavButton>
@@ -121,7 +121,10 @@ const NavTopbar = ({ className }) => {
   const logoutHandle = useLogout()
   const [badgeCounts, setBadgeCounts] = useState([])
   const [updateBadge] = useAsyncCallback(async () => {
-    const data = await request('/admin/order/tabs_todo_total').get({ order_type: orderType }).send()
+    const url = orderType === ORDER_TYPE_EXPORT
+      ? '/admin/order/tabs_todo_total'
+      : '/admin/order/tabs_todo_total_import'
+    const data = await request(url).get({ order_type: orderType }).send()
     setBadgeCounts(data)
   })
 
