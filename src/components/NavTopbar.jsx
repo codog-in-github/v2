@@ -98,7 +98,7 @@ const ImportMenus = ({ badgeCounts }) => {
         <Icon.Drive className="w-4 h-4 inline relative bottom-[2px]" />
         <span className='ml-2'>通関依頼</span>
       </NavButton>
-      <NavButton to={`/ct/16`} badge={badgeCounts[16]}>
+      <NavButton to={`/ct/16`} badge={badgeCounts[16]} style={{ '--nav-button-width': '150px' }}>
         <Icon.Drive className="w-4 h-4 inline relative bottom-[2px]" />
         <span className='ml-2'>D/O切り替え</span>
       </NavButton>

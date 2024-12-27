@@ -5,16 +5,14 @@ import { useNavigate } from "react-router-dom";
 import { LoadingOutlined } from "@ant-design/icons";
 import pubSub from "@/helpers/pubSub";
 import SkeletonList from "@/components/SkeletonList";
-import { ORDER_TAB_STATUS_REQUEST} from "@/constant";
+import {ORDER_TAB_STATUS_REQUEST, ORDER_TYPE_EXPORT} from "@/constant";
 import {Avatar, Button, Checkbox, DatePicker, Form, Input, Modal, Radio, Select} from "antd";
 import OrderFilter from "@/components/OrderFilter";
 import PortFullName from "@/components/PortFullName";
 import { CARD_COLORS } from "./common";
 import TopBadge from "@/components/TopBadge";
 import UserPicker from "@/components/UserPicker.jsx";
-import {isArray} from "lodash";
 import {base64ToBlob, confirm, downloadBlob} from "@/helpers/index.js";
-import {checkJSONCode, getResponseJsonBodyData} from "@/apis/middleware.js";
 import dayjs from "dayjs";
 
 const MultiExportModal = forwardRef(function MultiExportModal(props, ref) {
@@ -143,7 +141,8 @@ const useReqList = (form, onRefresh) => {
   const [list, setList] = useState({});
   const [reload, loading] = useAsyncCallback(async () => {
     const res = await request('/admin/order/req_list')
-      .get(form.getFieldsValue()).send()
+      .get(Object.assign({ order_type: ORDER_TYPE_EXPORT }, form.getFieldsValue()))
+      .send()
     setList(res)
     onRefresh()
   })
