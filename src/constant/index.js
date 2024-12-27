@@ -120,8 +120,7 @@ export const BKG_TYPES_IMPORT = {
   102: '通+他',
   103: '通+PO',
   104: '通+配',
-  105: '通+運',
-  106: '通+配+仓',
+  105: '通+配+仓',
 }
 
 export const BKG_TYPE_CUSTOM = 8
