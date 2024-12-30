@@ -72,7 +72,7 @@ const useCustomerList = () => {
       title: item['name'],
       avatar: item['abbr'],
       person: item['default_contact']['name'],
-      mobile: item['default_contact']['tel'],
+      mobile: item['tel'],
       all: item['total'],
       do: item['indo'],
     }))
