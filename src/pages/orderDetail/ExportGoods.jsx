@@ -365,7 +365,7 @@ const useCarsComps = () => {
   }, [])
   return [carComps, loading]
 }
-const Goods = ({ className }) => {
+const ExportGoods = ({ className }) => {
   const form = Form.useFormInstance()
   const [containerTypes] = useOptions(SELECT_ID_CONTAINER_TYPE)
   const { onModifyChange } = useContext(DetailDataContext)
@@ -427,4 +427,4 @@ const Goods = ({ className }) => {
   )
 }
 
-export default Goods
+export default ExportGoods

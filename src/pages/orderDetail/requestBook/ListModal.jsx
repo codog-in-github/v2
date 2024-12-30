@@ -57,7 +57,7 @@ const ListModal = forwardRef(function ListModal (props, ref)  {
                   ): (
                     <>
                       <span className="btn-link" onClick={() => navigate(`/rb/edit/${id}/order/${row['order_id']}/type/${row['type']}`)}>編集</span>
-                      <span className="btn-link">预览</span>
+                      {/* <span className="btn-link">预览</span> */}
                       <span className="btn-link" onClick={() => {delRequestBook(id)}}>删除</span>
                     </>
                   )}

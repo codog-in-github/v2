@@ -1,10 +1,10 @@
 import Label from "@/components/Label"
 import {Form, Space, Select, Button, Input, Popconfirm, Modal} from "antd"
 import classNames from "classnames"
-import {forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState} from "react"
+import {forwardRef, useCallback, useContext, useEffect, useImperativeHandle, useRef, useState} from "react"
 import { DetailDataContext } from "./dataProvider"
 import {
-  EXPORT_NODE_NAMES, MAIL_TO_CUSTOMER, MAIL_TO_CUSTOMS_COMPANY, MAIL_TO_SHIP, SUR_STEP_PAYED,
+  IMPORT_NODE_NAMES, MAIL_TO_CUSTOMER, MAIL_TO_CUSTOMS_COMPANY, MAIL_TO_SHIP, SUR_STEP_PAYED,
   ORDER_NODE_TYPE_ACL, ORDER_NODE_TYPE_BL_COPY, ORDER_NODE_TYPE_CUSTOMER_DOCUMENTS, ORDER_NODE_TYPE_SUR,
   SUR_STEP_WAIT_PAY, MAIL_TO_ACC, SUR_STEP_WAIT_CUSTOMER_CONFIRMED,
   SUR_STEP_SENDED,
@@ -28,6 +28,7 @@ import MailDetail from "./MailDetail"
 import { useAsyncCallback } from "@/hooks"
 import { request } from "@/apis/requestBuilder"
 import pubSub from "@/helpers/pubSub"
+import MakePayRequestModal from "@/pages/orderDetail/MakePayRequestModal.jsx";
 const Light = ({ children, loading, active, className, onToggle = () => {} }) => {
   const activeClassNames = ['!bg-[#ffe3dd]', '!text-[#fd7556]', '!border-[#fd7556]']
   return (
@@ -50,7 +51,7 @@ const Light = ({ children, loading, active, className, onToggle = () => {} }) =>
         )}>
           {loading ? <LoadingOutlined className="text-white"/> : <Icon.Light className="h-8 w-8"/>}
         </div>
-        <div className="w-6 text-right mr-2">
+        <div className="w-7 text-right mr-2">
           {children}
         </div>
       </div>
@@ -127,7 +128,7 @@ const ProcessBar = ({
       nodeId: [nodeId],
       type: MAIL_TYPE_REDO,
       file: [FILE_TYPE_OPERATIONS],
-      title: `${EXPORT_NODE_NAMES[nodeType]} - BL訂正`,
+      title: `${IMPORT_NODE_NAMES[nodeType]} - BL訂正`,
       to: MAIL_TO_SHIP
     }
     context = (
@@ -155,7 +156,7 @@ const ProcessBar = ({
             }
           }}
           active={canDo && !isEnd}
-        >{EXPORT_NODE_NAMES[nodeType]}</Light>
+        >{IMPORT_NODE_NAMES[nodeType]}</Light>
         <div className="hidden flex-1 border-dotted border-t border-[#b2b2b2]"></div>
         {!canDo && toggleName && <div className={'show-dashed'}>{toggleName} {toggleAt}</div>}
         {mailTimes > 0 && <div>{sendTime} {sender}</div>}
@@ -190,7 +191,7 @@ const ProcessBarButtons = ({nodeId, nodeType, step, mail, sended, redo}) => {
     type: MAIL_TYPE_NORMAL,
     to: getMailTo(nodeType, step),
     file: [FILE_TYPE_OPERATIONS],
-    title: `${EXPORT_NODE_NAMES[nodeType]} - 送信`
+    title: `${IMPORT_NODE_NAMES[nodeType]} - 送信`
   }
   const [confirmNode, inConfirm] = useAsyncCallback(async () => {
     await request('/admin/order/node_confirm').get({ id: nodeId, is_confirm: 1 }).send()
@@ -200,12 +201,13 @@ const ProcessBarButtons = ({nodeId, nodeType, step, mail, sended, redo}) => {
   })
   switch (nodeType) {
     case ORDER_NODE_TYPE_BL_COPY:
-      mailData.title = `${EXPORT_NODE_NAMES[nodeType]} - 送信`
+      mailData.title = `${IMPORT_NODE_NAMES[nodeType]} - 送信`
       return (
         <Button type="primary" onClick={() => mail.current.open(mailData)}>
           <span>{ sended ? '再送': '送信'}</span>
         </Button>
       )
+
     case ORDER_NODE_TYPE_ACL:
       return (
         <>
@@ -215,31 +217,43 @@ const ProcessBarButtons = ({nodeId, nodeType, step, mail, sended, redo}) => {
           { sended && <Button type="primary" onClick={confirmNode} loading={inConfirm}>確認</Button> }
         </>
       )
+
     case ORDER_NODE_TYPE_SUR:
       switch (step) {
         case SUR_STEP_WAIT_CUSTOMER_CONFIRMED:
           mailData.to = MAIL_TO_ACC
-          mailData.title = `${EXPORT_NODE_NAMES[nodeType]} - 支払依頼`
+          mailData.title = `${IMPORT_NODE_NAMES[nodeType]} - 支払依頼`
           mailData.file = [FILE_TYPE_COST]
           return (
             <Button type="primary" onClick={() => mail.current.open(mailData)}>支払依頼</Button>
           )
-          case SUR_STEP_WAIT_PAY:
+
+        case SUR_STEP_WAIT_PAY:
           case SUR_STEP_PAYED:
             mailData.to = MAIL_TO_SHIP
-            mailData.title = `${EXPORT_NODE_NAMES[nodeType]} - SUR依赖`
+            mailData.title = `${IMPORT_NODE_NAMES[nodeType]} - SUR依赖`
             mailData.file = [FILE_TYPE_COST]
             return (
-              <Button type="primary" disabled={step === SUR_STEP_WAIT_PAY} onClick={() => mail.current.open(mailData)}>SUR依赖</Button>
+              <Button
+                type="primary"
+                disabled={step === SUR_STEP_WAIT_PAY}
+                onClick={() => mail.current.open(mailData)}
+              >SUR依赖</Button>
             )
+
           case SUR_STEP_SENDED:
-            mailData.title = `${EXPORT_NODE_NAMES[nodeType]} - 送信`
+            mailData.title = `${IMPORT_NODE_NAMES[nodeType]} - 送信`
             return (
-              <Button type="primary" disabled={step === SUR_STEP_WAIT_PAY} onClick={() => mail.current.open(mailData)}>送信</Button>
+              <Button
+                type="primary"
+                disabled={step === SUR_STEP_WAIT_PAY}
+                onClick={() => mail.current.open(mailData)}
+              >送信</Button>
             )
           default:
             return null
       }
+
     case ORDER_NODE_TYPE_CUSTOMER_DOCUMENTS:
       mailData.file = [FILE_TYPE_CUSTOMS]
       if(form.getFieldValue('gateCompany') === GATE_SELF) {
@@ -248,13 +262,16 @@ const ProcessBarButtons = ({nodeId, nodeType, step, mail, sended, redo}) => {
       return (
         <Button type="primary" onClick={() => mail.current.open(mailData)}>送信</Button>
       )
+
     case ORDER_NODE_TYPE_FM:
       return null
+
     case ORDER_NODE_TYPE_REQUEST:
       mailData.file = [FILE_TYPE_REQUEST]
       return (
         <Button type="primary" onClick={() => mail.current.open(mailData)}>送信</Button>
       )
+
     default:
       return (
         <Button type="primary" onClick={() => mail.current.open(mailData)}>送信</Button>
@@ -262,19 +279,22 @@ const ProcessBarButtons = ({nodeId, nodeType, step, mail, sended, redo}) => {
   }
 }
 
-const ProcessStatus = ({className}) => {
+const ImportProcessStatus = ({className}) => {
   const { nodes, refreshNodes, isCopy, rootRef, onModifyChange, multiMails } = useContext(DetailDataContext)
   const [multiValue, setMultiValue] = useState(null)
   const detailRef = useRef(null)
   const mail = useRef(null)
+  const payRef = useRef(null);
+
   useEffect(() => {
     setMultiValue(null)
   }, [multiMails]);
-  const openMail = () => {
-    console.log('openMail', multiValue)
+
+  const openMail = useCallback(() => {
     if(!multiValue) {
       return
     }
+
     mail.current.open({
       nodeType: null,
       nodeId: multiValue.ids,
@@ -283,7 +303,12 @@ const ProcessStatus = ({className}) => {
       title: `${multiValue.label} - 送信`,
       to: MAIL_TO_CUSTOMER
     })
-  }
+  }, [multiValue])
+
+  const openPayModal = useCallback(() => {
+    payRef.current.open()
+  }, [])
+
   return (
     <div className={className}>
       <Label>進捗状況</Label>
@@ -307,6 +332,12 @@ const ProcessStatus = ({className}) => {
         {!isCopy && nodes.map((item, index) => (
           <ProcessBar {...item} mail={mail} key={index} onClickDetail={(id, type) => detailRef.current.open(id, type)}>
             <ProcessBarButtons {...item} mail={mail} />
+            { item.nodeType === ORDER_NODE_TYPE_SUR && (
+              <Button
+                type={'primary'}
+                onClick={openPayModal}
+              >追加料金</Button>
+            ) }
           </ProcessBar>
         ))}
       </div>
@@ -325,9 +356,10 @@ const ProcessStatus = ({className}) => {
           pubSub.publish('Info.Order.Change')
         }}
       ></Mail>
-      <MailDetail modal={detailRef} />
+      <MailDetail ref={detailRef} />
+      <MakePayRequestModal ref={payRef} />
     </div>
   )
 }
 
-export default ProcessStatus
+export default ImportProcessStatus

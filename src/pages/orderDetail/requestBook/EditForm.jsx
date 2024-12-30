@@ -13,21 +13,33 @@ import {
   USER_ROLE_ACC
 } from "@/constant"
 import {
-  Switch, Radio, InputNumber, AutoComplete, Button, DatePicker,
-  Col, Form, Input, Row, Popover, Popconfirm, Space, Select, Modal
+  AutoComplete,
+  Button,
+  Col,
+  DatePicker,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Popconfirm,
+  Popover,
+  Radio,
+  Row,
+  Select,
+  Space,
+  Switch
 } from "antd"
-import { useMemo, useEffect, useContext, createContext, useRef, useState } from "react"
+import {createContext, useContext, useEffect, useMemo, useRef, useState} from "react"
 import {useAsyncCallback, useBankList, useConfirm, useDepartmentList, useOptions} from "@/hooks"
-import { request } from "@/apis/requestBuilder"
-import { MinusOutlined, PlusOutlined } from "@ant-design/icons"
+import {request} from "@/apis/requestBuilder"
+import {MinusOutlined, PlusOutlined} from "@ant-design/icons"
 import Label from "@/components/Label"
 import SingleCheckbox from "@/components/SingleCheckbox"
-import { useParams, useNavigate } from "react-router-dom"
+import {useNavigate, useParams, useSearchParams} from "react-router-dom"
 import dayjs from "dayjs"
 import pubSub from "@/helpers/pubSub"
 import FormValue from "@/components/FormValue"
 import FileTabs from "@/components/FileTabs"
-import { useSearchParams } from "react-router-dom"
 import {useSelector} from "react-redux";
 import {groupBy} from "lodash";
 import classNames from "classnames";
@@ -523,13 +535,12 @@ const detailPart = (type, i) => {
 
 const useItemList = (selectId) => {
   const [options] = useOptions(selectId)
-  const items = useMemo(() => {
+  return useMemo(() => {
     return options.map(item => ({
       value: item.value,
       origin: item
     }))
   }, [options])
-  return items
 }
 
 const MiniTotal = () => {
@@ -596,6 +607,7 @@ const Total = () => {
     </div>
   )
 }
+
 const EditForm = () => {
   const [form] = Form.useForm()
   const [disabled, setDisabled] = useState(false)

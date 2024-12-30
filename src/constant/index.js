@@ -1,5 +1,6 @@
-export const ORDER_TYPE_IMPORT = 0;
 export const ORDER_TYPE_EXPORT = 1;
+
+export const ORDER_TYPE_IMPORT = 2;
 
 /**
  * BK：订舱，填写船的相关信息以及客
@@ -85,7 +86,18 @@ export const EXPORT_NODE_NAMES = {
   [ORDER_NODE_TYPE_REQUEST]: '請',
 }
 
-export const BKG_TYPES = {
+export const IMPORT_NODE_NAMES = {
+  12: '配',
+  13: 'PO',
+  14: 'ド',
+  15: '通',
+  16: 'D/O',
+  17: '許',
+  18: '立替',
+  19: '請',
+}
+
+export const BKG_TYPES_EXPORT = {
   1: '通',
   2: '通+BK+運',
   3: 'BK',
@@ -93,6 +105,22 @@ export const BKG_TYPES = {
   5: '通+運',
   6: 'BK+運',
   7: '運',
+}
+
+/**
+ * type状态
+ * 【通】：亮4/5/6/7/8
+ * 【通+他】：亮4/5/6/7/8
+ * 【通+PO】：亮2/4/5/6/7/8
+ * 【通+配】：全亮
+ * 【通+配+仓】：全亮
+ */
+export const BKG_TYPES_IMPORT = {
+  101: '通',
+  102: '通+他',
+  103: '通+PO',
+  104: '通+配',
+  105: '通+配+仓',
 }
 
 export const BKG_TYPE_CUSTOM = 8
@@ -180,6 +208,7 @@ export const CUSTOMS_STATUS_END = 4;
 
 export const ACC_JOB_TYPE_SEA = 1;
 export const ACC_JOB_TYPE_BL = 2;
+export const ACC_JOB_TYPE_OTHER = -1;
 
 /**
  * 日志类型 发送邮件

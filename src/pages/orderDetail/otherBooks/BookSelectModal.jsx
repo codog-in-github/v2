@@ -6,10 +6,13 @@ import { chooseFilePromise } from "@/helpers/file";
 import { request } from "@/apis/requestBuilder";
 import LoadingButton from "@/components/LoadingButton.jsx";
 import {DetailDataContext} from "@/pages/orderDetail/dataProvider.js";
+import {useSelector} from "react-redux";
+import {ORDER_TYPE_EXPORT} from "@/constant/index.js";
 
 const BookSelectModal = ({ instance }) => {
   const [open, setOpen] = useState(false);
   const bookingNoticeInstance = useRef(null);
+  const orderType = useSelector(state => state.order.type)
   // const handingInstance = useRef(null);
 
   if(instance) {
@@ -36,10 +39,12 @@ const BookSelectModal = ({ instance }) => {
     <Modal title="COHISE BOOK" open={open} footer={null} onCancel={() => setOpen(false)} maskClosable={false}>
       <div className="my-4">
         <Button onClick={() => openForm(bookingNoticeInstance)}>BOOKEING NOTICE</Button>
-        <LoadingButton
-          className={'ml-2'}
-          onClick={downloadDeliveryExcel}
-        >（輸出）コンテナ配送依頼書</LoadingButton>
+        { orderType === ORDER_TYPE_EXPORT && (
+          <LoadingButton
+            className={'ml-2'}
+            onClick={downloadDeliveryExcel}
+          >（輸出）コンテナ配送依頼書</LoadingButton>
+        )}
      </div>
       <div>
         <Button loading={exporting} onClick={exportTxt}>ACL TO TXT</Button>

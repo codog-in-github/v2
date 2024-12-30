@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Select, Avatar } from "antd";
-import { BKG_TYPES, EXPORT_NODE_NAMES } from "@/constant";
+import { BKG_TYPES_EXPORT, EXPORT_NODE_NAMES } from "@/constant";
 import { useEffect } from "react";
 import { request } from "@/apis/requestBuilder";
 import dayjs from "dayjs";
@@ -11,7 +11,7 @@ import { useRef } from "react";
 import classNames from "classnames";
 import PortFullName from "@/components/PortFullName";
 
-const bkgTypes = Object.entries(BKG_TYPES)
+const bkgTypes = Object.entries(BKG_TYPES_EXPORT)
   .map(([value, label]) => ({
     label, value: Number(value)
   }))

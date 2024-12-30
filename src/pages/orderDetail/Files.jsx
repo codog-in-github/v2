@@ -68,6 +68,7 @@ export const Files = ({ className }) => {
   } = useSelectedFiles(files)
   const upClickHandle = () => {
     chooseFile({
+      multiple: true,
       onChoose: async (file) => {
         const fileUrl = await upload({
           file,
@@ -92,7 +93,7 @@ export const Files = ({ className }) => {
 
   const [deleteHandler, deleteding] = createEventHandle(onDeleteFiles)
   const [downloadHandler] = createEventHandle(onDownloadFiles)
-  
+
   const tabItems = useMemo(() => {
     const tabItems = []
     for(const tabItem of tabs) {
@@ -108,13 +109,13 @@ export const Files = ({ className }) => {
                 selectable
                 inSelected={inSelected}
                 selected={isSelected(key, file)}
-                filePath={file} 
+                filePath={file}
                 onSelect={() => select(key, file)}
               />
             ))
           }</div>
         )
-      }) 
+      })
     }
     return tabItems
   }, [files, inSelected, isSelected, select])

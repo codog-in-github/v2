@@ -1,6 +1,6 @@
 import Label from "@/components/Label"
 import ListModal from "./requestBook/ListModal"
-import { BKG_TYPE_CUSTOM, BKG_TYPES } from "@/constant"
+import {BKG_TYPE_CUSTOM, BKG_TYPES_EXPORT, BKG_TYPES_IMPORT, ORDER_TYPE_EXPORT, ORDER_TYPE_IMPORT} from "@/constant"
 import { Form, Button, Input, DatePicker, Select, AutoComplete, Modal } from "antd"
 import {useContext, useMemo, useEffect, useState, useRef, forwardRef, useImperativeHandle} from "react"
 import { DetailDataContext } from "./dataProvider"
@@ -12,21 +12,24 @@ import { useNavigate } from "react-router-dom"
 import BookSelectModal from "./otherBooks/BookSelectModal"
 
 const BkgTypeSelect = ({ value, onChange, ...props }) => {
+  const { orderTypeScope } = useContext(DetailDataContext)
   const [inputValue, setInputValue] = useState('');
   const onChangeRef = useRef(null)
   onChangeRef.current = onChange
 
+  const allTypes = orderTypeScope === ORDER_TYPE_EXPORT ? BKG_TYPES_EXPORT : BKG_TYPES_IMPORT
+
   const options = useMemo(() => {
-    return Object.entries(BKG_TYPES)
+    return Object.entries(allTypes)
       .map(([key, text]) => ({ label: (
         <div onClick={() => onChangeRef.current({ key, text })}>{text}</div>
       ) }))
-  }, [])
+  }, [orderTypeScope])
 
   const textToKeyMap = useMemo(() => {
     const map = {}
-    for(const key in BKG_TYPES) {
-      map[BKG_TYPES[key]] = ~~key
+    for(const key in allTypes) {
+      map[allTypes[key]] = ~~key
     }
     return map
   }, [])
@@ -45,7 +48,7 @@ const BkgTypeSelect = ({ value, onChange, ...props }) => {
     } else if(value.key === BKG_TYPE_CUSTOM) {
       setInputValue(value.text)
     } else {
-      setInputValue(BKG_TYPES[value.key])
+      setInputValue(allTypes[value.key])
     }
   }, [value])
 
@@ -65,8 +68,9 @@ const BkgTypeSelect = ({ value, onChange, ...props }) => {
 
 const GateSelect = ({ value, onChange, ...props }) => {
   const [options, loading] = useGateCompanyOptions()
+  const { orderTypeScope } = useContext(DetailDataContext)
   const type = Form.useWatch('type')
-  const noGate = !type || ![1, 2, 4, 5].includes(~~type.key)
+  const noGate = orderTypeScope === ORDER_TYPE_EXPORT && (!type || ![1, 2, 4, 5].includes(~~type.key))
   return (
     <Select
       value={noGate ? 'なし' : value}
@@ -140,13 +144,13 @@ const CopyModal = forwardRef(function CopyModal (props, ref) {
 const Management = ({ className }) => {
   const {
     form, saveOrder, savingOrder, delOrder, deletingOrder,
-    isCopy, onModifyChange, rootRef, modified
+    isCopy, onModifyChange, rootRef, modified, orderTypeScope
   } = useContext(DetailDataContext)
   const navigate = useNavigate()
   const copyModalInstance = useRef(null)
   const [modal, modalContent] = Modal.useModal()
   const type = Form.useWatch('type')
-  const noGate = !type || ![1, 2, 4, 5].includes(~~type.key)
+  const noGate = orderTypeScope === ORDER_TYPE_EXPORT && (!type || ![1, 2, 4, 5].includes(~~type.key))
   const setDefaultBlNo = () => {
     const { bkgNo, blNo } = form.getFieldsValue()
     if(bkgNo && !blNo) {
@@ -162,16 +166,27 @@ const Management = ({ className }) => {
       <div className="mr-auto">
         <Label>管理情報</Label>
         <div className="flex gap-2">
+          <Form.Item name="id" noStyle />
+
           <Form.Item label="DATE" name="orderDate">
             <DatePicker allowClear={false} />
           </Form.Item>
-          <Form.Item name="id" noStyle />
-          <Form.Item label="BKG NO." name="bkgNo" className="[&_label]:!font-bold" rules={[{ required: true, message: 'BKG NO.を入力してください' }]}>
-            <Input onBlur={setDefaultBlNo} onChange={onModifyChange} />
-          </Form.Item>
+
+          { orderTypeScope === ORDER_TYPE_EXPORT && (
+            <Form.Item label="BKG NO." name="bkgNo" className="[&_label]:!font-bold" rules={[{ required: true, message: 'BKG NO.を入力してください' }]}>
+              <Input onBlur={setDefaultBlNo} onChange={onModifyChange} />
+            </Form.Item>
+          )}
           <Form.Item label="B/L NO." name="blNo">
             <Input onChange={onModifyChange} />
           </Form.Item>
+
+          { orderTypeScope === ORDER_TYPE_IMPORT && (
+            <Form.Item label="搬入確認 NO." name="rec_no">
+              <Input onChange={onModifyChange} />
+            </Form.Item>
+          ) }
+
           <Form.Item
             label="TYPE"
             name="type"
@@ -184,9 +199,11 @@ const Management = ({ className }) => {
               onChange={onModifyChange}
             />
           </Form.Item>
+
           <Form.Item label="社内管理番号" name="orderNo">
             <Input readOnly  />
           </Form.Item>
+
           <Form.Item
             label="通関"
             name="gateCompany"
@@ -203,6 +220,17 @@ const Management = ({ className }) => {
               }}
             />
           </Form.Item>
+
+          { orderTypeScope === ORDER_TYPE_IMPORT && (
+            <Form.Item
+              label="通関日"
+              name="clearance_date"
+              className="w-52 [&_label]:!font-bold"
+              rules={[{ required: true, message: '通関日を入力してください' }]}
+            >
+              <DatePicker className={'w-full'} />
+            </Form.Item>
+          ) }
         </div>
       </div>
       <div className="grid grid-cols-3 gap-1 mt-2">

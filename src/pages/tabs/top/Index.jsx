@@ -166,7 +166,7 @@ function MainContent() {
             setOnContextOrder(order)
             show({ x: e.clientX, y: e.clientY })
           }}
-        ></OrderGroup>
+        />
         <div className={'h-4'}></div>
         <OrderGroup
           orders={groupedOrder.doing}

@@ -7,11 +7,13 @@ import { useState, useEffect, useCallback, createContext, useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import pubSub from "@/helpers/pubSub"
 import {
-  EXPORT_NODE_NAMES,
+  EXPORT_NODE_NAMES, IMPORT_NODE_NAMES,
   ORDER_NODE_TYPE_ACL,
   ORDER_NODE_TYPE_CUSTOMS_CLEARANCE,
-  ORDER_NODE_TYPE_REQUEST
+  ORDER_NODE_TYPE_REQUEST, ORDER_TYPE_EXPORT, ORDER_TYPE_IMPORT
 } from "@/constant/index.js";
+import {isArray} from "lodash";
+import {useSelector} from "react-redux";
 
 export const DetailDataContext = createContext()
 
@@ -47,11 +49,14 @@ const orderNodesGenerator = ({ nodes = []}) => {
   return data
 }
 
-const multiMailGenerator = ({ nodes }) => {
-  const multiMailNodes = [
+const multiMailGenerator = ({ nodes, order_type }) => {
+  const multiMailNodes = order_type === ORDER_TYPE_EXPORT ? [
       [ORDER_NODE_TYPE_ACL, ORDER_NODE_TYPE_CUSTOMS_CLEARANCE],
       [ORDER_NODE_TYPE_CUSTOMS_CLEARANCE, ORDER_NODE_TYPE_REQUEST]
+  ]: [
+    [17, 19]
   ]
+  const nodeNames = order_type === ORDER_TYPE_EXPORT ? EXPORT_NODE_NAMES : IMPORT_NODE_NAMES
   const options = [];
   for(const key in multiMailNodes) {
     const searchedNode = multiMailNodes[key].map(nodeType => {
@@ -63,7 +68,7 @@ const multiMailGenerator = ({ nodes }) => {
       options.push({
         value: key,
         ids: searchedNode.map(item => item.id),
-        label: searchedNode.map(item => EXPORT_NODE_NAMES[item.node_id]).join('+')
+        label: searchedNode.map(item => nodeNames[item.node_id]).join('+')
       })
     }
   }
@@ -187,6 +192,28 @@ const formDataGenerator = (isCopy) => (rep) => {
   setIfExist('dischargePort', 'discharge_port_id')
   setIfExist('dischargePortName', 'discharge_port_name')
 
+  // 进口单独字段
+  setIfExist('rec_no', 'rec_no')
+  setIfExist('clearance_date', 'clearance_date', dayjs)
+  setIfExist('freeTime', 'free_time', dayjs)
+
+  setIfExist('cy_cfs', 'cy_cfs')
+  setIfExist('customs_location', 'customs_location')
+  setIfExist('bonded_code', 'bonded_code')
+
+  setIfExist('product_name', 'product_name')
+  setIfExist('quantity_1', 'quantity_1')
+  setIfExist('quantity_2', 'quantity_2')
+  setIfExist('quantity_3', 'quantity_3')
+
+  setIfExist('invoice_no', 'invoice_no')
+  setIfExist('price_type', 'price_type')
+  setIfExist('currency', 'currency')
+
+  setIfExist('insurance', 'insurance')
+  setIfExist('valuation', 'valuation')
+  setIfExist('payment_method', 'payment_method')
+
   /**
    * * containers 集装箱信息
    * $table->string('common')->default('')->comment('common');
@@ -250,6 +277,11 @@ const formDataGenerator = (isCopy) => (rep) => {
           seal: item['seal'],
           tare: item['tare'],
           tareType: item['tare_type'] || void 0,
+
+          container_no: item['container_no'] ,
+          container_size: item['container_size'],
+          delivery: item['delivery'],
+          requestor: item['requestor'],
         }
         result.cars.push(car)
       }
@@ -337,11 +369,34 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
   setValue('dischargePort', 'discharge_port_id', val => val || 0)
   setValue('dischargePortName', 'discharge_port_name')
 
+  // 进口单独字段
+  setValue('rec_no', 'rec_no')
+  setValue('clearance_date', 'clearance_date', (dayjs) => dayjs?.format('YYYY-MM-DD HH:mm:ss'))
+  setValue('freeTime', 'free_time', (dayjs) => dayjs?.format('YYYY-MM-DD HH:mm:ss'))
+
+  setValue('cy_cfs', 'cy_cfs')
+  setValue('customs_location', 'customs_location')
+  setValue('bonded_code', 'bonded_code')
+
+  setValue('product_name', 'product_name')
+  setValue('quantity_1', 'quantity_1')
+  setValue('quantity_2', 'quantity_2')
+  setValue('quantity_3', 'quantity_3')
+
+  setValue('invoice_no', 'invoice_no')
+  setValue('price_type', 'price_type')
+  setValue('currency', 'currency')
+
+  setValue('insurance', 'insurance')
+  setValue('valuation', 'valuation')
+  setValue('payment_method', 'payment_method')
+
+
   /**
    * * containers 集装箱信息
   */
   result['containers'] = []
-  for(const item of formData.containers) {
+  for(const item of (formData.containers || [])) {
     const container = {
       'id' : item.id ?? '',
       'common' : item.commodity ?? '',
@@ -378,6 +433,11 @@ export const apiSaveDataGenerator = (formData, isCopy = false) => {
       'seal': item.seal ?? '',
       'tare': item.tare ?? '',
       'tare_type': item.tareType ?? 0,
+
+      'container_no': item.container_no  ?? '',
+      'container_size': item.container_size ?? '',
+      'delivery': item.delivery ?? '',
+      'requestor': item.requestor ?? '',
     }
     if(isCopy) {
       delete detail['id']
@@ -435,6 +495,8 @@ export const useDetailData = () => {
   const isCopy = Boolean(copyId)
   const isTempOrder = nodes.length === 0
   const [canEditCuster, setCanEditCuster] = useState(false)
+  const orderType = useSelector((state) => state.order.type)
+  const [orderTypeScope, setOrderTypeScope] = useState(orderType)
 
   const rootRef = useRef(null)
 
@@ -517,6 +579,9 @@ export const useDetailData = () => {
         multiMailGenerator,
         setMultiMails
     )))
+    .then(touch(rep => {
+      setOrderTypeScope(rep.order_type)
+    }))
     .then(rep => {
       setCanEditCuster(!rep.customer_id)
     })
@@ -553,7 +618,10 @@ export const useDetailData = () => {
     if(!_files[type]) {
       _files[type] = []
     }
-    _files[type].push(fileUrl)
+    if(!isArray(fileUrl)) {
+      fileUrl = [fileUrl]
+    }
+    _files[type] = _files[type].concat(fileUrl)
     setFiles(_files)
   }
   const scrollBottom = () => {
@@ -614,6 +682,7 @@ export const useDetailData = () => {
   })
 
   return {
+    orderTypeScope,
     loading,
     form,
     nodes,

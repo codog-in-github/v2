@@ -9,6 +9,7 @@ import { EXPORT_NODE_NAMES } from "@/constant";
 import { Popover } from "antd";
 import { Link } from "react-router-dom";
 import { Form } from "antd";
+import {useSelector} from "react-redux";
 
 const nodeNames = Object.values(EXPORT_NODE_NAMES)
 
@@ -32,12 +33,14 @@ const usePaginationRef = () => {
   return { pagination, set , get }
 }
 const useOrderList = (pagination, filterForm) => {
+  const orderType = useSelector(state => state.order.type)
   const [list, setList] = useState([])
   const [getList, loading] = useAsyncCallback(async () => {
     const rep = await request('/admin/order/list')
       .get({
         ...pagination.get(),
         ...filterForm.getFieldsValue(),
+        'order_type': orderType
       }).paginate().send()
     pagination.set({ total: rep.total, })
     setList(rep.data.map(item => ({

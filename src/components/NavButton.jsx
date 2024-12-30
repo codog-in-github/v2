@@ -10,6 +10,7 @@ export function NavButton(props) {
   const staticClass = ['nav-button relative', vertical && 'mb-4']
   return (
     <NavLink
+      style={props.style}
       to={props.to}
       className={({isActive}) => classNames(staticClass, { active: isActive })}
     >

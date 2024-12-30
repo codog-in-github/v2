@@ -2,7 +2,7 @@ import { request } from "@/apis/requestBuilder.js";
 import {useEffect, useState, useRef, useCallback} from "react";
 import { useAsyncCallback } from "@/hooks/index.js";
 import SkeletonList from "@/components/SkeletonList.jsx";
-import { ACC_JOB_TYPE_BL, ACC_JOB_TYPE_SEA } from "@/constant/index.js";
+import {ACC_JOB_TYPE_BL, ACC_JOB_TYPE_OTHER, ACC_JOB_TYPE_SEA} from "@/constant/index.js";
 import Card from "./Card.jsx";
 import dayjs from "dayjs";
 import CompModal from "./CompModal.jsx";
@@ -39,6 +39,10 @@ const groups = [
   {
     key: ACC_JOB_TYPE_BL,
     title: '海上部分',
+  },
+  {
+    key: ACC_JOB_TYPE_OTHER,
+    title: '海上-其他费用',
   },
 ]
 

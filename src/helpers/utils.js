@@ -1,4 +1,4 @@
-import {isString} from "lodash";
+import {cloneDeep, isString} from "lodash";
 import {Modal} from "antd";
 
 /**
@@ -38,7 +38,6 @@ export function loadJs(src) {
     document.head.appendChild(script);
   });
 }
-
 /**
  * @param {Function[]} funcs
  */
@@ -54,10 +53,12 @@ export const pipe = (...funcs) => {
 
 /**
  * 创建一个包装函数，用于调用另一个函数后返回相同的参数。
- * 这个包装函数的主要作用是让被包装的函数能够先处理参数，然后允许调用者继续使用未经修改的参数。
+ * 这个包装函数的主要作用是让被包装的函数能够先处理参数，
+ * 然后允许调用者继续使用未经修改的参数。
  *
  * @param {Function} func - 被包装的函数，它将接收一个参数并对其进行处理。
- * @returns {Function} 返回一个新的函数，这个函数接收一个参数，调用被包装的函数处理该参数后，再返回该参数。
+ * @returns {Function} 返回一个新的函数，这个函数接收一个参数，调用被包装的
+ * 函数处理该参数后，再返回该参数。
  */
 export const touch = (func) => {
   return (arg) => {
@@ -188,7 +189,6 @@ export const confirm = (message, options) => {
 /**
  * 将 Base64 字符串转换为 Blob 对象
  * @param base64
- * @param mimeType
  * @returns {Blob}
  */
 export const base64ToBlob = (base64) => {
@@ -205,9 +205,7 @@ export const base64ToBlob = (base64) => {
   let byteArray = new Uint8Array(byteNumbers);
 
   // 创建 Blob 对象
-  let blob = new Blob([byteArray], { type: mimeType });
-
-  return blob;
+  return new Blob([byteArray], {type: mimeType});
 }
 
 export const openLinkBlank = (url) => {

@@ -2,7 +2,7 @@ import { request } from "@/apis/requestBuilder"
 import { useAsyncCallback } from "@/hooks"
 import { LoadingOutlined } from "@ant-design/icons"
 import { Modal } from "antd"
-import { useEffect, useState } from "react"
+import {forwardRef, useEffect, useImperativeHandle, useState} from "react"
 import classNames from "classnames"
 import { basename } from "@/helpers"
 import { EXPORT_NODE_NAMES, MAIL_LOG_TYPE_ACC_PAY, MAIL_LOG_TYPE_NODE_CONFIRM } from "@/constant"
@@ -74,9 +74,7 @@ const MailRecord = ({ record }) => {
 
 }
 
-const MailDetail = ({
-                      modal
-                    }) => {
+const MailDetail = (props, ref) => {
   const [nodeId, setNodeId] = useState(null)
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState('')
@@ -87,15 +85,15 @@ const MailDetail = ({
       .send()
       .then(setContents)
   ))
-  if(modal) {
-    modal.current = {
-      open(id, type) {
-        setOpen(true)
-        setNodeId(id)
-        setTitle(`${EXPORT_NODE_NAMES[type]} - メール詳細`)
-      }
+
+  useImperativeHandle(ref, () => ({
+    open(id, type) {
+      setOpen(true)
+      setNodeId(id)
+      setTitle(`${EXPORT_NODE_NAMES[type]} - メール詳細`)
     }
-  }
+  }), [])
+
   useEffect(() => {
     if(nodeId) {
       getList(nodeId)
@@ -124,4 +122,4 @@ const MailDetail = ({
   )
 }
 
-export default MailDetail
+export default forwardRef(MailDetail)

@@ -9,7 +9,16 @@ import { useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import * as Icon from '@/components/Icon'
 import {useSelector, useStore} from 'react-redux';
-import { ORDER_TAB_STATUS_ACL, ORDER_TAB_STATUS_BL_COPY, ORDER_TAB_STATUS_CUSTOMER_DOCUMENTS, ORDER_TAB_STATUS_CUSTOMS, ORDER_TAB_STATUS_DRIVE, ORDER_TAB_STATUS_PO, ORDER_TAB_STATUS_SUR } from '@/constant';
+import {
+  ORDER_TAB_STATUS_ACL,
+  ORDER_TAB_STATUS_BL_COPY,
+  ORDER_TAB_STATUS_CUSTOMER_DOCUMENTS,
+  ORDER_TAB_STATUS_CUSTOMS,
+  ORDER_TAB_STATUS_DRIVE,
+  ORDER_TAB_STATUS_PO,
+  ORDER_TAB_STATUS_SUR,
+  ORDER_TYPE_EXPORT
+} from '@/constant';
 import { useEffect } from 'react';
 import pubSub from '@/helpers/pubSub';
 import { useState } from 'react';
@@ -30,16 +39,94 @@ const useLogout = () => {
     localStorage.removeItem('token')
   }, [navigate])
 }
+
+const ExportMenus = ({ badgeCounts }) => {
+  return (
+    <>
+      <NavButton to={`/ct/${ORDER_TAB_STATUS_PO}`} badge={badgeCounts[1]}>
+        <Icon.Po className="w-4 h-4 inline relative bottom-[2px]" />
+        <span className='ml-2'>PO</span>
+      </NavButton>
+      <NavButton to={`/ct/${ORDER_TAB_STATUS_DRIVE}`} badge={badgeCounts[2]}>
+        <Icon.Drive className="w-4 h-4 inline relative bottom-[2px]" />
+        <span className='ml-2'>DRIVE</span>
+      </NavButton>
+      <NavButton to={`/od/${ORDER_TAB_STATUS_CUSTOMS}`} badge={badgeCounts[3]}>
+        <Icon.GateDoc className="w-4 h-4 inline relative bottom-[2px]" />
+        <span className='ml-2'>通関資料</span>
+      </NavButton>
+      <NavButton to={`/od/${ORDER_TAB_STATUS_ACL}`} badge={badgeCounts[4]}>
+        <Icon.Acl className="w-4 h-4 inline relative bottom-[2px]" />
+        <span className='ml-2'>ACL</span>
+      </NavButton>
+      <NavButton to={`/od/${ORDER_TAB_STATUS_CUSTOMER_DOCUMENTS}`} badge={badgeCounts[5]}>
+        <Icon.Permission className="w-4 h-4 inline relative bottom-[2px]" />
+        <span className='ml-2'>許可</span>
+      </NavButton>
+      <NavButton to={`/od/${ORDER_TAB_STATUS_BL_COPY}`} badge={badgeCounts[6]}>
+        <Icon.BlCopy className="w-4 h-4 inline relative bottom-[2px]" />
+        <span className='ml-2'>BL COPY</span>
+      </NavButton>
+      <NavButton to={`/od/${ORDER_TAB_STATUS_SUR}`} badge={badgeCounts[7]}>
+        <Icon.Sur className="w-4 h-4 inline relative bottom-[2px]" />
+        <span className='ml-2'>SUR</span>
+      </NavButton>
+      <NavButton to="/rbl" badge={badgeCounts[8]}>
+        <Icon.RequestBook />
+        <span className='ml-2'>請求書</span>
+      </NavButton>
+    </>
+  )
+}
+
+const ImportMenus = ({ badgeCounts }) => {
+  return (
+    <>
+      <NavButton to={`/ct/12`} badge={badgeCounts[12]}>
+        <Icon.Po className="w-4 h-4 inline relative bottom-[2px]" />
+        <span className='ml-2'>配送依赖</span>
+      </NavButton>
+      <NavButton to={`/ct/13`} badge={badgeCounts[13]}>
+        <Icon.Drive className="w-4 h-4 inline relative bottom-[2px]" />
+        <span className='ml-2'>PO</span>
+      </NavButton>
+      <NavButton to={`/ct/14`} badge={badgeCounts[14]}>
+        <Icon.Drive className="w-4 h-4 inline relative bottom-[2px]" />
+        <span className='ml-2'>DRIVE</span>
+      </NavButton>
+      <NavButton to={`/ct/15`} badge={badgeCounts[15]}>
+        <Icon.Drive className="w-4 h-4 inline relative bottom-[2px]" />
+        <span className='ml-2'>通関依頼</span>
+      </NavButton>
+      <NavButton to={`/ct/16`} badge={badgeCounts[16]} style={{ '--nav-button-width': '150px' }}>
+        <Icon.Drive className="w-4 h-4 inline relative bottom-[2px]" />
+        <span className='ml-2'>D/O切り替え</span>
+      </NavButton>
+      <NavButton to={`/ct/17`} badge={badgeCounts[17]}>
+        <Icon.Drive className="w-4 h-4 inline relative bottom-[2px]" />
+        <span className='ml-2'>許可書送付</span>
+      </NavButton>
+      <NavButton to={`/rbl_i`} badge={badgeCounts[18]}>
+        <Icon.Drive className="w-4 h-4 inline relative bottom-[2px]" />
+        <span className='ml-2'>請求書作成</span>
+      </NavButton>
+    </>
+  )
+}
 const NavTopbar = ({ className }) => {
+  const username = useSelector(state => state.user.userInfo.name)
+  const unReadMsgCount = useSelector(state => state.user.message.unread)
+  const orderType = useSelector(state => state.order.type)
+
   const logoutHandle = useLogout()
   const [badgeCounts, setBadgeCounts] = useState([])
   const [updateBadge] = useAsyncCallback(async () => {
-    const data = await request('/admin/order/tabs_todo_total').get().send()
+    const url = orderType === ORDER_TYPE_EXPORT
+      ? '/admin/order/tabs_todo_total'
+      : '/admin/order/tabs_todo_total_import'
+    const data = await request(url).get({ order_type: orderType }).send()
     setBadgeCounts(data)
   })
-
-  const username = useSelector(state => state.user.userInfo.name)
-  const unReadMsgCount = useSelector(state => state.user.message.unread)
 
   useEffect(() => {
     pubSub.subscribe('Info.Order.Change', updateBadge)
@@ -50,7 +137,7 @@ const NavTopbar = ({ className }) => {
 
   useEffect(() => {
     updateBadge()
-  }, [updateBadge])
+  }, [updateBadge, orderType])
 
   return (
     <div className={classnames(c(''), 'bg-white flex items-center', className)}>
@@ -64,38 +151,13 @@ const NavTopbar = ({ className }) => {
           <Icon.Top classname="w-4 h-4 inline relative bottom-[3px]" />
           <span className='ml-2'>TOP</span>
         </NavButton>
-        <NavButton to={`/ct/${ORDER_TAB_STATUS_PO}`} badge={badgeCounts[1]}>
-            <Icon.Po className="w-4 h-4 inline relative bottom-[2px]" />
-            <span className='ml-2'>PO</span>
-        </NavButton>
-        <NavButton to={`/ct/${ORDER_TAB_STATUS_DRIVE}`} badge={badgeCounts[2]}>
-          <Icon.Drive className="w-4 h-4 inline relative bottom-[2px]" />
-          <span className='ml-2'>DRIVE</span>
-        </NavButton>
-        <NavButton to={`/od/${ORDER_TAB_STATUS_CUSTOMS}`} badge={badgeCounts[3]}>
-          <Icon.GateDoc className="w-4 h-4 inline relative bottom-[2px]" />
-          <span className='ml-2'>通関資料</span>
-        </NavButton>
-        <NavButton to={`/od/${ORDER_TAB_STATUS_ACL}`} badge={badgeCounts[4]}>
-          <Icon.Acl className="w-4 h-4 inline relative bottom-[2px]" />
-          <span className='ml-2'>ACL</span>
-        </NavButton>
-        <NavButton to={`/od/${ORDER_TAB_STATUS_CUSTOMER_DOCUMENTS}`} badge={badgeCounts[5]}>
-          <Icon.Permission className="w-4 h-4 inline relative bottom-[2px]" />
-          <span className='ml-2'>許可</span>
-        </NavButton>
-        <NavButton to={`/od/${ORDER_TAB_STATUS_BL_COPY}`} badge={badgeCounts[6]}>
-          <Icon.BlCopy className="w-4 h-4 inline relative bottom-[2px]" />
-          <span className='ml-2'>BL COPY</span>
-        </NavButton>
-        <NavButton to={`/od/${ORDER_TAB_STATUS_SUR}`} badge={badgeCounts[7]}>
-          <Icon.Sur className="w-4 h-4 inline relative bottom-[2px]" />
-          <span className='ml-2'>SUR</span>
-          </NavButton>
-        <NavButton to="/rbl" badge={badgeCounts[8]}>
-          <Icon.RequestBook />
-          <span className='ml-2'>請求書</span>
-        </NavButton>
+
+        { orderType === ORDER_TYPE_EXPORT ? (
+          <ExportMenus badgeCounts={badgeCounts}></ExportMenus>
+        ): (
+          <ImportMenus badgeCounts={badgeCounts}></ImportMenus>
+        ) }
+
       </NavButtonGroup>
 
       <div className="flex ml-auto pr-4">
