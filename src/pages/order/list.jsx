@@ -101,50 +101,44 @@ const columns = [
     title: "番号",
     dataIndex: "desi",
     key: "desi",
-    // sorter: (a, b) => a.age - b.age,
   },
   {
     title: "BKG No.",
     dataIndex: "bk",
     key: "bk",
-    // sorter: (a, b) => a.age - b.age,
   },
   {
     title: "CY CUT",
     dataIndex: "cyCut",
     key: "cut",
-    // sorter: (a, b) => a.age - b.age,
   },
   {
     title: "POL",
     dataIndex: "pol",
     key: "pol",
-    // sorter: (a, b) => a.age - b.age,
   },
   {
     title: "POD",
     dataIndex: "pod",
     key: "pod",
-    // sorter: (a, b) => a.age - b.age,
   },
   {
     title: "数量",
     dataIndex: "quantity",
     key: "quantity",
-    // sorter: (a, b) => a.age - b.age,
   },
-  {
-    title: "状態",
-    dataIndex: "status",
-    key: "status",
-    render: (status, row) => (
-      <div>
-        {status === 1 && <ColorTag color={row.color} />}
-        {status === 2 && <Tag color="red">未入账</Tag>}
-        {status === 3 && <Tag color="blue">已入账</Tag>}
-      </div>
-    ),
-  },
+  // {
+  //   title: "状態",
+  //   dataIndex: "status",
+  //   key: "status",
+  //   render: (status, row) => (
+  //     <div>
+  //       {status === 1 && <ColorTag color={row.color} />}
+  //       {status === 2 && <Tag color="red">未入账</Tag>}
+  //       {status === 3 && <Tag color="blue">已入账</Tag>}
+  //     </div>
+  //   ),
+  // },
   {
     title: "処理",
     dataIndex: "id",
